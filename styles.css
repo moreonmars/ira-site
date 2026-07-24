@@ -417,3 +417,16 @@ a[href],button,.text-link,.event[href],.overlay-nav a,.menu-foot a,.footer a{
 @media(max-width:760px){
   .gallery-image-link{cursor:auto!important}
 }
+
+
+/* Content update v14 — selected-work title hover */
+.work-meta h3{
+  transition:color .28s ease,transform .45s cubic-bezier(.22,1,.36,1);
+}
+.work-meta h3:hover,
+.work-meta h3:focus-visible{
+  color:var(--pink);
+}
+@media(max-width:760px){
+  .work-meta h3:hover{color:inherit}
+}
