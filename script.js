@@ -1,44 +1,6 @@
-const body = document.body;
-const overlay = document.querySelector('#menuOverlay');
-const openButtons = document.querySelectorAll('.menu-button');
-const closeButton = document.querySelector('.menu-close');
 
-function openMenu() {
-  overlay?.classList.add('is-open');
-  overlay?.setAttribute('aria-hidden', 'false');
-  openButtons.forEach(button => button.setAttribute('aria-expanded', 'true'));
-  body.classList.add('menu-open');
-}
-function closeMenu() {
-  overlay?.classList.remove('is-open');
-  overlay?.setAttribute('aria-hidden', 'true');
-  openButtons.forEach(button => button.setAttribute('aria-expanded', 'false'));
-  body.classList.remove('menu-open');
-}
-openButtons.forEach(button => button.addEventListener('click', openMenu));
-closeButton?.addEventListener('click', closeMenu);
-overlay?.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
-document.addEventListener('keydown', event => { if (event.key === 'Escape') closeMenu(); });
-
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
-}, { threshold: 0.12 });
-document.querySelectorAll('.reveal').forEach(element => observer.observe(element));
-
-const cursor = document.querySelector('.cursor');
-if (cursor && window.matchMedia('(pointer:fine)').matches) {
-  window.addEventListener('mousemove', event => {
-    cursor.style.left = `${event.clientX}px`;
-    cursor.style.top = `${event.clientY}px`;
-  });
-  document.querySelectorAll('.magnetic').forEach(item => {
-    item.addEventListener('mouseenter', () => cursor.classList.add('show'));
-    item.addEventListener('mouseleave', () => cursor.classList.remove('show'));
-  });
-}
-
-const heroImage = document.querySelector('.hero-media');
-window.addEventListener('scroll', () => {
-  if (!heroImage) return;
-  heroImage.style.transform = `scale(1.03) translateY(${window.scrollY * 0.055}px)`;
-}, { passive: true });
+const menu=document.querySelector('.menu-overlay'),openBtn=document.querySelector('.menu-button'),closeBtn=document.querySelector('.menu-close');
+function setMenu(v){if(!menu)return;menu.classList.toggle('is-open',v);menu.setAttribute('aria-hidden',String(!v));if(openBtn)openBtn.setAttribute('aria-expanded',String(v));document.body.style.overflow=v?'hidden':''}
+openBtn?.addEventListener('click',()=>setMenu(true));closeBtn?.addEventListener('click',()=>setMenu(false));document.querySelectorAll('.overlay-nav a').forEach(a=>a.addEventListener('click',()=>setMenu(false)));
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')}),{threshold:.08});document.querySelectorAll('.reveal').forEach(x=>io.observe(x));
+const cursor=document.querySelector('.cursor');if(cursor){window.addEventListener('mousemove',e=>{cursor.style.left=e.clientX+'px';cursor.style.top=e.clientY+'px'});document.querySelectorAll('.magnetic').forEach(x=>{x.addEventListener('mouseenter',()=>cursor.classList.add('visible'));x.addEventListener('mouseleave',()=>cursor.classList.remove('visible'))})}
