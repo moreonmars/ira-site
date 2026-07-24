@@ -83,11 +83,9 @@
         const rect = surface.getBoundingClientRect();
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
-        const renderedWidth = image.clientWidth;
-        const renderedHeight = image.clientHeight;
         lens.style.left = `${x}px`;
         lens.style.top = `${y}px`;
-        lens.style.backgroundSize = `${renderedWidth}px ${renderedHeight}px`;
+        lens.style.backgroundSize = `${image.clientWidth}px ${image.clientHeight}px`;
         lens.style.backgroundPosition = `${-x + 66}px ${-y + 66}px`;
       };
 
@@ -111,9 +109,20 @@
     cursor?.remove();
   }
 
-  // Menu hover panels are handled entirely in CSS.
-
   document.querySelectorAll('.event').forEach((event, index) => {
     event.style.setProperty('--event-index', index);
+  });
+
+  // Every work-page gallery image opens its original file in a new tab.
+  document.querySelectorAll('.gallery figure img').forEach(image => {
+    if (image.closest('a.gallery-image-link')) return;
+    const link = document.createElement('a');
+    link.className = 'gallery-image-link';
+    link.href = image.currentSrc || image.src;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.setAttribute('aria-label', image.alt ? `Open full-size image: ${image.alt}` : 'Open full-size image');
+    image.parentNode.insertBefore(link, image);
+    link.appendChild(image);
   });
 })();
