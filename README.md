@@ -1,27 +1,5 @@
-# Performance Artist Website
+# Ira Kharlamova website
 
-Готовий статичний прототип персонального сайту артистки перформансу.
+Static portfolio website for Vercel.
 
-## Файли
-- `index.html` — головна сторінка
-- `work.html` — сторінка окремого перформансу
-- `styles.css` — весь дизайн і адаптивність
-- `script.js` — меню, анімації, курсор і паралакс
-
-## Як запустити
-Відкрийте `index.html` подвійним кліком або запустіть локальний сервер:
-
-```bash
-python3 -m http.server 8080
-```
-
-Потім відкрийте `http://localhost:8080`.
-
-## Що замінити
-У файлах `index.html` та `work.html` замініть:
-- ім’я артистки;
-- біографію та statement;
-- назви й описи робіт;
-- дати та місця подій;
-- email і соціальні мережі;
-- URL фотографій на власні медіафайли.
+Upload the contents of this folder to the root of the GitHub repository. `index.html` must be visible in the repository root.
