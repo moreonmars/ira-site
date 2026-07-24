@@ -238,3 +238,107 @@ a[href],button,.text-link,.event[href],.overlay-nav a,.menu-foot a,.footer a{cur
   .overlay-nav a:hover,.overlay-nav a:focus-visible{padding-left:.035em}
   .overlay-nav a::before{display:none}
 }
+/* Interaction correction v12 — selection + pointer cursor only */
+
+/* Default text selection: pink highlight with black text. */
+::selection{
+  background:#ff5cad;
+  color:#0b0b0b;
+  text-shadow:none;
+}
+::-moz-selection{
+  background:#ff5cad;
+  color:#0b0b0b;
+  text-shadow:none;
+}
+
+/* On pink surfaces use a black selection so selected text stays visible. */
+.manifesto ::selection,
+.ticker ::selection,
+.footer ::selection,
+.project-footer ::selection,
+.menu-overlay ::selection{
+  background:#0b0b0b;
+  color:#fff;
+  text-shadow:none;
+}
+.manifesto ::-moz-selection,
+.ticker ::-moz-selection,
+.footer ::-moz-selection,
+.project-footer ::-moz-selection,
+.menu-overlay ::-moz-selection{
+  background:#0b0b0b;
+  color:#fff;
+  text-shadow:none;
+}
+
+/* Restore the original small arrow beside work titles; do not redesign it. */
+.work-meta h3::after{
+  content:"↗";
+  width:auto;
+  height:auto;
+  flex:0 0 auto;
+  background:none;
+  font-family:"IBM Plex Mono",monospace;
+  font-size:.45em;
+  line-height:1;
+  font-weight:500;
+  color:var(--pink);
+  opacity:1;
+  transform:none;
+  text-shadow:none;
+  transition:transform .35s cubic-bezier(.22,1,.36,1),color .25s ease;
+}
+.work-card:hover .work-meta h3::after,
+.work-card:focus-visible .work-meta h3::after{
+  transform:translate(3px,-3px);
+  color:var(--pink);
+}
+
+/* Trackpad/mouse pointer: slim diagonal arrow, black inside CV and pink sections. */
+:root{
+  --arrow-cursor-pink:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cpath d='M5 25L24 6M12 6h12v12' fill='none' stroke='%23ff5cad' stroke-width='3' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E") 5 25;
+  --arrow-cursor-black:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cpath d='M5 25L24 6M12 6h12v12' fill='none' stroke='%230b0b0b' stroke-width='3' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E") 5 25;
+  --arrow-cursor-white:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cpath d='M5 25L24 6M12 6h12v12' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E") 5 25;
+}
+
+/* Ordinary text links use the pink arrow pointer. */
+a[href],button,.text-link,.event[href],.overlay-nav a,.menu-foot a,.footer a{
+  cursor:var(--arrow-cursor-pink),pointer;
+}
+
+/* On the black CV section the pointer itself is black, as requested. */
+.current a,
+.current .event[href],
+.current button{
+  cursor:var(--arrow-cursor-black),pointer !important;
+}
+
+/* On pink surfaces use a black pointer for clear contrast. */
+.manifesto a,
+.ticker a,
+.footer a,
+.project-footer a,
+.menu-overlay a,
+.menu-overlay button{
+  cursor:var(--arrow-cursor-black),pointer !important;
+}
+
+/* Header is over photography, so keep the white pointer there. */
+.site-header a,
+.site-header button{
+  cursor:var(--arrow-cursor-white),pointer !important;
+}
+
+/* Photo cards still use only the VIEW lens, never the text arrow pointer. */
+.media-wrap,
+.media-wrap *{
+  cursor:none!important;
+}
+
+@media(max-width:760px){
+  a[href],button,.text-link,.event[href],.overlay-nav a,.menu-foot a,.footer a,
+  .site-header a,.site-header button,.current a,.manifesto a,.ticker a,.project-footer a,.menu-overlay a,.menu-overlay button{
+    cursor:auto!important;
+  }
+}
