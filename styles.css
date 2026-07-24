@@ -67,3 +67,110 @@ button,a{-webkit-tap-highlight-color:transparent}
 }
 
 .event[href]{color:inherit;text-decoration:none}
+
+
+/* Interaction refinement v6 */
+/* VIEW exists only above image surfaces */
+.custom-cursor-active{cursor:auto}
+.custom-cursor-active .media-wrap,
+.custom-cursor-active .media-wrap *{cursor:none}
+.cursor{
+  width:132px;
+  height:132px;
+  background:rgba(255,92,173,.2);
+  border:1.5px solid rgba(255,255,255,.92);
+  color:#fff;
+  backdrop-filter:saturate(1.35) contrast(1.15);
+  -webkit-backdrop-filter:saturate(1.35) contrast(1.15);
+  box-shadow:0 10px 38px rgba(0,0,0,.18),inset 0 0 0 1px rgba(0,0,0,.12);
+  overflow:hidden;
+}
+.cursor::before{
+  content:"";
+  position:absolute;
+  inset:8px;
+  border:1px solid rgba(255,255,255,.34);
+  border-radius:50%;
+}
+.cursor span{position:relative;z-index:2;text-shadow:0 1px 8px rgba(0,0,0,.35)}
+
+.media-wrap{isolation:isolate}
+.media-wrap::after{display:none}
+.xray-lens{
+  position:absolute;
+  z-index:3;
+  width:132px;
+  height:132px;
+  left:0;
+  top:0;
+  border-radius:50%;
+  pointer-events:none;
+  opacity:0;
+  transform:translate(-50%,-50%) scale(.72);
+  background-repeat:no-repeat;
+  filter:invert(.82) hue-rotate(155deg) saturate(2.25) contrast(1.18);
+  mix-blend-mode:screen;
+  transition:opacity .18s ease,transform .32s cubic-bezier(.22,1,.36,1);
+  will-change:left,top,background-position,transform;
+}
+.media-wrap.is-lens-active .xray-lens{opacity:.92;transform:translate(-50%,-50%) scale(1)}
+.media-wrap.is-lens-active img{transform:scale(1.025)}
+
+/* Text links use arrows instead of the VIEW cursor */
+.work-meta h3{display:flex;justify-content:flex-end;align-items:flex-end;gap:.18em}
+.work-meta h3::after{
+  content:"↗";
+  flex:0 0 auto;
+  font-family:"IBM Plex Mono",monospace;
+  font-size:.45em;
+  line-height:1;
+  font-weight:500;
+  transform:translate(-5px,5px);
+  opacity:0;
+  transition:opacity .25s ease,transform .45s cubic-bezier(.22,1,.36,1);
+}
+.work-card:hover .work-meta h3::after{opacity:1;transform:translate(0,0)}
+.work-card:hover .work-meta h3{transform:none}
+
+.event[href]{cursor:pointer}
+.event[href]>span:last-child{
+  font-size:22px;
+  transform:rotate(0deg);
+  transition:transform .45s cubic-bezier(.22,1,.36,1),opacity .25s ease;
+}
+.event[href]:hover>span:last-child{transform:translate(5px,-5px) rotate(8deg)}
+.text-link{padding-right:30px;text-decoration:none}
+.text-link::before{
+  content:"↗";
+  position:absolute;
+  right:2px;
+  top:50%;
+  transform:translateY(-58%);
+  font-size:18px;
+  transition:transform .4s cubic-bezier(.22,1,.36,1);
+}
+.text-link:hover::before{transform:translate(6px,-85%)}
+
+/* Full menu changes its field color per item */
+.menu-overlay{
+  --menu-base:var(--pink);
+  background:var(--menu-base);
+  transition:transform .7s cubic-bezier(.76,0,.24,1),opacity .25s ease,visibility 0s linear .7s,background-color .55s cubic-bezier(.22,1,.36,1);
+}
+.menu-overlay.is-open{transition-delay:0s}
+.overlay-nav a::after{display:none}
+.overlay-nav a{
+  width:100%;
+  padding:.035em .02em;
+  transition:opacity .45s ease,transform .65s cubic-bezier(.22,1,.36,1),letter-spacing .4s cubic-bezier(.22,1,.36,1),color .35s ease;
+}
+.overlay-nav a:hover{letter-spacing:-.055em}
+.overlay-nav a:hover span{transform:translateX(12px) rotate(-8deg)}
+.menu-overlay.has-hover .overlay-nav a:not(:hover){opacity:.34}
+
+@media (max-width:760px){
+  .work-meta h3{justify-content:flex-start}
+  .work-meta h3::after{opacity:1;transform:none;font-size:.5em}
+  .xray-lens{display:none}
+  .menu-overlay.has-hover .overlay-nav a:not(:hover){opacity:1}
+}

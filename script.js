@@ -46,17 +46,20 @@
 
   const cursor = document.querySelector('.cursor');
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const mediaSurfaces = [...document.querySelectorAll('.media-wrap')];
+
   if (cursor && finePointer && !reducedMotion) {
     let targetX = window.innerWidth / 2;
     let targetY = window.innerHeight / 2;
     let currentX = targetX;
     let currentY = targetY;
+    let cursorVisible = false;
     let rafId = 0;
 
     const render = () => {
-      currentX += (targetX - currentX) * 0.22;
-      currentY += (targetY - currentY) * 0.22;
-      cursor.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) translate(-50%, -50%) scale(${cursor.classList.contains('visible') ? 1 : 0})`;
+      currentX += (targetX - currentX) * 0.24;
+      currentY += (targetY - currentY) * 0.24;
+      cursor.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) translate(-50%, -50%) scale(${cursorVisible ? 1 : 0})`;
       rafId = requestAnimationFrame(render);
     };
 
@@ -66,19 +69,61 @@
       if (!rafId) rafId = requestAnimationFrame(render);
     }, { passive: true });
 
-    document.querySelectorAll('[data-cursor], .magnetic').forEach(element => {
-      element.addEventListener('pointerenter', () => {
-        cursor.querySelector('span').textContent = element.dataset.cursor || 'VIEW';
+    mediaSurfaces.forEach(surface => {
+      const image = surface.querySelector('img');
+      if (!image) return;
+
+      const lens = document.createElement('span');
+      lens.className = 'xray-lens';
+      lens.setAttribute('aria-hidden', 'true');
+      lens.style.backgroundImage = `url("${image.currentSrc || image.src}")`;
+      surface.appendChild(lens);
+
+      const updateLens = event => {
+        const rect = surface.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        const renderedWidth = image.clientWidth;
+        const renderedHeight = image.clientHeight;
+        lens.style.left = `${x}px`;
+        lens.style.top = `${y}px`;
+        lens.style.backgroundSize = `${renderedWidth}px ${renderedHeight}px`;
+        lens.style.backgroundPosition = `${-x + 66}px ${-y + 66}px`;
+      };
+
+      surface.addEventListener('pointerenter', event => {
+        cursorVisible = true;
         cursor.classList.add('visible');
+        cursor.querySelector('span').textContent = 'VIEW';
         body.classList.add('custom-cursor-active');
+        surface.classList.add('is-lens-active');
+        updateLens(event);
       });
-      element.addEventListener('pointerleave', () => {
+      surface.addEventListener('pointermove', updateLens, { passive: true });
+      surface.addEventListener('pointerleave', () => {
+        cursorVisible = false;
         cursor.classList.remove('visible');
         body.classList.remove('custom-cursor-active');
+        surface.classList.remove('is-lens-active');
       });
     });
   } else {
     cursor?.remove();
+  }
+
+  const menuPalette = ['#ff5cad', '#d8ff57', '#6d72ff', '#ffd75c'];
+  if (menu) {
+    menuLinks.forEach((link, index) => {
+      link.addEventListener('pointerenter', () => {
+        if (!finePointer) return;
+        menu.classList.add('has-hover');
+        menu.style.backgroundColor = menuPalette[index % menuPalette.length];
+      });
+      link.addEventListener('pointerleave', () => {
+        menu.classList.remove('has-hover');
+        menu.style.backgroundColor = '';
+      });
+    });
   }
 
   document.querySelectorAll('.event').forEach((event, index) => {
