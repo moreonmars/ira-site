@@ -111,20 +111,7 @@
     cursor?.remove();
   }
 
-  const menuPalette = ['#ff5cad', '#d8ff57', '#6d72ff', '#ffd75c'];
-  if (menu) {
-    menuLinks.forEach((link, index) => {
-      link.addEventListener('pointerenter', () => {
-        if (!finePointer) return;
-        menu.classList.add('has-hover');
-        menu.style.backgroundColor = menuPalette[index % menuPalette.length];
-      });
-      link.addEventListener('pointerleave', () => {
-        menu.classList.remove('has-hover');
-        menu.style.backgroundColor = '';
-      });
-    });
-  }
+  // Menu hover panels are handled entirely in CSS.
 
   document.querySelectorAll('.event').forEach((event, index) => {
     event.style.setProperty('--event-index', index);
