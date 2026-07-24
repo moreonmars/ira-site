@@ -25,3 +25,4 @@ python3 -m http.server 8080
 - дати та місця подій;
 - email і соціальні мережі;
 - URL фотографій на власні медіафайли.
+Ira Kharlamova website
