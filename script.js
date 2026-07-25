@@ -294,7 +294,7 @@
     else if (menu?.classList.contains('is-open')) setMenu(false);
   });
 
-  /* Project transition: one x-ray image expands, then the title takes the frame. */
+  /* Project transition: the card image and its title land on the work-page hero. */
   if (!reducedMotion) {
     const canTransition = link => {
       if (!link || link.target === '_blank' || link.hasAttribute('download')) return false;
@@ -306,11 +306,14 @@
       link.addEventListener('click', event => {
         if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || !canTransition(link)) return;
         const image = link.querySelector('.media-wrap img');
-        const title = link.querySelector('.work-meta h3')?.textContent?.trim();
-        if (!image || !title) return;
+        const titleElement = link.querySelector('.work-meta h3');
+        const title = titleElement?.textContent?.trim();
+        if (!image || !title || !titleElement) return;
 
         event.preventDefault();
-        const rect = image.getBoundingClientRect();
+        const imageRect = image.getBoundingClientRect();
+        const titleRect = titleElement.getBoundingClientRect();
+        const titleStyles = getComputedStyle(titleElement);
         const overlay = document.createElement('div');
         overlay.className = 'project-transition';
         overlay.setAttribute('aria-hidden', 'true');
@@ -318,25 +321,67 @@
         transitionImage.className = 'project-transition-image';
         transitionImage.alt = '';
         transitionImage.src = image.currentSrc || image.src;
-        transitionImage.style.left = `${rect.left}px`;
-        transitionImage.style.top = `${rect.top}px`;
-        transitionImage.style.width = `${rect.width}px`;
-        transitionImage.style.height = `${rect.height}px`;
+        transitionImage.style.left = `${imageRect.left}px`;
+        transitionImage.style.top = `${imageRect.top}px`;
+        transitionImage.style.width = `${imageRect.width}px`;
+        transitionImage.style.height = `${imageRect.height}px`;
         transitionImage.style.objectPosition = getComputedStyle(image).objectPosition;
         const shade = document.createElement('div');
         shade.className = 'project-transition-shade';
         const transitionTitle = document.createElement('div');
         transitionTitle.className = 'project-transition-title';
         transitionTitle.textContent = title;
+        Object.assign(transitionTitle.style, {
+          left: `${titleRect.left}px`,
+          top: `${titleRect.top}px`,
+          width: `${titleRect.width}px`,
+          fontSize: titleStyles.fontSize,
+          lineHeight: titleStyles.lineHeight,
+          letterSpacing: titleStyles.letterSpacing,
+          color: titleStyles.color,
+        });
         overlay.append(transitionImage, shade, transitionTitle);
         body.appendChild(overlay);
         body.classList.add('is-transitioning');
 
+        const isMobile = window.innerWidth <= 760;
+        const horizontalInset = isMobile ? 16 : window.innerWidth * 0.025;
+        const bottomInset = window.innerHeight * (isMobile ? 0.05 : 0.04);
+        const finalWidth = window.innerWidth - horizontalInset * 2;
+        const finalFontSize = isMobile
+          ? window.innerWidth * 0.16
+          : Math.min(190, Math.max(56, window.innerWidth * 0.11));
+        const titleMeasure = transitionTitle.cloneNode(true);
+        Object.assign(titleMeasure.style, {
+          visibility: 'hidden',
+          left: `${horizontalInset}px`,
+          top: '-10000px',
+          width: `${finalWidth}px`,
+          fontSize: `${finalFontSize}px`,
+          lineHeight: '0.76',
+          letterSpacing: '-0.075em',
+        });
+        body.appendChild(titleMeasure);
+        const finalHeight = titleMeasure.getBoundingClientRect().height;
+        titleMeasure.remove();
+        const finalTop = window.innerHeight - bottomInset - finalHeight;
+
         requestAnimationFrame(() => {
           overlay.classList.add('is-active');
-          requestAnimationFrame(() => overlay.classList.add('is-expanded'));
+          requestAnimationFrame(() => {
+            overlay.classList.add('is-expanded');
+            Object.assign(transitionTitle.style, {
+              left: `${horizontalInset}px`,
+              top: `${finalTop}px`,
+              width: `${finalWidth}px`,
+              fontSize: `${finalFontSize}px`,
+              lineHeight: '0.76',
+              letterSpacing: '-0.075em',
+              color: 'var(--pink)',
+            });
+          });
         });
-        window.setTimeout(() => { window.location.assign(link.href); }, 700);
+        window.setTimeout(() => { window.location.assign(link.href); }, 680);
       });
     });
   }
