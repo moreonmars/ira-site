@@ -4,9 +4,9 @@
   --paper: #f2efe9;
   --black: #0b0b0b;
   --line: rgba(10, 10, 10, 0.22);
-  --cursor-pink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='42' height='42' viewBox='0 0 42 42'%3E%3Cpath d='m5 4 32 14-13 4-5 14L5 4Z' fill='%237b1547' transform='translate(2 2)' opacity='.78'/%3E%3Cpath d='m5 4 32 14-13 4-5 14L5 4Z' fill='%23ff5cad'/%3E%3C/svg%3E") 5 4;
-  --cursor-white: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='42' height='42' viewBox='0 0 42 42'%3E%3Cpath d='m5 4 32 14-13 4-5 14L5 4Z' fill='%23ff5cad' transform='translate(2 2)' opacity='.6'/%3E%3Cpath d='m5 4 32 14-13 4-5 14L5 4Z' fill='%23ffffff'/%3E%3C/svg%3E") 5 4;
-  --cursor-black: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='42' height='42' viewBox='0 0 42 42'%3E%3Cpath d='m5 4 32 14-13 4-5 14L5 4Z' fill='%23ffffff' transform='translate(2 2)' opacity='.42'/%3E%3Cpath d='m5 4 32 14-13 4-5 14L5 4Z' fill='%230b0b0b'/%3E%3C/svg%3E") 5 4;
+  --cursor-pink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M6 34 33 7M17 7h16v16' fill='none' stroke='%237b1547' stroke-width='6' stroke-linecap='square' stroke-linejoin='miter' transform='translate(2 2)' opacity='.8'/%3E%3Cpath d='M6 34 33 7M17 7h16v16' fill='none' stroke='%23ff5cad' stroke-width='4.5' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E") 6 34;
+  --cursor-white: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M6 34 33 7M17 7h16v16' fill='none' stroke='%23ff5cad' stroke-width='6' stroke-linecap='square' stroke-linejoin='miter' transform='translate(2 2)' opacity='.55'/%3E%3Cpath d='M6 34 33 7M17 7h16v16' fill='none' stroke='%23ffffff' stroke-width='4.5' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E") 6 34;
+  --cursor-black: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M6 34 33 7M17 7h16v16' fill='none' stroke='%23ffffff' stroke-width='6' stroke-linecap='square' stroke-linejoin='miter' transform='translate(2 2)' opacity='.35'/%3E%3Cpath d='M6 34 33 7M17 7h16v16' fill='none' stroke='%230b0b0b' stroke-width='4.5' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E") 6 34;
 }
 
 * { box-sizing: border-box; }
@@ -78,7 +78,52 @@ a { color: inherit; }
   .site-header .language,
   .site-header .menu-button,
   .back-link { cursor: var(--cursor-pink), pointer !important; }
+
+  html.has-arrow-cursor,
+  html.has-arrow-cursor * { cursor: none !important; }
 }
+
+/* Persistent desktop arrow. It becomes larger and gains a square accent on links. */
+.site-arrow-cursor {
+  position: fixed;
+  z-index: 89;
+  top: 0;
+  left: 0;
+  width: 42px;
+  height: 42px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(-100px, -100px, 0);
+  transition: opacity 0.16s ease;
+  will-change: transform;
+}
+.site-arrow-cursor::before {
+  position: absolute;
+  inset: 2px;
+  border: 1px solid var(--pink);
+  background: rgba(255, 92, 173, 0.16);
+  content: "";
+  opacity: 0;
+  transform: scale(0.45) rotate(-8deg);
+  transition: opacity 0.18s ease, transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.site-arrow-cursor svg {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform-origin: 6px 34px;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease;
+}
+.site-arrow-cursor.is-visible { opacity: 1; }
+.site-arrow-cursor.is-active::before { opacity: 1; transform: scale(1) rotate(-8deg); }
+.site-arrow-cursor.is-active svg {
+  filter: drop-shadow(3px 4px 0 var(--pink-deep));
+  transform: scale(1.25) translate(-1px, -1px);
+}
+.site-arrow-cursor.is-over-media { opacity: 0; }
 
 .site-header {
   position: fixed;

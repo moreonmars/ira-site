@@ -44,6 +44,49 @@
     event.style.setProperty('--event-index', index);
   });
 
+  /* Persistent arrow: quiet by default, stronger over any interactive element. */
+  let siteArrowCursor = null;
+  if (finePointer && !reducedMotion) {
+    siteArrowCursor = document.createElement('div');
+    siteArrowCursor.className = 'site-arrow-cursor';
+    siteArrowCursor.setAttribute('aria-hidden', 'true');
+    siteArrowCursor.innerHTML = `
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <path d="M6 34 33 7M17 7h16v16" fill="none" stroke="#7b1547" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter" transform="translate(2 2)" opacity=".8"/>
+        <path d="M6 34 33 7M17 7h16v16" fill="none" stroke="#ff5cad" stroke-width="4.5" stroke-linecap="square" stroke-linejoin="miter"/>
+      </svg>`;
+    body.appendChild(siteArrowCursor);
+    document.documentElement.classList.add('has-arrow-cursor');
+
+    let targetX = -100;
+    let targetY = -100;
+    let currentX = targetX;
+    let currentY = targetY;
+    let arrowFrame = 0;
+    const drawArrow = () => {
+      currentX += (targetX - currentX) * 0.32;
+      currentY += (targetY - currentY) * 0.32;
+      siteArrowCursor.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+      arrowFrame = requestAnimationFrame(drawArrow);
+    };
+    const setArrowState = target => {
+      const element = target instanceof Element ? target : null;
+      const overMedia = Boolean(element?.closest('.media-wrap'));
+      const interactive = Boolean(element?.closest('a[href], button, [role="button"], .gallery figure img'));
+      siteArrowCursor.classList.toggle('is-over-media', overMedia);
+      siteArrowCursor.classList.toggle('is-active', interactive && !overMedia);
+    };
+    window.addEventListener('pointermove', event => {
+      targetX = event.clientX;
+      targetY = event.clientY;
+      siteArrowCursor.classList.add('is-visible');
+      setArrowState(event.target);
+      if (!arrowFrame) arrowFrame = requestAnimationFrame(drawArrow);
+    }, { passive: true });
+    document.documentElement.addEventListener('pointerleave', () => siteArrowCursor.classList.remove('is-visible'));
+    document.documentElement.addEventListener('pointerenter', () => siteArrowCursor.classList.add('is-visible'));
+  }
+
   /* VIEW lens: used only over image cards. */
   const viewCursor = document.querySelector('.cursor');
   const mediaSurfaces = [...document.querySelectorAll('.media-wrap')];
