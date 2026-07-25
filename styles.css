@@ -4,9 +4,9 @@
   --paper: #f2efe9;
   --black: #0b0b0b;
   --line: rgba(10, 10, 10, 0.22);
-  --cursor-pink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M6 34 33 7M17 7h16v16' fill='none' stroke='%237b1547' stroke-width='6' stroke-linecap='square' stroke-linejoin='miter' transform='translate(2 2)' opacity='.8'/%3E%3Cpath d='M6 34 33 7M17 7h16v16' fill='none' stroke='%23ff5cad' stroke-width='4.5' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E") 6 34;
-  --cursor-white: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M6 34 33 7M17 7h16v16' fill='none' stroke='%23ff5cad' stroke-width='6' stroke-linecap='square' stroke-linejoin='miter' transform='translate(2 2)' opacity='.55'/%3E%3Cpath d='M6 34 33 7M17 7h16v16' fill='none' stroke='%23ffffff' stroke-width='4.5' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E") 6 34;
-  --cursor-black: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M6 34 33 7M17 7h16v16' fill='none' stroke='%23ffffff' stroke-width='6' stroke-linecap='square' stroke-linejoin='miter' transform='translate(2 2)' opacity='.35'/%3E%3Cpath d='M6 34 33 7M17 7h16v16' fill='none' stroke='%230b0b0b' stroke-width='4.5' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E") 6 34;
+  --cursor-pink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='42' height='42' viewBox='0 0 42 42'%3E%3Cpath d='m5 4 32 14-13 4-5 14L5 4Z' fill='%237b1547' transform='translate(2 2)' opacity='.78'/%3E%3Cpath d='m5 4 32 14-13 4-5 14L5 4Z' fill='%23ff5cad'/%3E%3C/svg%3E") 5 4;
+  --cursor-white: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='42' height='42' viewBox='0 0 42 42'%3E%3Cpath d='m5 4 32 14-13 4-5 14L5 4Z' fill='%23ff5cad' transform='translate(2 2)' opacity='.6'/%3E%3Cpath d='m5 4 32 14-13 4-5 14L5 4Z' fill='%23ffffff'/%3E%3C/svg%3E") 5 4;
+  --cursor-black: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='42' height='42' viewBox='0 0 42 42'%3E%3Cpath d='m5 4 32 14-13 4-5 14L5 4Z' fill='%23ffffff' transform='translate(2 2)' opacity='.42'/%3E%3Cpath d='m5 4 32 14-13 4-5 14L5 4Z' fill='%230b0b0b'/%3E%3C/svg%3E") 5 4;
 }
 
 * { box-sizing: border-box; }
@@ -71,6 +71,13 @@ a { color: inherit; }
 @media (hover: hover) and (pointer: fine) {
   a[href],
   button { cursor: var(--cursor-pink), pointer; }
+
+  /* The fixed header needs an explicit rule: mix-blend-mode can otherwise
+     make browser cursor inheritance inconsistent across its children. */
+  .site-header .wordmark,
+  .site-header .language,
+  .site-header .menu-button,
+  .back-link { cursor: var(--cursor-pink), pointer !important; }
 }
 
 .site-header {
