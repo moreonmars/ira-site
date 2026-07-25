@@ -296,44 +296,61 @@
     setGalleryMode('scroll');
   }
 
-  /* Performatative page transition for internal navigation */
+  /* X-ray image + expanding title transition for work cards only */
   if (!reducedMotion) {
-    const transition = document.createElement('div');
-    transition.className = 'page-transition';
-    transition.setAttribute('aria-hidden', 'true');
-    transition.innerHTML = '<div class="page-transition-label"></div>';
-    body.appendChild(transition);
-    const transitionLabel = transition.querySelector('.page-transition-label');
+    const workLinks = [...document.querySelectorAll('a.work-card[href]')];
 
-    // Brief reveal on every fresh page load.
-    transition.classList.add('is-entering');
-    requestAnimationFrame(() => requestAnimationFrame(() => transition.classList.add('is-revealed')));
-    window.setTimeout(() => transition.classList.remove('is-entering', 'is-revealed'), 900);
-
-    const isInternalPageLink = link => {
+    const isUsableWorkLink = link => {
       if (!link || link.target === '_blank' || link.hasAttribute('download')) return false;
       const href = link.getAttribute('href');
-      if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('javascript:')) return false;
+      if (!href || href.startsWith('#')) return false;
       const url = new URL(link.href, window.location.href);
       return url.origin === window.location.origin && url.href !== window.location.href;
     };
 
-    document.addEventListener('click', event => {
-      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-      const link = event.target.closest('a[href]');
-      if (!isInternalPageLink(link)) return;
-      event.preventDefault();
+    workLinks.forEach(link => {
+      link.addEventListener('click', event => {
+        if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        if (!isUsableWorkLink(link)) return;
 
-      const x = `${event.clientX}px`;
-      const y = `${event.clientY}px`;
-      transition.style.setProperty('--transition-x', x);
-      transition.style.setProperty('--transition-y', y);
-      transitionLabel.textContent = link.querySelector('h3, .event-title')?.textContent?.trim() || link.textContent.trim() || 'IRA KHARLAMOVA';
-      transition.classList.add('is-leaving');
-      body.classList.remove('menu-open');
-      window.setTimeout(() => { window.location.href = link.href; }, 680);
+        const sourceImage = link.querySelector('.media-wrap img');
+        const title = link.querySelector('.work-meta h3')?.textContent?.trim();
+        if (!sourceImage || !title) return;
+
+        event.preventDefault();
+        const rect = sourceImage.getBoundingClientRect();
+        const overlay = document.createElement('div');
+        overlay.className = 'cinematic-transition';
+        overlay.setAttribute('aria-hidden', 'true');
+        overlay.innerHTML = `
+          <img class="cinematic-transition-image" alt="">
+          <div class="cinematic-transition-shade"></div>
+          <div class="cinematic-transition-title">${title.replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[character]))}</div>
+          <div class="cinematic-transition-flash"></div>`;
+
+        const clone = overlay.querySelector('.cinematic-transition-image');
+        clone.src = sourceImage.currentSrc || sourceImage.src;
+        clone.style.left = `${rect.left}px`;
+        clone.style.top = `${rect.top}px`;
+        clone.style.width = `${rect.width}px`;
+        clone.style.height = `${rect.height}px`;
+        clone.style.objectPosition = getComputedStyle(sourceImage).objectPosition;
+
+        body.appendChild(overlay);
+        body.classList.add('cinematic-transition-active');
+        requestAnimationFrame(() => {
+          overlay.classList.add('is-active');
+          requestAnimationFrame(() => overlay.classList.add('is-expanded'));
+        });
+
+        window.setTimeout(() => { window.location.href = link.href; }, 790);
+      });
     });
 
-    window.addEventListener('pageshow', () => transition.classList.remove('is-leaving'));
+    window.addEventListener('pageshow', () => {
+      body.classList.remove('cinematic-transition-active');
+      document.querySelectorAll('.cinematic-transition').forEach(item => item.remove());
+    });
   }
+
 })();

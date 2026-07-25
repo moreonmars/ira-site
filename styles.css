@@ -504,3 +504,154 @@ body.lightbox-open{overflow:hidden}
 @media(prefers-reduced-motion:reduce){
   .page-transition{display:none!important}
 }
+
+
+/* =========================================================
+   V18 — restored interaction rules + x-ray title transition
+   ========================================================= */
+
+/* Text selection: visible on every page and background. */
+::selection,
+*::selection{
+  background:#ff5cad!important;
+  color:#0b0b0b!important;
+  -webkit-text-fill-color:#0b0b0b!important;
+  text-shadow:none!important;
+}
+::-moz-selection,
+*::-moz-selection{
+  background:#ff5cad!important;
+  color:#0b0b0b!important;
+  text-shadow:none!important;
+}
+.manifesto ::selection,
+.footer ::selection,
+.menu-overlay ::selection,
+.ticker ::selection,
+.gallery-mode-button.is-active::selection{
+  background:#0b0b0b!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+}
+.manifesto ::-moz-selection,
+.footer ::-moz-selection,
+.menu-overlay ::-moz-selection,
+.ticker ::-moz-selection{
+  background:#0b0b0b!important;
+  color:#fff!important;
+}
+
+/* Work titles: text itself turns pink; decorative title arrow stays unchanged. */
+.work-card .work-meta h3{
+  color:inherit;
+  transition:color .25s ease,transform .45s cubic-bezier(.22,1,.36,1)!important;
+}
+.work-card:hover .work-meta h3,
+.work-card:focus-visible .work-meta h3{
+  color:var(--pink)!important;
+}
+
+/* Strong diagonal cursors. */
+:root{
+  --arrow-cursor-pink-bold:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='34' viewBox='0 0 34 34'%3E%3Cpath d='M5 29L28 6M14 6h14v14' fill='none' stroke='%23ff5cad' stroke-width='4.5' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E") 5 29;
+  --arrow-cursor-white-bold:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='34' viewBox='0 0 34 34'%3E%3Cpath d='M5 29L28 6M14 6h14v14' fill='none' stroke='%23ffffff' stroke-width='4.5' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E") 5 29;
+  --arrow-cursor-black-bold:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='34' viewBox='0 0 34 34'%3E%3Cpath d='M5 29L28 6M14 6h14v14' fill='none' stroke='%230b0b0b' stroke-width='4.5' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E") 5 29;
+}
+a[href],button,.text-link,.overlay-nav a,.menu-foot a,.footer a{
+  cursor:var(--arrow-cursor-pink-bold),pointer!important;
+}
+.current .event[href],
+.current a[href]{cursor:var(--arrow-cursor-white-bold),pointer!important}
+.current .event[href]:hover,
+.current .event[href]:focus-visible{cursor:var(--arrow-cursor-black-bold),pointer!important}
+.manifesto a[href],.footer a[href],.menu-overlay a[href],.ticker a[href]{cursor:var(--arrow-cursor-black-bold),pointer!important}
+.media-wrap,.media-wrap *{cursor:none!important}
+
+/* Remove the old V17 circular overlay completely. */
+.page-transition{display:none!important}
+
+body.cinematic-transition-active{overflow:hidden!important}
+.cinematic-transition{
+  position:fixed;
+  z-index:3000;
+  inset:0;
+  overflow:hidden;
+  pointer-events:none;
+  background:#050505;
+  opacity:0;
+  transition:opacity .16s linear;
+}
+.cinematic-transition.is-active{opacity:1}
+.cinematic-transition-image{
+  position:fixed;
+  display:block;
+  object-fit:cover;
+  margin:0;
+  filter:invert(1) hue-rotate(180deg) contrast(1.18) saturate(.35);
+  transform-origin:center;
+  will-change:left,top,width,height,filter,transform;
+  transition:
+    left .62s cubic-bezier(.76,0,.24,1),
+    top .62s cubic-bezier(.76,0,.24,1),
+    width .62s cubic-bezier(.76,0,.24,1),
+    height .62s cubic-bezier(.76,0,.24,1),
+    filter .62s ease,
+    transform .62s cubic-bezier(.16,1,.3,1);
+}
+.cinematic-transition.is-expanded .cinematic-transition-image{
+  left:0!important;
+  top:0!important;
+  width:100vw!important;
+  height:100vh!important;
+  transform:scale(1.025);
+}
+.cinematic-transition-shade{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg,rgba(0,0,0,.04),rgba(0,0,0,.48));
+  opacity:0;
+  transition:opacity .34s ease .22s;
+}
+.cinematic-transition.is-expanded .cinematic-transition-shade{opacity:1}
+.cinematic-transition-title{
+  position:absolute;
+  z-index:2;
+  left:2.5vw;
+  right:2.5vw;
+  bottom:4vh;
+  color:#ff5cad;
+  font-size:clamp(56px,11vw,190px);
+  line-height:.76;
+  letter-spacing:-.075em;
+  font-weight:900;
+  text-transform:uppercase;
+  overflow-wrap:anywhere;
+  opacity:0;
+  transform:translateY(38px) scale(.9);
+  transform-origin:left bottom;
+  transition:opacity .22s ease .25s,transform .56s cubic-bezier(.16,1,.3,1) .18s;
+}
+.cinematic-transition.is-expanded .cinematic-transition-title{
+  opacity:1;
+  transform:none;
+}
+.cinematic-transition-flash{
+  position:absolute;
+  inset:0;
+  z-index:3;
+  background:#fff;
+  mix-blend-mode:difference;
+  opacity:0;
+  animation:cinematicFlash .32s ease-out .08s both;
+}
+@keyframes cinematicFlash{
+  0%{opacity:0}
+  35%{opacity:.55}
+  100%{opacity:0}
+}
+@media(max-width:760px){
+  .cinematic-transition-title{font-size:16vw;bottom:5vh}
+}
+@media(prefers-reduced-motion:reduce){
+  .cinematic-transition{display:none!important}
+}
