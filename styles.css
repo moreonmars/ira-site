@@ -83,7 +83,7 @@ a { color: inherit; }
   html.has-arrow-cursor * { cursor: none !important; }
 }
 
-/* Persistent desktop arrow. It becomes larger and gains a square accent on links. */
+/* Persistent desktop arrow. It becomes larger on links without adding a plate. */
 .site-arrow-cursor {
   position: fixed;
   z-index: 89;
@@ -97,16 +97,6 @@ a { color: inherit; }
   transition: opacity 0.16s ease;
   will-change: transform;
 }
-.site-arrow-cursor::before {
-  position: absolute;
-  inset: 2px;
-  border: 1px solid var(--pink);
-  background: rgba(255, 92, 173, 0.16);
-  content: "";
-  opacity: 0;
-  transform: scale(0.45) rotate(-8deg);
-  transition: opacity 0.18s ease, transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-}
 .site-arrow-cursor svg {
   position: relative;
   z-index: 1;
@@ -118,12 +108,17 @@ a { color: inherit; }
   transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease;
 }
 .site-arrow-cursor.is-visible { opacity: 1; }
-.site-arrow-cursor.is-active::before { opacity: 1; transform: scale(1) rotate(-8deg); }
 .site-arrow-cursor.is-active svg {
   filter: drop-shadow(3px 4px 0 var(--pink-deep));
   transform: scale(1.25) translate(-1px, -1px);
 }
 .site-arrow-cursor.is-over-media { opacity: 0; }
+.site-arrow-cursor .arrow-shadow,
+.site-arrow-cursor .arrow-main { transition: stroke 0.16s ease; }
+.site-arrow-cursor.is-on-pink .arrow-shadow { stroke: #fff; opacity: 0.58; }
+.site-arrow-cursor.is-on-pink .arrow-main { stroke: var(--black); }
+.site-arrow-cursor.is-on-pink.is-active .arrow-shadow { stroke: var(--pink-deep); opacity: 0.82; }
+.site-arrow-cursor.is-on-pink.is-active .arrow-main { stroke: #fff; }
 
 .site-header {
   position: fixed;

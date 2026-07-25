@@ -52,8 +52,8 @@
     siteArrowCursor.setAttribute('aria-hidden', 'true');
     siteArrowCursor.innerHTML = `
       <svg viewBox="0 0 40 40" aria-hidden="true">
-        <path d="M6 34 33 7M17 7h16v16" fill="none" stroke="#7b1547" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter" transform="translate(2 2)" opacity=".8"/>
-        <path d="M6 34 33 7M17 7h16v16" fill="none" stroke="#ff5cad" stroke-width="4.5" stroke-linecap="square" stroke-linejoin="miter"/>
+        <path class="arrow-shadow" d="M6 34 33 7M17 7h16v16" fill="none" stroke="#7b1547" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter" transform="translate(2 2)" opacity=".8"/>
+        <path class="arrow-main" d="M6 34 33 7M17 7h16v16" fill="none" stroke="#ff5cad" stroke-width="4.5" stroke-linecap="square" stroke-linejoin="miter"/>
       </svg>`;
     body.appendChild(siteArrowCursor);
     document.documentElement.classList.add('has-arrow-cursor');
@@ -73,8 +73,10 @@
       const element = target instanceof Element ? target : null;
       const overMedia = Boolean(element?.closest('.media-wrap'));
       const interactive = Boolean(element?.closest('a[href], button, [role="button"], .gallery figure img'));
+      const onPink = Boolean(element?.closest('.manifesto, .ticker, .footer, .menu-overlay, .project-footer'));
       siteArrowCursor.classList.toggle('is-over-media', overMedia);
       siteArrowCursor.classList.toggle('is-active', interactive && !overMedia);
+      siteArrowCursor.classList.toggle('is-on-pink', onPink && !overMedia);
     };
     window.addEventListener('pointermove', event => {
       targetX = event.clientX;
