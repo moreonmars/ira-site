@@ -5,6 +5,7 @@
   const closeBtn = document.querySelector('.menu-close');
   const menuLinks = [...document.querySelectorAll('.overlay-nav a')];
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
   function setMenu(open) {
     if (!menu) return;
@@ -12,12 +13,7 @@
     menu.setAttribute('aria-hidden', String(!open));
     openBtn?.setAttribute('aria-expanded', String(open));
     body.classList.toggle('menu-open', open);
-
-    if (open) {
-      closeBtn?.focus({ preventScroll: true });
-    } else {
-      openBtn?.focus({ preventScroll: true });
-    }
+    (open ? closeBtn : openBtn)?.focus({ preventScroll: true });
   }
 
   openBtn?.setAttribute('aria-expanded', 'false');
@@ -26,10 +22,8 @@
   openBtn?.addEventListener('click', () => setMenu(true));
   closeBtn?.addEventListener('click', () => setMenu(false));
   menuLinks.forEach(link => link.addEventListener('click', () => setMenu(false)));
-  document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && menu?.classList.contains('is-open')) setMenu(false);
-  });
 
+  /* Reveal on scroll */
   const revealItems = [...document.querySelectorAll('.reveal')];
   if (reducedMotion || !('IntersectionObserver' in window)) {
     revealItems.forEach(item => item.classList.add('visible'));
@@ -40,14 +34,13 @@
         entry.target.classList.add('visible');
         observer.unobserve(entry.target);
       });
-    }, { threshold: 0.12, rootMargin: '0px 0px -5% 0px' });
+    }, { threshold: 0.1, rootMargin: '0px 0px -6% 0px' });
     revealItems.forEach(item => observer.observe(item));
   }
 
+  /* Existing VIEW lens over work cards */
   const cursor = document.querySelector('.cursor');
-  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   const mediaSurfaces = [...document.querySelectorAll('.media-wrap')];
-
   if (cursor && finePointer && !reducedMotion) {
     let targetX = window.innerWidth / 2;
     let targetY = window.innerHeight / 2;
@@ -56,28 +49,33 @@
     let cursorVisible = false;
     let rafId = 0;
 
-    const render = () => {
-      currentX += (targetX - currentX) * 0.24;
-      currentY += (targetY - currentY) * 0.24;
+    const renderCursor = () => {
+      currentX += (targetX - currentX) * 0.22;
+      currentY += (targetY - currentY) * 0.22;
       cursor.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) translate(-50%, -50%) scale(${cursorVisible ? 1 : 0})`;
-      rafId = requestAnimationFrame(render);
+      rafId = requestAnimationFrame(renderCursor);
     };
 
     window.addEventListener('pointermove', event => {
       targetX = event.clientX;
       targetY = event.clientY;
-      if (!rafId) rafId = requestAnimationFrame(render);
+      if (!rafId) rafId = requestAnimationFrame(renderCursor);
     }, { passive: true });
 
     mediaSurfaces.forEach(surface => {
       const image = surface.querySelector('img');
       if (!image) return;
-
-      const lens = document.createElement('span');
-      lens.className = 'xray-lens';
-      lens.setAttribute('aria-hidden', 'true');
-      lens.style.backgroundImage = `url("${image.currentSrc || image.src}")`;
-      surface.appendChild(lens);
+      let lens = surface.querySelector('.xray-lens');
+      if (!lens) {
+        lens = document.createElement('span');
+        lens.className = 'xray-lens';
+        lens.setAttribute('aria-hidden', 'true');
+        surface.appendChild(lens);
+      }
+      const syncLensImage = () => {
+        lens.style.backgroundImage = `url("${image.currentSrc || image.src}")`;
+      };
+      image.complete ? syncLensImage() : image.addEventListener('load', syncLensImage, { once: true });
 
       const updateLens = event => {
         const rect = surface.getBoundingClientRect();
@@ -113,16 +111,159 @@
     event.style.setProperty('--event-index', index);
   });
 
-  // Every work-page gallery image opens its original file in a new tab.
-  document.querySelectorAll('.gallery figure img').forEach(image => {
-    if (image.closest('a.gallery-image-link')) return;
-    const link = document.createElement('a');
-    link.className = 'gallery-image-link';
-    link.href = image.currentSrc || image.src;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    link.setAttribute('aria-label', image.alt ? `Open full-size image: ${image.alt}` : 'Open full-size image');
-    image.parentNode.insertBefore(link, image);
-    link.appendChild(image);
-  });
+  /* Hero: slow spatial response to pointer + scroll */
+  const hero = document.querySelector('.hero');
+  const heroMedia = hero?.querySelector('.hero-media');
+  const heroTitle = hero?.querySelector('.hero-title');
+  if (hero && heroMedia && heroTitle && finePointer && !reducedMotion) {
+    let px = 0;
+    let py = 0;
+    let tx = 0;
+    let ty = 0;
+    let scrollZoom = 1;
+    let heroRaf = 0;
+
+    const drawHero = () => {
+      px += (tx - px) * 0.055;
+      py += (ty - py) * 0.055;
+      heroMedia.style.transform = `translate3d(${px * 10}px, ${py * 7}px, 0) scale(${1.035 * scrollZoom})`;
+      heroTitle.style.transform = `translate3d(${-px * 15}px, ${-py * 8}px, 0)`;
+      heroRaf = requestAnimationFrame(drawHero);
+    };
+
+    hero.addEventListener('pointermove', event => {
+      const rect = hero.getBoundingClientRect();
+      tx = ((event.clientX - rect.left) / rect.width - 0.5) * 2;
+      ty = ((event.clientY - rect.top) / rect.height - 0.5) * 2;
+      if (!heroRaf) heroRaf = requestAnimationFrame(drawHero);
+    }, { passive: true });
+    hero.addEventListener('pointerleave', () => { tx = 0; ty = 0; });
+
+    const onHeroScroll = () => {
+      const progress = Math.min(1, Math.max(0, window.scrollY / Math.max(hero.offsetHeight, 1)));
+      scrollZoom = 1 + progress * 0.07;
+      hero.style.setProperty('--hero-scroll', progress.toFixed(3));
+    };
+    window.addEventListener('scroll', onHeroScroll, { passive: true });
+    onHeroScroll();
+  }
+
+  /* Work cards: subtle magnetic tilt and delayed entrance */
+  const workCards = [...document.querySelectorAll('.work-card')];
+  workCards.forEach((card, index) => card.style.setProperty('--work-index', index));
+  if (finePointer && !reducedMotion) {
+    workCards.forEach(card => {
+      card.addEventListener('pointermove', event => {
+        const rect = card.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / rect.width - 0.5;
+        const y = (event.clientY - rect.top) / rect.height - 0.5;
+        card.style.setProperty('--tilt-x', `${(-y * 1.2).toFixed(2)}deg`);
+        card.style.setProperty('--tilt-y', `${(x * 1.4).toFixed(2)}deg`);
+        card.style.setProperty('--float-x', `${(x * 5).toFixed(1)}px`);
+        card.style.setProperty('--float-y', `${(y * 4).toFixed(1)}px`);
+      }, { passive: true });
+      card.addEventListener('pointerleave', () => {
+        card.style.setProperty('--tilt-x', '0deg');
+        card.style.setProperty('--tilt-y', '0deg');
+        card.style.setProperty('--float-x', '0px');
+        card.style.setProperty('--float-y', '0px');
+      });
+    });
+  }
+
+  /* Fullscreen lightbox for every work-page gallery */
+  const galleryImages = [...document.querySelectorAll('.gallery figure img')];
+  if (galleryImages.length) {
+    // Undo the previous "open in new tab" wrappers if they exist.
+    galleryImages.forEach(image => {
+      const oldLink = image.closest('a.gallery-image-link');
+      if (oldLink) oldLink.replaceWith(image);
+      image.tabIndex = 0;
+      image.setAttribute('role', 'button');
+      image.setAttribute('aria-label', image.alt ? `Open image: ${image.alt}` : 'Open image');
+    });
+
+    const lightbox = document.createElement('div');
+    lightbox.className = 'lightbox';
+    lightbox.setAttribute('aria-hidden', 'true');
+    lightbox.innerHTML = `
+      <div class="lightbox-stage">
+        <img class="lightbox-image" alt="">
+        <div class="lightbox-caption mono"></div>
+      </div>
+      <div class="lightbox-ui mono">
+        <span class="lightbox-count"></span>
+        <button class="lightbox-close" type="button" aria-label="Close image">CLOSE ×</button>
+      </div>
+      <button class="lightbox-nav lightbox-prev" type="button" aria-label="Previous image">←</button>
+      <button class="lightbox-nav lightbox-next" type="button" aria-label="Next image">→</button>
+    `;
+    body.appendChild(lightbox);
+
+    const lightboxImage = lightbox.querySelector('.lightbox-image');
+    const caption = lightbox.querySelector('.lightbox-caption');
+    const count = lightbox.querySelector('.lightbox-count');
+    const close = lightbox.querySelector('.lightbox-close');
+    const prev = lightbox.querySelector('.lightbox-prev');
+    const next = lightbox.querySelector('.lightbox-next');
+    let activeIndex = 0;
+    let lastFocus = null;
+
+    const showImage = index => {
+      activeIndex = (index + galleryImages.length) % galleryImages.length;
+      const source = galleryImages[activeIndex];
+      lightboxImage.src = source.currentSrc || source.src;
+      lightboxImage.alt = source.alt || '';
+      const figcaption = source.closest('figure')?.querySelector('figcaption')?.textContent?.trim();
+      caption.textContent = figcaption || source.alt || '';
+      count.textContent = `${String(activeIndex + 1).padStart(2, '0')} / ${String(galleryImages.length).padStart(2, '0')}`;
+    };
+
+    const openLightbox = index => {
+      lastFocus = document.activeElement;
+      showImage(index);
+      lightbox.classList.add('is-open');
+      lightbox.setAttribute('aria-hidden', 'false');
+      body.classList.add('lightbox-open');
+      close.focus({ preventScroll: true });
+    };
+
+    const closeLightbox = () => {
+      lightbox.classList.remove('is-open');
+      lightbox.setAttribute('aria-hidden', 'true');
+      body.classList.remove('lightbox-open');
+      lastFocus?.focus?.({ preventScroll: true });
+    };
+
+    galleryImages.forEach((image, index) => {
+      image.addEventListener('click', () => openLightbox(index));
+      image.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          openLightbox(index);
+        }
+      });
+    });
+
+    close.addEventListener('click', closeLightbox);
+    prev.addEventListener('click', () => showImage(activeIndex - 1));
+    next.addEventListener('click', () => showImage(activeIndex + 1));
+    lightbox.addEventListener('click', event => {
+      if (event.target === lightbox) closeLightbox();
+    });
+
+    document.addEventListener('keydown', event => {
+      if (!lightbox.classList.contains('is-open')) {
+        if (event.key === 'Escape' && menu?.classList.contains('is-open')) setMenu(false);
+        return;
+      }
+      if (event.key === 'Escape') closeLightbox();
+      if (event.key === 'ArrowLeft') showImage(activeIndex - 1);
+      if (event.key === 'ArrowRight') showImage(activeIndex + 1);
+    });
+  } else {
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && menu?.classList.contains('is-open')) setMenu(false);
+    });
+  }
 })();
