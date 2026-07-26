@@ -86,11 +86,13 @@ a { color: inherit; }
 /* Persistent desktop arrow. It becomes larger on links without adding a plate. */
 .site-arrow-cursor {
   position: fixed;
-  z-index: 89;
+  z-index: 1200;
   top: 0;
   left: 0;
   width: 42px;
   height: 42px;
+  margin-top: -34px;
+  margin-left: -6px;
   opacity: 0;
   pointer-events: none;
   transform: translate3d(-100px, -100px, 0);
@@ -427,6 +429,14 @@ a { color: inherit; }
 
 .footer { padding: 4vw 3vw 24px; background: var(--pink); }
 .footer-links { display: flex; justify-content: space-between; font-size: 12px; }
+.footer-links a,
+.menu-foot a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 10px 0;
+  text-decoration: none;
+}
 .footer-bottom { margin-top: 7vw; font-size: 10px; }
 
 .menu-overlay {
@@ -528,7 +538,20 @@ a { color: inherit; }
 .gallery-toolbar { display: flex; grid-column: 1 / -1; align-items: center; justify-content: space-between; margin-bottom: 18px; padding: 8px 0 20px; border-bottom: 1px solid var(--line); }
 .gallery-toolbar-label { font-size: 10px; }
 .gallery-mode-switch { display: flex; gap: 4px; align-items: center; }
-.gallery-mode-button { position: relative; z-index: 0; padding: 8px 10px; border: 0; background: transparent; color: inherit; font: 500 10px "IBM Plex Mono", monospace; text-transform: uppercase; }
+.gallery-mode-button {
+  position: relative;
+  z-index: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 10px 14px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: 500 10px "IBM Plex Mono", monospace;
+  text-transform: uppercase;
+}
 .gallery-mode-button::before { position: absolute; z-index: -1; inset: 0; background: var(--pink); content: ""; transform: scaleY(0); transform-origin: bottom; transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1); }
 .gallery-mode-button:hover::before,
 .gallery-mode-button.is-active::before { transform: scaleY(1); }
