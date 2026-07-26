@@ -69,15 +69,15 @@ a { color: inherit; }
 
 /* Global link cursor. The CV overrides this according to its surface. */
 @media (hover: hover) and (pointer: fine) {
-  a[href],
-  button { cursor: var(--cursor-pink), pointer; }
+  html:not(.has-arrow-cursor) a[href],
+  html:not(.has-arrow-cursor) button { cursor: var(--cursor-pink), pointer; }
 
   /* The fixed header needs an explicit rule: mix-blend-mode can otherwise
      make browser cursor inheritance inconsistent across its children. */
-  .site-header .wordmark,
-  .site-header .language,
-  .site-header .menu-button,
-  .back-link { cursor: var(--cursor-pink), pointer !important; }
+  html:not(.has-arrow-cursor) .site-header .wordmark,
+  html:not(.has-arrow-cursor) .site-header .language,
+  html:not(.has-arrow-cursor) .site-header .menu-button,
+  html:not(.has-arrow-cursor) .back-link { cursor: var(--cursor-pink), pointer !important; }
 
   html.has-arrow-cursor,
   html.has-arrow-cursor * { cursor: none !important; }

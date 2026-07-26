@@ -1,4 +1,7 @@
 (() => {
+  if (document.documentElement.dataset.iraInteractions === 'ready') return;
+  document.documentElement.dataset.iraInteractions = 'ready';
+
   const body = document.body;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
