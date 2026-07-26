@@ -83,6 +83,46 @@ a { color: inherit; }
   html.has-arrow-cursor * { cursor: none !important; }
 }
 
+/* A comfortable hit area for every compact text control.
+   Cards, CV rows and full-width menu items are already clickable as blocks. */
+:is(
+  .wordmark,
+  .language,
+  .menu-button,
+  .menu-close,
+  .hero-bottom a,
+  .text-link,
+  .footer-links a,
+  .menu-foot a,
+  .back-link,
+  .project-footer a,
+  .next-work,
+  .gallery-mode-button,
+  .lightbox-close
+) {
+  position: relative;
+  touch-action: manipulation;
+}
+:is(
+  .wordmark,
+  .language,
+  .menu-button,
+  .menu-close,
+  .hero-bottom a,
+  .text-link,
+  .footer-links a,
+  .menu-foot a,
+  .back-link,
+  .project-footer a,
+  .next-work,
+  .gallery-mode-button,
+  .lightbox-close
+)::after {
+  position: absolute;
+  inset: -9px -7px;
+  content: "";
+}
+
 /* Persistent desktop arrow. It becomes larger on links without adding a plate. */
 .site-arrow-cursor {
   position: fixed;
