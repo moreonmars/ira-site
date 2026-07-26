@@ -737,6 +737,10 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
     letter-spacing: -0.07em;
     overflow-wrap: normal;
   }
+  html[lang="en"] .hero-title {
+    font-size: 13.15vw;
+    letter-spacing: -0.075em;
+  }
   .hero-bottom { right: 16px; bottom: 18px; left: 16px; }
   .hero-bottom span { display: none; }
   .manifesto { padding: 90px 16px; }
