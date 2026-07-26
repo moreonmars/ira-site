@@ -47,6 +47,29 @@
     event.style.setProperty('--event-index', index);
   });
 
+  /* Replace the ↗ text glyph with one consistent drawn arrow.
+     This prevents iOS from rendering it as a blue emoji. */
+  const makeInlineArrow = () => {
+    const arrow = document.createElement('span');
+    arrow.className = 'inline-arrow';
+    arrow.setAttribute('aria-hidden', 'true');
+    return arrow;
+  };
+  document.querySelectorAll('.event[href] > span:last-child').forEach(element => {
+    if (element.textContent.trim() !== '↗') return;
+    element.textContent = '';
+    element.appendChild(makeInlineArrow());
+  });
+  document.querySelectorAll('.text-link, .footer-links a, .menu-foot a, .project-footer a').forEach(link => {
+    if (link.querySelector('.inline-arrow')) return;
+    const textNode = [...link.childNodes].reverse().find(node =>
+      node.nodeType === Node.TEXT_NODE && /↗\s*$/.test(node.textContent || '')
+    );
+    if (!textNode) return;
+    textNode.textContent = (textNode.textContent || '').replace(/\s*↗\s*$/, '');
+    link.appendChild(makeInlineArrow());
+  });
+
   /* Persistent arrow: quiet by default, stronger over any interactive element. */
   let siteArrowCursor = null;
   if (finePointer && !reducedMotion) {
@@ -352,7 +375,8 @@
 
     workCards.forEach(link => {
       link.addEventListener('click', event => {
-        if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || !canTransition(link)) return;
+        const nonPrimaryClick = typeof event.button === 'number' && event.button !== 0;
+        if (event.defaultPrevented || nonPrimaryClick || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || !canTransition(link)) return;
         const image = link.querySelector('.media-wrap img');
         const titleElement = link.querySelector('.work-meta h3');
         const title = titleElement?.textContent?.trim();
@@ -368,6 +392,7 @@
         const transitionImage = document.createElement('img');
         transitionImage.className = 'project-transition-image';
         transitionImage.alt = '';
+        transitionImage.decoding = 'sync';
         transitionImage.src = image.currentSrc || image.src;
         transitionImage.style.left = `${imageRect.left}px`;
         transitionImage.style.top = `${imageRect.top}px`;
@@ -391,13 +416,14 @@
         overlay.append(transitionImage, shade, transitionTitle);
         body.appendChild(overlay);
         body.classList.add('is-transitioning');
+        overlay.classList.add('is-active');
 
         const isMobile = window.innerWidth <= 760;
         const horizontalInset = isMobile ? 16 : window.innerWidth * 0.025;
         const bottomInset = window.innerHeight * (isMobile ? 0.05 : 0.04);
         const finalWidth = window.innerWidth - horizontalInset * 2;
         const finalFontSize = isMobile
-          ? window.innerWidth * 0.16
+          ? Math.min(72, Math.max(46, window.innerWidth * 0.14))
           : Math.min(190, Math.max(56, window.innerWidth * 0.11));
         const titleMeasure = transitionTitle.cloneNode(true);
         Object.assign(titleMeasure.style, {
@@ -406,7 +432,7 @@
           top: '-10000px',
           width: `${finalWidth}px`,
           fontSize: `${finalFontSize}px`,
-          lineHeight: '0.76',
+          lineHeight: isMobile ? '0.8' : '0.76',
           letterSpacing: '-0.075em',
         });
         body.appendChild(titleMeasure);
@@ -414,23 +440,30 @@
         titleMeasure.remove();
         const finalTop = window.innerHeight - bottomInset - finalHeight;
 
+        /* Force the initial card geometry to paint before expansion.
+           This is important on touch Safari, where two nested frames may be collapsed. */
+        overlay.getBoundingClientRect();
         requestAnimationFrame(() => {
-          overlay.classList.add('is-active');
-          requestAnimationFrame(() => {
-            overlay.classList.add('is-expanded');
-            Object.assign(transitionTitle.style, {
-              left: `${horizontalInset}px`,
-              top: `${finalTop}px`,
-              width: `${finalWidth}px`,
-              fontSize: `${finalFontSize}px`,
-              lineHeight: '0.76',
-              letterSpacing: '-0.075em',
-              color: 'var(--pink)',
-            });
+          overlay.classList.add('is-expanded');
+          Object.assign(transitionTitle.style, {
+            left: `${horizontalInset}px`,
+            top: `${finalTop}px`,
+            width: `${finalWidth}px`,
+            fontSize: `${finalFontSize}px`,
+            lineHeight: isMobile ? '0.8' : '0.76',
+            letterSpacing: '-0.075em',
+            color: 'var(--pink)',
           });
         });
-        window.setTimeout(() => { window.location.assign(link.href); }, 680);
+        window.setTimeout(() => {
+          window.location.assign(link.href);
+        }, isMobile ? 860 : 700);
       });
     });
   }
+
+  window.addEventListener('pageshow', () => {
+    body.classList.remove('is-transitioning');
+    document.querySelectorAll('.project-transition').forEach(transition => transition.remove());
+  });
 })();
