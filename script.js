@@ -384,14 +384,15 @@
     const imageForLink = link => {
       const localImage = link.querySelector('.media-wrap img');
       if (localImage) return localImage;
-      const projectImage = document.querySelector('.project-hero-media');
-      if (projectImage && link.closest('.project-footer')) return projectImage;
       const fileName = new URL(link.href, window.location.href).pathname.split('/').pop();
       const assetName = imageByWork[fileName];
-      if (!assetName) return null;
-      const image = new Image();
-      image.src = new URL(`/assets/${assetName}`, window.location.origin).href;
-      return image;
+      if (assetName) {
+        const image = new Image();
+        image.src = new URL(`/assets/${assetName}`, window.location.origin).href;
+        return image;
+      }
+      const projectImage = document.querySelector('.project-hero-media');
+      return projectImage && link.closest('.project-footer') ? projectImage : null;
     };
     const titleForLink = link =>
       link.querySelector('.work-meta h3, .event-title') ||
