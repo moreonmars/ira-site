@@ -32,6 +32,7 @@ body:has(.project-hero) { background: var(--black); }
 html:has(.project-hero),
 body:has(.project-hero),
 body:has(.project-hero) main { margin: 0; padding-top: 0; }
+body:has(.project-hero) > main { display: block; margin-block-start: 0 !important; }
 main,
 footer { width: 100%; }
 body.menu-open,
@@ -624,6 +625,8 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
 /* Work pages */
 .project-hero {
   position: relative;
+  display: block;
+  margin-block-start: 0 !important;
   min-height: 100svh;
   height: 100svh;
   overflow: hidden;
