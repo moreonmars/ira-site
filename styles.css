@@ -27,6 +27,8 @@ body {
   color: var(--black);
   font-family: Inter, Arial, sans-serif;
 }
+html:has(.project-hero),
+body:has(.project-hero) { background: var(--black); }
 main,
 footer { width: 100%; }
 body.menu-open,

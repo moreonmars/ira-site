@@ -365,7 +365,7 @@
     else if (menu?.classList.contains('is-open')) setMenu(false);
   });
 
-  /* Project transition: the card image and its title land on the work-page hero. */
+  /* Project transition: cards, CV rows and NEXT WORK all use the same x-ray handoff. */
   if (!reducedMotion) {
     const canTransition = link => {
       if (!link || link.target === '_blank' || link.hasAttribute('download')) return false;
@@ -373,17 +373,50 @@
       return url.origin === window.location.origin && url.href !== window.location.href;
     };
 
-    workCards.forEach(link => {
+    const imageByWork = {
+      'archive-expedition.html': 'archive-kyiv-01.webp',
+      'crossing-2.html': 'crossing-01.webp',
+      'exploring-don-quixote.html': 'don-quixote-01.webp',
+      'zabih.html': 'zabih-01.webp',
+      'shards-of-normality.html': 'shards-01.webp',
+      'performance-platform-lublin.html': 'border-01.webp',
+    };
+    const imageForLink = link => {
+      const localImage = link.querySelector('.media-wrap img');
+      if (localImage) return localImage;
+      const projectImage = document.querySelector('.project-hero-media');
+      if (projectImage && link.closest('.project-footer')) return projectImage;
+      const fileName = new URL(link.href, window.location.href).pathname.split('/').pop();
+      const assetName = imageByWork[fileName];
+      if (!assetName) return null;
+      const image = new Image();
+      image.src = new URL(`/assets/${assetName}`, window.location.origin).href;
+      return image;
+    };
+    const titleForLink = link =>
+      link.querySelector('.work-meta h3, .event-title') ||
+      (link.closest('.project-footer') ? link : null);
+
+    const transitionLinks = [
+      ...workCards,
+      ...document.querySelectorAll('.event[href]'),
+      ...document.querySelectorAll('.project-footer a[href]'),
+    ];
+
+    transitionLinks.forEach(link => {
       link.addEventListener('click', event => {
         const nonPrimaryClick = typeof event.button === 'number' && event.button !== 0;
         if (event.defaultPrevented || nonPrimaryClick || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || !canTransition(link)) return;
-        const image = link.querySelector('.media-wrap img');
-        const titleElement = link.querySelector('.work-meta h3');
+        const image = imageForLink(link);
+        const titleElement = titleForLink(link);
         const title = titleElement?.textContent?.trim();
         if (!image || !title || !titleElement) return;
 
         event.preventDefault();
-        const imageRect = image.getBoundingClientRect();
+        const measuredImageRect = image.getBoundingClientRect();
+        const imageRect = measuredImageRect.width && measuredImageRect.height
+          ? measuredImageRect
+          : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
         const titleRect = titleElement.getBoundingClientRect();
         const titleStyles = getComputedStyle(titleElement);
         const overlay = document.createElement('div');
