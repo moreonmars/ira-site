@@ -25,7 +25,7 @@ body {
   overflow-x: clip;
   background: var(--paper);
   color: var(--black);
-  font-family: Inter, Arial, sans-serif;
+  font-family: Manrope, Arial, sans-serif;
 }
 html:has(.project-hero),
 body:has(.project-hero) { background: var(--black); }
