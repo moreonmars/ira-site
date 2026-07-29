@@ -41,6 +41,24 @@ const rimLight = new THREE.PointLight(0xff5cad, 8, 7, 2);
 rimLight.position.set(3, -1.8, 2.5);
 scene.add(rimLight);
 
+const fragmentCount = isMobile ? 110 : 220;
+const fragmentPosition = new Float32Array(fragmentCount * 3);
+const fragmentVelocity = new Float32Array(fragmentCount * 3);
+const fragmentGeometry = new THREE.BufferGeometry();
+fragmentGeometry.setAttribute("position", new THREE.BufferAttribute(fragmentPosition, 3));
+const fragmentMaterial = new THREE.PointsMaterial({
+  color: 0xffb8dc,
+  size: isMobile ? 0.035 : 0.045,
+  sizeAttenuation: true,
+  transparent: true,
+  opacity: 0,
+  depthWrite: false,
+  blending: THREE.AdditiveBlending,
+});
+const fragments = new THREE.Points(fragmentGeometry, fragmentMaterial);
+fragments.visible = false;
+scene.add(fragments);
+
 const position = geometry.attributes.position;
 const base = new Float32Array(position.array);
 const velocity = new Float32Array(position.count * 3);
@@ -93,6 +111,46 @@ function triggerBurst() {
   burstActive = true;
   burstProgress = 0.001;
   targetPressure = 0;
+  fragments.visible = true;
+  fragmentMaterial.opacity = 1;
+
+  for (let index = 0; index < fragmentCount; index += 1) {
+    const offset = index * 3;
+    const source = (index * 17) % position.count;
+    const sourceOffset = source * 3;
+    const x = base[sourceOffset];
+    const y = base[sourceOffset + 1];
+    const z = base[sourceOffset + 2];
+    const length = Math.max(0.001, Math.hypot(x, y, z));
+    const directionX = x / length;
+    const directionY = y / length;
+    const directionZ = z / length;
+    const speed = 1.35 + (Math.sin(index * 7.31) * 0.5 + 0.5) * 2.2;
+
+    fragmentPosition[offset] = x * inflation;
+    fragmentPosition[offset + 1] = y * inflation;
+    fragmentPosition[offset + 2] = z * inflation;
+    fragmentVelocity[offset] = directionX * speed + Math.sin(index * 2.7) * 0.35;
+    fragmentVelocity[offset + 1] = directionY * speed + Math.cos(index * 4.1) * 0.35;
+    fragmentVelocity[offset + 2] = directionZ * speed + Math.sin(index * 5.3) * 0.35;
+  }
+  fragmentGeometry.attributes.position.needsUpdate = true;
+}
+
+function updateFragments(delta) {
+  if (!burstActive) return;
+  for (let index = 0; index < fragmentCount; index += 1) {
+    const offset = index * 3;
+    fragmentVelocity[offset + 1] -= delta * 0.55;
+    fragmentVelocity[offset] *= 0.996;
+    fragmentVelocity[offset + 1] *= 0.996;
+    fragmentVelocity[offset + 2] *= 0.996;
+    fragmentPosition[offset] += fragmentVelocity[offset] * delta;
+    fragmentPosition[offset + 1] += fragmentVelocity[offset + 1] * delta;
+    fragmentPosition[offset + 2] += fragmentVelocity[offset + 2] * delta;
+  }
+  fragmentGeometry.attributes.position.needsUpdate = true;
+  fragmentMaterial.opacity = Math.max(0, 1 - burstProgress * 1.05);
 }
 
 function deformSurface(hit, delta) {
@@ -113,6 +171,8 @@ function deformSurface(hit, delta) {
       performanceTime = 0;
       inflation = 1;
       material.opacity = 1;
+      fragmentMaterial.opacity = 0;
+      fragments.visible = false;
     }
   }
 
@@ -153,6 +213,7 @@ function animate() {
   performanceTime += delta;
   const hit = updateImpact();
   deformSurface(hit, delta);
+  updateFragments(delta);
   sphere.rotation.y += 0.0025;
   sphere.position.x += (pointerX - sphere.position.x) * 0.045;
   sphere.position.y += (pointerY - sphere.position.y) * 0.045;
