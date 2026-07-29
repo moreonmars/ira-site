@@ -5,7 +5,6 @@ document.getElementById("container");
 const scene =
 new THREE.Scene();
 
-
 scene.background =
 new THREE.Color(0x050505);
 
@@ -20,7 +19,9 @@ window.innerWidth / window.innerHeight,
 );
 
 
-camera.position.z = 5;
+
+camera.position.z =
+window.innerWidth < 600 ? 7 : 5;
 
 
 
@@ -28,6 +29,11 @@ const renderer =
 new THREE.WebGLRenderer({
     antialias:false
 });
+
+
+renderer.setPixelRatio(
+Math.min(window.devicePixelRatio, 1.5)
+);
 
 
 renderer.setSize(
@@ -42,9 +48,14 @@ renderer.domElement
 
 
 
+const size =
+window.innerWidth < 600 ? 1 : 1.5;
+
+
+
 const geometry =
 new THREE.SphereGeometry(
-1.5,
+size,
 32,
 32
 );
@@ -53,7 +64,9 @@ new THREE.SphereGeometry(
 
 const material =
 new THREE.MeshBasicMaterial({
+
     color:0xffffff
+
 });
 
 
@@ -90,3 +103,30 @@ camera
 
 
 animate();
+
+
+
+window.addEventListener(
+"resize",
+()=>{
+
+
+camera.aspect =
+window.innerWidth /
+window.innerHeight;
+
+
+camera.position.z =
+window.innerWidth < 600 ? 7 : 5;
+
+
+camera.updateProjectionMatrix();
+
+
+renderer.setSize(
+window.innerWidth,
+window.innerHeight
+);
+
+
+});
