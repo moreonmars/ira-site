@@ -1,15 +1,14 @@
-document.body.innerHTML = `
+document.getElementById("container").innerHTML = `
 <div style="
-width:100vw;
 height:100vh;
-background:#050505;
-color:white;
 display:flex;
 align-items:center;
 justify-content:center;
-font-family:Arial;
+background:black;
+color:white;
 font-size:40px;
+font-family:sans-serif;
 ">
-JS WORKS
+JS WITHOUT MODULE WORKS
 </div>
 `;
