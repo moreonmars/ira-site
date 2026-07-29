@@ -41,23 +41,33 @@ const rimLight = new THREE.PointLight(0xff5cad, 8, 7, 2);
 rimLight.position.set(3, -1.8, 2.5);
 scene.add(rimLight);
 
-const fragmentCount = isMobile ? 110 : 220;
-const fragmentPosition = new Float32Array(fragmentCount * 3);
-const fragmentVelocity = new Float32Array(fragmentCount * 3);
-const fragmentGeometry = new THREE.BufferGeometry();
-fragmentGeometry.setAttribute("position", new THREE.BufferAttribute(fragmentPosition, 3));
-const fragmentMaterial = new THREE.PointsMaterial({
-  color: 0xffb8dc,
-  size: isMobile ? 0.035 : 0.045,
-  sizeAttenuation: true,
+const fragmentCount = isMobile ? 54 : 96;
+const fragmentGroup = new THREE.Group();
+const fragmentShards = [];
+const fragmentMaterial = new THREE.MeshPhysicalMaterial({
+  color: 0xf3eeee,
+  roughness: 0.38,
+  clearcoat: 0.22,
+  side: THREE.DoubleSide,
   transparent: true,
   opacity: 0,
-  depthWrite: false,
-  blending: THREE.AdditiveBlending,
+  depthWrite: true,
 });
-const fragments = new THREE.Points(fragmentGeometry, fragmentMaterial);
-fragments.visible = false;
-scene.add(fragments);
+for (let index = 0; index < fragmentCount; index += 1) {
+  const shardGeometry = new THREE.BufferGeometry();
+  shardGeometry.setAttribute("position", new THREE.Float32BufferAttribute([
+    -0.18, -0.065, 0,
+    0.16, -0.075, 0,
+    0.08, 0.09, 0,
+  ], 3));
+  shardGeometry.computeVertexNormals();
+  const shard = new THREE.Mesh(shardGeometry, fragmentMaterial);
+  shard.visible = false;
+  fragmentGroup.add(shard);
+  fragmentShards.push({ mesh: shard, velocity: new THREE.Vector3(), normal: new THREE.Vector3(), scale: 1, spin: 0 });
+}
+fragmentGroup.visible = false;
+scene.add(fragmentGroup);
 
 const position = geometry.attributes.position;
 const base = new Float32Array(position.array);
@@ -111,11 +121,11 @@ function triggerBurst() {
   burstActive = true;
   burstProgress = 0.001;
   targetPressure = 0;
-  fragments.visible = true;
+  sphere.visible = false;
+  fragmentGroup.visible = true;
   fragmentMaterial.opacity = 1;
 
   for (let index = 0; index < fragmentCount; index += 1) {
-    const offset = index * 3;
     const source = (index * 17) % position.count;
     const sourceOffset = source * 3;
     const x = base[sourceOffset];
@@ -125,31 +135,36 @@ function triggerBurst() {
     const directionX = x / length;
     const directionY = y / length;
     const directionZ = z / length;
-    const speed = 1.35 + (Math.sin(index * 7.31) * 0.5 + 0.5) * 2.2;
+    const speed = 0.95 + (Math.sin(index * 7.31) * 0.5 + 0.5) * 1.55;
 
-    fragmentPosition[offset] = x * inflation;
-    fragmentPosition[offset + 1] = y * inflation;
-    fragmentPosition[offset + 2] = z * inflation;
-    fragmentVelocity[offset] = directionX * speed + Math.sin(index * 2.7) * 0.35;
-    fragmentVelocity[offset + 1] = directionY * speed + Math.cos(index * 4.1) * 0.35;
-    fragmentVelocity[offset + 2] = directionZ * speed + Math.sin(index * 5.3) * 0.35;
+    const shard = fragmentShards[index];
+    shard.normal.set(directionX, directionY, directionZ);
+    shard.mesh.position.set(x * inflation, y * inflation, z * inflation);
+    shard.mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), shard.normal);
+    shard.scale = 0.42 + (Math.sin(index * 3.17) * 0.5 + 0.5) * 0.72;
+    shard.mesh.scale.set(shard.scale * (0.8 + Math.sin(index) * 0.12), shard.scale * (0.7 + Math.cos(index * 1.7) * 0.16), 1);
+    shard.mesh.rotation.z = index * 1.83;
+    shard.mesh.visible = true;
+    shard.velocity.set(
+      directionX * speed + Math.sin(index * 2.7) * 0.35,
+      directionY * speed + Math.cos(index * 4.1) * 0.35,
+      directionZ * speed + Math.sin(index * 5.3) * 0.35
+    );
+    shard.spin = (Math.sin(index * 8.4) * 0.5 + 0.5) * 3.5 - 1.75;
   }
-  fragmentGeometry.attributes.position.needsUpdate = true;
 }
 
 function updateFragments(delta) {
   if (!burstActive) return;
-  for (let index = 0; index < fragmentCount; index += 1) {
-    const offset = index * 3;
-    fragmentVelocity[offset + 1] -= delta * 0.55;
-    fragmentVelocity[offset] *= 0.996;
-    fragmentVelocity[offset + 1] *= 0.996;
-    fragmentVelocity[offset + 2] *= 0.996;
-    fragmentPosition[offset] += fragmentVelocity[offset] * delta;
-    fragmentPosition[offset + 1] += fragmentVelocity[offset + 1] * delta;
-    fragmentPosition[offset + 2] += fragmentVelocity[offset + 2] * delta;
+  for (const shard of fragmentShards) {
+    shard.velocity.y -= delta * 0.55;
+    shard.velocity.multiplyScalar(0.996);
+    shard.mesh.position.addScaledVector(shard.velocity, delta);
+    shard.mesh.rotateX(shard.spin * delta);
+    shard.mesh.rotateY(shard.spin * 0.7 * delta);
+    const stretch = 1 + burstProgress * 1.4;
+    shard.mesh.scale.x = shard.scale * stretch;
   }
-  fragmentGeometry.attributes.position.needsUpdate = true;
   fragmentMaterial.opacity = Math.max(0, 1 - burstProgress * 1.05);
 }
 
@@ -171,8 +186,10 @@ function deformSurface(hit, delta) {
       performanceTime = 0;
       inflation = 1;
       material.opacity = 1;
+      sphere.visible = true;
       fragmentMaterial.opacity = 0;
-      fragments.visible = false;
+      fragmentGroup.visible = false;
+      fragmentShards.forEach((shard) => { shard.mesh.visible = false; });
     }
   }
 
@@ -187,7 +204,7 @@ function deformSurface(hit, delta) {
     const inflationY = y * (inflation - 1);
     const inflationZ = z * (inflation - 1);
     const burstNoise = Math.sin(index * 12.9898) * 0.5 + 0.5;
-    const burstForce = burstActive ? burstProgress * burstNoise * (1 + strain) : 0;
+    const burstForce = burstActive ? burstProgress * burstNoise * 0.24 : 0;
     const targetX = inflationX - (x / radius) * maxIndent * falloff + (x / radius) * burstForce;
     const targetY = inflationY - (y / radius) * maxIndent * falloff + (y / radius) * burstForce;
     const targetZ = inflationZ - (z / radius) * maxIndent * falloff + (z / radius) * burstForce;
