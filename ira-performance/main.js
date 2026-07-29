@@ -29,6 +29,26 @@ const material = new THREE.MeshPhysicalMaterial({
   clearcoatRoughness: 0.16,
   transparent: true,
 });
+const tearPoint = new THREE.Vector3(0, 0, 1);
+const tearUniforms = { tearAmount: { value: 0 }, tearPoint: { value: tearPoint } };
+material.onBeforeCompile = (shader) => {
+  shader.uniforms.tearAmount = tearUniforms.tearAmount;
+  shader.uniforms.tearPoint = tearUniforms.tearPoint;
+  shader.vertexShader = `varying vec3 vLocalPosition;\n${shader.vertexShader}`;
+  shader.vertexShader = shader.vertexShader.replace(
+    "#include <begin_vertex>",
+    "#include <begin_vertex>\n vLocalPosition = transformed;"
+  );
+  shader.fragmentShader = `varying vec3 vLocalPosition;\nuniform float tearAmount;\nuniform vec3 tearPoint;\n${shader.fragmentShader}`;
+  shader.fragmentShader = shader.fragmentShader.replace(
+    "#include <clipping_planes_fragment>",
+    `#include <clipping_planes_fragment>
+      float tearDot = dot(normalize(vLocalPosition), normalize(tearPoint));
+      float tearNoise = sin(vLocalPosition.x * 17.0 + vLocalPosition.y * 23.0) * 0.018;
+      float tearLimit = mix(1.12, 0.76, tearAmount) + tearNoise;
+      if (tearAmount > 0.01 && tearDot > tearLimit) discard;`
+  );
+};
 const sphere = new THREE.Mesh(geometry, material);
 scene.add(sphere);
 
@@ -41,7 +61,7 @@ const rimLight = new THREE.PointLight(0xff5cad, 8, 7, 2);
 rimLight.position.set(3, -1.8, 2.5);
 scene.add(rimLight);
 
-const fragmentCount = isMobile ? 54 : 96;
+const fragmentCount = isMobile ? 8 : 14;
 const fragmentGroup = new THREE.Group();
 const fragmentShards = [];
 const fragmentMaterial = new THREE.MeshPhysicalMaterial({
@@ -104,6 +124,7 @@ function updateImpact() {
   if (!hits.length) return false;
   impact.copy(hits[0].point);
   sphere.worldToLocal(impact);
+  tearPoint.copy(impact).normalize();
   return true;
 }
 
@@ -121,28 +142,27 @@ function triggerBurst() {
   burstActive = true;
   burstProgress = 0.001;
   targetPressure = 0;
-  sphere.visible = false;
   fragmentGroup.visible = true;
   fragmentMaterial.opacity = 1;
 
   for (let index = 0; index < fragmentCount; index += 1) {
-    const source = (index * 17) % position.count;
-    const sourceOffset = source * 3;
-    const x = base[sourceOffset];
-    const y = base[sourceOffset + 1];
-    const z = base[sourceOffset + 2];
+    const side = new THREE.Vector3(-tearPoint.y, tearPoint.x, 0).normalize();
+    const offsetAlongTear = (index / Math.max(1, fragmentCount - 1) - 0.5) * 0.28;
+    const x = (tearPoint.x + side.x * offsetAlongTear) * radius * inflation;
+    const y = (tearPoint.y + side.y * offsetAlongTear) * radius * inflation;
+    const z = (tearPoint.z + side.z * offsetAlongTear) * radius * inflation;
     const length = Math.max(0.001, Math.hypot(x, y, z));
     const directionX = x / length;
     const directionY = y / length;
     const directionZ = z / length;
-    const speed = 0.95 + (Math.sin(index * 7.31) * 0.5 + 0.5) * 1.55;
+    const speed = 0.45 + (Math.sin(index * 7.31) * 0.5 + 0.5) * 0.7;
 
     const shard = fragmentShards[index];
     shard.normal.set(directionX, directionY, directionZ);
     shard.mesh.position.set(x * inflation, y * inflation, z * inflation);
     shard.mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), shard.normal);
     shard.scale = 0.42 + (Math.sin(index * 3.17) * 0.5 + 0.5) * 0.72;
-    shard.mesh.scale.set(shard.scale * (0.8 + Math.sin(index) * 0.12), shard.scale * (0.7 + Math.cos(index * 1.7) * 0.16), 1);
+    shard.mesh.scale.set(shard.scale * (0.95 + Math.sin(index) * 0.12), shard.scale * (0.55 + Math.cos(index * 1.7) * 0.16), 1);
     shard.mesh.rotation.z = index * 1.83;
     shard.mesh.visible = true;
     shard.velocity.set(
@@ -178,7 +198,8 @@ function deformSurface(hit, delta) {
     if (inflation > 1.285) triggerBurst();
   } else {
     burstProgress += delta / 1.15;
-    material.opacity = Math.max(0, 1 - Math.max(0, burstProgress - 0.16) * 1.2);
+    tearUniforms.tearAmount.value = Math.min(1, burstProgress * 1.8);
+    material.opacity = Math.max(0, 1 - Math.max(0, burstProgress - 0.28) * 1.4);
     if (burstProgress >= 1) {
       resetSurface();
       burstActive = false;
@@ -187,6 +208,7 @@ function deformSurface(hit, delta) {
       inflation = 1;
       material.opacity = 1;
       sphere.visible = true;
+      tearUniforms.tearAmount.value = 0;
       fragmentMaterial.opacity = 0;
       fragmentGroup.visible = false;
       fragmentShards.forEach((shard) => { shard.mesh.visible = false; });
