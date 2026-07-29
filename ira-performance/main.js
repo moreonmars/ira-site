@@ -2,34 +2,28 @@ import * as THREE from
 "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
 
 
-const container =
-document.getElementById("container");
+const container = document.getElementById("container");
 
 
 //
 // SCENE
 //
 
-const scene =
-new THREE.Scene();
+const scene = new THREE.Scene();
 
 
-
-const camera =
-new THREE.PerspectiveCamera(
+const camera = new THREE.PerspectiveCamera(
     45,
     window.innerWidth / window.innerHeight,
     0.1,
     100
 );
 
-
 camera.position.z = 5;
 
 
 
-const renderer =
-new THREE.WebGLRenderer({
+const renderer = new THREE.WebGLRenderer({
     antialias:true,
     alpha:true
 });
@@ -55,8 +49,7 @@ container.appendChild(
 // BALLOON
 //
 
-const geometry =
-new THREE.SphereGeometry(
+const geometry = new THREE.SphereGeometry(
     1.5,
     128,
     128
@@ -64,33 +57,27 @@ new THREE.SphereGeometry(
 
 
 
-const material =
-new THREE.MeshPhysicalMaterial({
+const material = new THREE.MeshPhysicalMaterial({
 
     color:0xe8e8e8,
 
     transparent:true,
 
-    opacity:0.75,
+    opacity:0.7,
 
-    transmission:0.15,
+    transmission:0.2,
 
-    thickness:0.8,
+    thickness:1,
 
     roughness:0.12,
 
-    metalness:0,
-
-    clearcoat:1,
-
-    clearcoatRoughness:0.03
+    clearcoat:1
 
 });
 
 
 
-const balloon =
-new THREE.Mesh(
+const balloon = new THREE.Mesh(
     geometry,
     material
 );
@@ -103,22 +90,19 @@ scene.add(balloon);
 // LIGHT
 //
 
-const light =
-new THREE.PointLight(
+const light = new THREE.PointLight(
     0xffffff,
     7
 );
 
-
 light.position.set(
-    -2,
+    -3,
     4,
     6
 );
 
 
 scene.add(light);
-
 
 
 scene.add(
@@ -130,7 +114,7 @@ scene.add(
 
 
 //
-// POINT MEMORY
+// POINT DATA
 //
 
 const position =
@@ -178,39 +162,46 @@ new THREE.Vector3();
 
 
 
+let inflating = false;
+
+
+let pressure = 0;
+
+
+
 //
 // POINTER
 //
 
 window.addEventListener(
 "pointermove",
-(event)=>{
+(e)=>{
 
 
     const mouse =
     new THREE.Vector2(
 
-        (event.clientX /
-        window.innerWidth) * 2 - 1,
+        (e.clientX /
+        window.innerWidth)*2-1,
 
 
-        -(event.clientY /
-        window.innerHeight) * 2 + 1
+        -(e.clientY /
+        window.innerHeight)*2+1
 
     );
 
 
-    const raycaster =
+    const ray =
     new THREE.Raycaster();
 
 
-    raycaster.setFromCamera(
+    ray.setFromCamera(
         mouse,
         camera
     );
 
 
-    raycaster.ray.at(
+    ray.ray.at(
         3,
         target
     );
@@ -220,23 +211,82 @@ window.addEventListener(
 
 
 
+window.addEventListener(
+"pointerdown",
+()=>{
+
+    inflating = true;
+
+});
+
+
+
+window.addEventListener(
+"pointerup",
+()=>{
+
+    inflating = false;
+
+});
+
+
+
 
 
 //
-// PHYSICS
+// UPDATE
 //
 
 function update(){
 
 
     const time =
-    performance.now() * 0.001;
+    performance.now()*0.001;
+
+
+
+    //
+    // AIR PRESSURE
+    //
+
+    if(inflating){
+
+        pressure += 0.0015;
+
+    }
+    else{
+
+        pressure -= 0.0003;
+
+    }
+
+
+
+    pressure =
+    THREE.MathUtils.clamp(
+        pressure,
+        0,
+        0.35
+    );
+
+
+
+    //
+    // MATERIAL RESPONSE
+    //
+
+    material.roughness =
+    0.12 + pressure*0.15;
+
+
+    material.opacity =
+    0.7 - pressure*0.15;
 
 
 
     for(
-        let i = 0;
-        i < points.length;
+        let i=0;
+        i<points.length;
         i++
     ){
 
@@ -246,45 +296,36 @@ function update(){
 
 
 
-        //
-        // elastic memory
-        //
-
-        const restore =
-        p.origin.clone()
-        .sub(p.current)
-        .multiplyScalar(
-            0.08
-        );
-
-
-        p.velocity.add(
-            restore
-        );
-
-
-
-        //
-        // breathing
-        //
-
         const normal =
         p.origin.clone()
         .normalize();
 
 
 
-        const breathing =
-        Math.sin(
-            time * 1.5
-        ) * 0.003;
+        //
+        // inflate
+        //
 
+        const desired =
+        p.origin.clone()
+        .add(
+            normal.multiplyScalar(
+                pressure
+            )
+        );
+
+
+
+        const spring =
+        desired
+        .sub(p.current)
+        .multiplyScalar(
+            0.04
+        );
 
 
         p.velocity.add(
-            normal.multiplyScalar(
-                breathing
-            )
+            spring
         );
 
 
@@ -309,12 +350,9 @@ function update(){
             .normalize();
 
 
-
             push.multiplyScalar(
-                (1.15-distance)
-                *0.12
+                (1.15-distance)*0.08
             );
-
 
 
             p.velocity.add(
@@ -325,13 +363,32 @@ function update(){
 
 
 
+        //
+        // wobble near limit
+        //
+
+        if(pressure > 0.25){
+
+
+            p.velocity.add(
+                normal.multiplyScalar(
+                    Math.sin(
+                        time*12+i
+                    )*
+                    0.002
+                )
+            );
+
+        }
+
+
 
         //
-        // smoothness
+        // damping
         //
 
         p.velocity.multiplyScalar(
-            0.82
+            0.88
         );
 
 
@@ -341,34 +398,12 @@ function update(){
 
 
 
-        //
-        // safety limit
-        //
-
-        const maxRadius = 1.6;
-
-
-        if(
-            p.current.length() > maxRadius
-        ){
-
-            p.current
-            .normalize()
-            .multiplyScalar(
-                maxRadius
-            );
-
-        }
-
-
-
         position.setXYZ(
             i,
             p.current.x,
             p.current.y,
             p.current.z
         );
-
 
     }
 
@@ -387,7 +422,7 @@ function update(){
 
 
 //
-// ANIMATION
+// LOOP
 //
 
 function animate(){
