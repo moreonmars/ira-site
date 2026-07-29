@@ -1,10 +1,7 @@
-const container =
-document.getElementById("container");
+const container = document.getElementById("container");
 
 
-const scene =
-new THREE.Scene();
-
+const scene = new THREE.Scene();
 
 scene.background =
 new THREE.Color(0x050505);
@@ -19,7 +16,6 @@ window.innerWidth / window.innerHeight,
 100
 );
 
-
 camera.position.z = 5;
 
 
@@ -30,7 +26,9 @@ new THREE.WebGLRenderer({
 });
 
 
-renderer.setPixelRatio(1);
+renderer.setPixelRatio(
+Math.min(window.devicePixelRatio,1.5)
+);
 
 
 renderer.setSize(
@@ -79,7 +77,7 @@ const position =
 geometry.attributes.position;
 
 
-const original=[];
+const points=[];
 
 
 for(
@@ -88,59 +86,77 @@ i<position.count;
 i++
 ){
 
-original.push(
-new THREE.Vector3(
-    position.getX(i),
-    position.getY(i),
-    position.getZ(i)
-)
-);
+points.push({
+
+    origin:
+    new THREE.Vector3(
+        position.getX(i),
+        position.getY(i),
+        position.getZ(i)
+    ),
+
+    current:
+    new THREE.Vector3(
+        position.getX(i),
+        position.getY(i),
+        position.getZ(i)
+    )
+
+});
 
 }
 
 
 
-let point =
-new THREE.Vector3();
 
-
-let active=false;
-
-
-
-
-function setPointer(x,y){
-
-
-const mouse =
-new THREE.Vector2(
-
-x/window.innerWidth*2-1,
-
--(y/window.innerHeight*2-1)
-
-);
-
-
-const ray =
+const raycaster =
 new THREE.Raycaster();
 
 
-ray.setFromCamera(
+const mouse =
+new THREE.Vector2();
+
+
+let hitPoint =
+null;
+
+
+
+function pointerMove(x,y){
+
+
+mouse.x =
+x/window.innerWidth*2-1;
+
+
+mouse.y =
+-(y/window.innerHeight)*2+1;
+
+
+
+raycaster.setFromCamera(
 mouse,
 camera
 );
 
 
-ray.ray.at(
-3,
-point
+
+const hit =
+raycaster.intersectObject(
+balloon
 );
 
 
-active=true;
+
+if(hit.length){
+
+    hitPoint =
+    hit[0].point.clone();
 
 }
+
+}
+
 
 
 
@@ -148,12 +164,13 @@ window.addEventListener(
 "pointermove",
 e=>{
 
-setPointer(
+pointerMove(
 e.clientX,
 e.clientY
 );
 
 });
+
 
 
 window.addEventListener(
@@ -163,10 +180,12 @@ e=>{
 const t =
 e.touches[0];
 
-setPointer(
+
+pointerMove(
 t.clientX,
 t.clientY
 );
+
 
 },
 {
@@ -177,66 +196,71 @@ passive:true
 
 
 
+
 function update(){
 
 
 for(
 let i=0;
-i<position.count;
+i<points.length;
 i++
 ){
 
 
-let p =
-new THREE.Vector3(
-position.getX(i),
-position.getY(i),
-position.getZ(i)
-);
+const p =
+points[i];
 
 
 
 let target =
-original[i].clone();
+p.origin.clone();
 
 
 
-if(active){
+if(hitPoint){
 
 
-let distance =
-p.distanceTo(point);
+const worldPoint =
+hitPoint.clone();
+
+
+const distance =
+p.current.distanceTo(
+worldPoint
+);
 
 
 
-if(distance < 1){
+if(distance < 0.8){
 
 
-let force =
-p.clone()
-.sub(point)
+const push =
+p.current.clone()
+.sub(worldPoint)
 .normalize();
 
 
 
-force.multiplyScalar(
-(1-distance)*0.3
+push.multiplyScalar(
+(0.8-distance)*0.25
 );
 
 
 
 target.add(
-force
+push
 );
 
-}
-
 
 }
 
 
+}
 
-p.lerp(
+
+
+
+p.current.lerp(
 target,
 0.15
 );
@@ -245,11 +269,10 @@ target,
 
 position.setXYZ(
 i,
-p.x,
-p.y,
-p.z
+p.current.x,
+p.current.y,
+p.current.z
 );
-
 
 
 }
@@ -259,7 +282,11 @@ p.z
 position.needsUpdate=true;
 
 
+geometry.computeVertexNormals();
+
+
 }
+
 
 
 
@@ -277,6 +304,7 @@ renderer.render(
 scene,
 camera
 );
+
 
 }
 
