@@ -17,7 +17,7 @@ new THREE.Scene();
 const camera =
 new THREE.PerspectiveCamera(
 45,
-window.innerWidth / window.innerHeight,
+window.innerWidth/window.innerHeight,
 0.1,
 100
 );
@@ -34,18 +34,18 @@ new THREE.WebGLRenderer({
 
 
 renderer.setSize(
-    window.innerWidth,
-    window.innerHeight
+window.innerWidth,
+window.innerHeight
 );
 
 
 renderer.setPixelRatio(
-    window.devicePixelRatio
+window.devicePixelRatio
 );
 
 
 container.appendChild(
-    renderer.domElement
+renderer.domElement
 );
 
 
@@ -55,9 +55,9 @@ container.appendChild(
 
 const geometry =
 new THREE.SphereGeometry(
-    1.5,
-    128,
-    128
+1.5,
+128,
+128
 );
 
 
@@ -69,7 +69,7 @@ new THREE.MeshPhysicalMaterial({
 
     transparent:true,
 
-    opacity:0.72,
+    opacity:0.7,
 
     transmission:0.25,
 
@@ -77,17 +77,15 @@ new THREE.MeshPhysicalMaterial({
 
     roughness:0.12,
 
-    clearcoat:1,
-
-    clearcoatRoughness:0.03
+    clearcoat:1
 
 });
 
 
 const balloon =
 new THREE.Mesh(
-    geometry,
-    material
+geometry,
+material
 );
 
 
@@ -100,15 +98,15 @@ scene.add(balloon);
 
 const light =
 new THREE.PointLight(
-    0xffffff,
-    8
+0xffffff,
+8
 );
 
 
 light.position.set(
-    -3,
-    4,
-    6
+-3,
+4,
+6
 );
 
 
@@ -116,22 +114,22 @@ scene.add(light);
 
 
 scene.add(
-    new THREE.AmbientLight(
-        0xffffff,
-        0.8
-    )
+new THREE.AmbientLight(
+0xffffff,
+0.8
+)
 );
 
 
 //
-// MEMORY
+// POINTS
 //
 
 const position =
 geometry.attributes.position;
 
 
-const points = [];
+const points=[];
 
 
 for(
@@ -140,28 +138,26 @@ i<position.count;
 i++
 ){
 
-    points.push({
+points.push({
 
-        current:
-        new THREE.Vector3(
-            position.getX(i),
-            position.getY(i),
-            position.getZ(i)
-        ),
+    current:new THREE.Vector3(
+        position.getX(i),
+        position.getY(i),
+        position.getZ(i)
+    ),
 
-        velocity:
-        new THREE.Vector3(),
+    velocity:new THREE.Vector3(),
 
-        origin:
-        new THREE.Vector3(
-            position.getX(i),
-            position.getY(i),
-            position.getZ(i)
-        ),
+    origin:new THREE.Vector3(
+        position.getX(i),
+        position.getY(i),
+        position.getZ(i)
+    ),
 
-        damage:0
+    breakForce:
+    Math.random()
 
-    });
+});
 
 }
 
@@ -171,15 +167,16 @@ let target =
 new THREE.Vector3();
 
 
-
 let inflating=false;
 
 
 let pressure=0;
 
 
-let fatigue=0;
+let broken=false;
 
+
+let rupture=0;
 
 
 //
@@ -199,7 +196,6 @@ new THREE.Vector2(
 -(e.clientY/window.innerHeight)*2+1
 
 );
-
 
 
 const ray =
@@ -256,53 +252,44 @@ performance.now()*0.001;
 
 
 //
-// AIR
+// PRESSURE
 //
 
-if(inflating){
+if(!broken){
 
-    pressure +=0.0012;
+    if(inflating){
 
-    fatigue +=0.0005;
+        pressure +=0.0015;
+
+    }
+    else{
+
+        pressure -=0.0002;
+
+    }
+
+
+    pressure =
+    THREE.MathUtils.clamp(
+        pressure,
+        0,
+        1
+    );
+
+
+    if(pressure>0.92){
+
+        broken=true;
+
+    }
 
 }
-else{
-
-    pressure -=0.00025;
-
-}
-
-
-pressure =
-THREE.MathUtils.clamp(
-pressure,
-0,
-1
-);
-
-
-fatigue =
-THREE.MathUtils.clamp(
-fatigue,
-0,
-1
-);
-
 
 
 
 //
-// MATERIAL RESPONSE
+// NORMAL STATE
 //
-
-material.opacity =
-0.72 - pressure*0.2;
-
-
-material.roughness =
-0.12 + fatigue*0.1;
-
-
 
 for(
 let i=0;
@@ -315,35 +302,20 @@ const p =
 points[i];
 
 
-
 const normal =
 p.origin.clone()
 .normalize();
 
 
-//
-// target shape
-//
 
-let size =
-pressure*0.35;
-
-
-
-//
-// fatigue deformation
-//
-
-size +=
-p.damage*0.15;
-
+if(!broken){
 
 
 const desired =
 p.origin.clone()
 .add(
 normal.multiplyScalar(
-size
+pressure*0.35
 )
 );
 
@@ -357,17 +329,11 @@ desired
 );
 
 
-
 p.velocity.add(
 force
 );
 
 
-
-
-//
-// touch
-//
 
 const distance =
 p.current.distanceTo(
@@ -394,59 +360,69 @@ p.velocity.add(
 push
 );
 
+}
+
 
 
 //
-// remember stress
+// BEFORE BREAK
 //
 
-p.damage +=0.0008;
+if(pressure>0.75){
+
+p.velocity.add(
+
+normal.clone()
+.multiplyScalar(
+Math.sin(
+time*20+i
+)
+*
+0.002
+)
+
+);
+
+}
 
 
 }
 
 
 
-
 //
-// instability
+// RUPTURE
 //
 
-if(pressure>0.7){
+else{
 
 
-const shake =
-Math.sin(
-time*18+i
-)
-*
-(pressure-0.7)
-*
-0.004;
+rupture +=0.003;
 
 
-p.velocity.add(
+const explosion =
 normal.clone()
 .multiplyScalar(
-shake
-)
+rupture *
+p.breakForce *
+0.06
 );
 
 
+p.velocity.add(
+explosion
+);
+
+
+material.opacity *=0.995;
+
+
 }
-
-
-
-//
-// recovery
-//
-
-p.damage *=0.9995;
 
 
 
 p.velocity.multiplyScalar(
-0.88
+0.9
 );
 
 
@@ -462,6 +438,7 @@ p.current.x,
 p.current.y,
 p.current.z
 );
+
 
 
 }
@@ -521,8 +498,7 @@ window.addEventListener(
 
 
 camera.aspect =
-window.innerWidth /
-window.innerHeight;
+window.innerWidth/window.innerHeight;
 
 
 camera.updateProjectionMatrix();
