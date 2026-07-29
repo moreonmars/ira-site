@@ -2,89 +2,80 @@ import * as THREE from
 "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
 
 
-const container =
-document.getElementById("container");
+const container = document.getElementById("container");
 
 
-const scene =
-new THREE.Scene();
+const scene = new THREE.Scene();
 
 
-const camera =
-new THREE.PerspectiveCamera(
+const camera = new THREE.PerspectiveCamera(
 45,
 window.innerWidth / window.innerHeight,
 0.1,
 100
 );
 
-
 camera.position.z = 5;
 
 
 
-const renderer =
-new THREE.WebGLRenderer({
+const renderer = new THREE.WebGLRenderer({
     antialias:true,
     alpha:true
 });
 
 
 renderer.setSize(
-window.innerWidth,
-window.innerHeight
+    window.innerWidth,
+    window.innerHeight
 );
 
 
 renderer.setPixelRatio(
-window.devicePixelRatio
+    window.devicePixelRatio
 );
 
 
-container.appendChild(
-renderer.domElement
-);
+container.appendChild(renderer.domElement);
 
 
 
 //
-// MATERIAL
+// BALLOON
 //
 
-const geometry =
-new THREE.SphereGeometry(
-1.6,
-160,
-160
+const geometry = new THREE.SphereGeometry(
+    1.55,
+    180,
+    180
 );
 
 
-const material =
-new THREE.MeshPhysicalMaterial({
+const material = new THREE.MeshPhysicalMaterial({
 
     color:0xffffff,
 
     transparent:true,
 
-    opacity:0.35,
+    opacity:0.28,
 
     transmission:1,
 
-    thickness:1,
+    thickness:2,
 
-    roughness:0.05,
+    roughness:0.08,
 
-    clearcoat:1
+    clearcoat:1,
+
+    clearcoatRoughness:0.05
 
 });
 
 
-const balloon =
-new THREE.Mesh(
-geometry,
-material
+const balloon = new THREE.Mesh(
+    geometry,
+    material
 );
-
 
 scene.add(balloon);
 
@@ -94,32 +85,31 @@ scene.add(balloon);
 // LIGHT
 //
 
-const light =
-new THREE.PointLight(
-0xffffff,
-5
+const light = new THREE.PointLight(
+    0xffffff,
+    8
 );
 
 light.position.set(
-3,
-3,
-5
+    2,
+    3,
+    5
 );
 
 scene.add(light);
 
 
 scene.add(
-new THREE.AmbientLight(
-0xffffff,
-1
-)
+    new THREE.AmbientLight(
+        0xffffff,
+        1
+    )
 );
 
 
 
 //
-// DEFORMATION
+// PHYSICS
 //
 
 const position =
@@ -129,6 +119,9 @@ geometry.attributes.position;
 const original=[];
 
 
+const velocity=[];
+
+
 for(
 let i=0;
 i<position.count;
@@ -136,11 +129,16 @@ i++
 ){
 
 original.push(
-new THREE.Vector3(
-position.getX(i),
-position.getY(i),
-position.getZ(i)
-)
+    new THREE.Vector3(
+        position.getX(i),
+        position.getY(i),
+        position.getZ(i)
+    )
+);
+
+
+velocity.push(
+    new THREE.Vector3()
 );
 
 }
@@ -155,18 +153,21 @@ let target =
 new THREE.Vector3();
 
 
+let pressure = 0;
+
+
+
 window.addEventListener(
 "pointermove",
-event=>{
+(e)=>{
+
 
 mouse.x =
-(event.clientX /
-window.innerWidth)*2-1;
+(e.clientX/window.innerWidth)*2-1;
 
 
 mouse.y =
--(event.clientY /
-window.innerHeight)*2+1;
+-(e.clientY/window.innerHeight)*2+1;
 
 
 const ray =
@@ -184,11 +185,31 @@ ray.ray.at(
 target
 );
 
+
 });
 
 
 
-function deform(){
+function updateMaterial(){
+
+
+const time =
+performance.now()*0.001;
+
+
+
+//
+// gentle breathing
+//
+
+const breathing =
+Math.sin(time*1.2)*0.015;
+
+
+pressure =
+0.08 + breathing;
+
+
 
 for(
 let i=0;
@@ -196,63 +217,101 @@ i<position.count;
 i++
 ){
 
-const p =
+let point =
 new THREE.Vector3(
-position.getX(i),
-position.getY(i),
-position.getZ(i)
+    position.getX(i),
+    position.getY(i),
+    position.getZ(i)
 );
 
 
-const force =
-p.clone()
-.sub(target);
 
+//
+// internal pressure
+//
+
+const normal =
+original[i].clone()
+.normalize();
+
+
+point.add(
+normal.multiplyScalar(
+pressure
+)
+);
+
+
+
+//
+// touch deformation
+//
 
 const distance =
-force.length();
+point.distanceTo(target);
 
 
-if(distance < 1.2){
+if(distance < 1.4){
 
-force.normalize();
+const push =
+point.clone()
+.sub(target)
+.normalize();
 
-force.multiplyScalar(
-(1.2-distance)*0.08
+
+push.multiplyScalar(
+(1.4-distance)*0.18
 );
 
 
-p.add(force);
+velocity[i].add(push);
 
 }
-else{
-
-const home =
-original[i];
 
 
-p.lerp(
-home,
-0.03
+
+//
+// elastic return
+//
+
+const spring =
+original[i]
+.clone()
+.sub(point)
+.multiplyScalar(0.035);
+
+
+velocity[i].add(
+spring
 );
 
-}
+
+velocity[i].multiplyScalar(
+0.92
+);
+
+
+point.add(
+velocity[i]
+);
 
 
 
 position.setXYZ(
 i,
-p.x,
-p.y,
-p.z
+point.x,
+point.y,
+point.z
 );
 
 }
 
 
+
 position.needsUpdate=true;
 
 geometry.computeVertexNormals();
+
 
 }
 
@@ -265,7 +324,7 @@ animate
 );
 
 
-deform();
+updateMaterial();
 
 
 balloon.rotation.y +=0.001;
@@ -288,9 +347,7 @@ window.addEventListener(
 ()=>{
 
 camera.aspect =
-window.innerWidth /
-window.innerHeight;
-
+window.innerWidth/window.innerHeight;
 
 camera.updateProjectionMatrix();
 
