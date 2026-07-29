@@ -2,26 +2,34 @@ import * as THREE from
 "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
 
 
-const container = document.getElementById("container");
+const container =
+document.getElementById("container");
 
 
+//
 // SCENE
+//
 
-const scene = new THREE.Scene();
+const scene =
+new THREE.Scene();
 
 
-const camera = new THREE.PerspectiveCamera(
+
+const camera =
+new THREE.PerspectiveCamera(
     45,
     window.innerWidth / window.innerHeight,
     0.1,
     100
 );
 
+
 camera.position.z = 5;
 
 
 
-const renderer = new THREE.WebGLRenderer({
+const renderer =
+new THREE.WebGLRenderer({
     antialias:true,
     alpha:true
 });
@@ -43,10 +51,12 @@ container.appendChild(
 );
 
 
-
+//
 // BALLOON
+//
 
-const geometry = new THREE.SphereGeometry(
+const geometry =
+new THREE.SphereGeometry(
     1.5,
     128,
     128
@@ -54,13 +64,14 @@ const geometry = new THREE.SphereGeometry(
 
 
 
-const material = new THREE.MeshPhysicalMaterial({
+const material =
+new THREE.MeshPhysicalMaterial({
 
     color:0xffffff,
 
     transparent:true,
 
-    opacity:0.32,
+    opacity:0.35,
 
     transmission:1,
 
@@ -76,7 +87,8 @@ const material = new THREE.MeshPhysicalMaterial({
 
 
 
-const balloon = new THREE.Mesh(
+const balloon =
+new THREE.Mesh(
     geometry,
     material
 );
@@ -85,11 +97,12 @@ const balloon = new THREE.Mesh(
 scene.add(balloon);
 
 
-
-
+//
 // LIGHT
+//
 
-const light = new THREE.PointLight(
+const light =
+new THREE.PointLight(
     0xffffff,
     6
 );
@@ -113,9 +126,9 @@ scene.add(
 );
 
 
-
-
+//
 // POINT MEMORY
+//
 
 const position =
 geometry.attributes.position;
@@ -132,17 +145,20 @@ for(
 
     points.push({
 
-        current:new THREE.Vector3(
+        current:
+        new THREE.Vector3(
             position.getX(i),
             position.getY(i),
             position.getZ(i)
         ),
 
 
-        velocity:new THREE.Vector3(),
+        velocity:
+        new THREE.Vector3(),
 
 
-        origin:new THREE.Vector3(
+        origin:
+        new THREE.Vector3(
             position.getX(i),
             position.getY(i),
             position.getZ(i)
@@ -154,81 +170,63 @@ for(
 
 
 
-
 let target =
 new THREE.Vector3();
 
 
-let tension = 0;
-
-
-
-
+//
 // POINTER
+//
 
 window.addEventListener(
-    "pointermove",
-    (event)=>{
+"pointermove",
+(event)=>{
 
 
-        const mouse =
-        new THREE.Vector2(
+    const mouse =
+    new THREE.Vector2(
 
-            (event.clientX /
-            window.innerWidth) * 2 - 1,
-
-
-            -(event.clientY /
-            window.innerHeight) * 2 + 1
-
-        );
+        (event.clientX /
+        window.innerWidth) * 2 - 1,
 
 
-        const raycaster =
-        new THREE.Raycaster();
+        -(event.clientY /
+        window.innerHeight) * 2 + 1
+
+    );
 
 
-        raycaster.setFromCamera(
-            mouse,
-            camera
-        );
+    const raycaster =
+    new THREE.Raycaster();
 
 
-        raycaster.ray.at(
-            3,
-            target
-        );
-
-    }
-);
+    raycaster.setFromCamera(
+        mouse,
+        camera
+    );
 
 
+    raycaster.ray.at(
+        3,
+        target
+    );
+
+
+});
 
 
 
-// UPDATE
+
+
+//
+// PHYSICS UPDATE
+//
 
 function update(){
 
 
     const time =
     performance.now() * 0.001;
-
-
-
-    // calm breathing
-
-    const breathing =
-    Math.sin(time * 1.5) * 0.008;
-
-
-
-    const inflation =
-    0.025 + breathing;
-
-
-
-    tension *= 0.995;
 
 
 
@@ -244,38 +242,52 @@ function update(){
 
 
 
-        // return force
+        //
+        // elastic return
+        //
 
-        const spring =
+        const restore =
         p.origin.clone()
         .sub(p.current)
         .multiplyScalar(
-            0.035
+            0.08
         );
 
 
         p.velocity.add(
-            spring
+            restore
         );
 
 
 
-        // tiny internal pressure
+        //
+        // breathing
+        //
 
         const normal =
         p.origin.clone()
         .normalize();
 
 
+
+        const breathing =
+        Math.sin(
+            time * 1.5
+        ) * 0.003;
+
+
+
         p.velocity.add(
             normal.multiplyScalar(
-                inflation * 0.01
+                breathing
             )
         );
 
 
 
-        // touch
+        //
+        // touch deformation
+        //
 
         const distance =
         p.current.distanceTo(
@@ -284,7 +296,7 @@ function update(){
 
 
 
-        if(distance < 1.2){
+        if(distance < 1.0){
 
 
             const push =
@@ -295,7 +307,8 @@ function update(){
 
 
             push.multiplyScalar(
-                (1.2-distance) * 0.008
+                (1.0-distance)
+                *0.04
             );
 
 
@@ -304,19 +317,16 @@ function update(){
                 push
             );
 
-
-
-            tension += 0.0005;
-
         }
 
 
 
-
+        //
         // damping
+        //
 
         p.velocity.multiplyScalar(
-            0.90
+            0.82
         );
 
 
@@ -326,12 +336,34 @@ function update(){
 
 
 
+        //
+        // safety radius
+        //
+
+        const maxRadius = 1.6;
+
+
+        if(
+            p.current.length() > maxRadius
+        ){
+
+            p.current
+            .normalize()
+            .multiplyScalar(
+                maxRadius
+            );
+
+        }
+
+
+
         position.setXYZ(
             i,
             p.current.x,
             p.current.y,
             p.current.z
         );
+
 
     }
 
@@ -348,7 +380,10 @@ function update(){
 
 
 
-// LOOP
+
+//
+// ANIMATION
+//
 
 function animate(){
 
@@ -360,7 +395,7 @@ function animate(){
     update();
 
 
-    balloon.rotation.y += 0.001;
+    balloon.rotation.y +=0.001;
 
 
     renderer.render(
@@ -377,26 +412,27 @@ animate();
 
 
 
+//
 // RESIZE
+//
 
 window.addEventListener(
-    "resize",
-    ()=>{
+"resize",
+()=>{
 
 
-        camera.aspect =
-        window.innerWidth /
-        window.innerHeight;
+    camera.aspect =
+    window.innerWidth /
+    window.innerHeight;
 
 
-        camera.updateProjectionMatrix();
+    camera.updateProjectionMatrix();
 
 
-        renderer.setSize(
-            window.innerWidth,
-            window.innerHeight
-        );
+    renderer.setSize(
+        window.innerWidth,
+        window.innerHeight
+    );
 
 
-    }
-);
+});
