@@ -1,10 +1,15 @@
-const container = document.getElementById("container");
+const container =
+document.getElementById("container");
 
 
-const scene = new THREE.Scene();
+const scene =
+new THREE.Scene();
+
 
 scene.background =
-new THREE.Color(0x050505);
+new THREE.Color(
+    0x050505
+);
 
 
 
@@ -28,7 +33,7 @@ new THREE.WebGLRenderer({
 
 
 renderer.setPixelRatio(
-Math.min(window.devicePixelRatio, 1.5)
+1
 );
 
 
@@ -49,57 +54,28 @@ renderer.domElement
 const geometry =
 new THREE.SphereGeometry(
 1.3,
-48,
-48
+32,
+32
 );
 
 
 
 const material =
-new THREE.MeshStandardMaterial({
-
-    color:0xffffff,
-
-    roughness:0.35
-
+new THREE.MeshBasicMaterial({
+    color:0xffffff
 });
 
 
 
-const balloon =
+const sphere =
 new THREE.Mesh(
 geometry,
 material
 );
 
 
-scene.add(balloon);
-
-
-
-
-
-const light =
-new THREE.DirectionalLight(
-0xffffff,
-2
-);
-
-light.position.set(
--3,
-4,
-5
-);
-
-
-scene.add(light);
-
-
 scene.add(
-new THREE.AmbientLight(
-0xffffff,
-1
-)
+sphere
 );
 
 
@@ -108,6 +84,7 @@ new THREE.AmbientLight(
 
 const position =
 geometry.attributes.position;
+
 
 
 const original=[];
@@ -121,9 +98,9 @@ i++
 
 original.push({
 
-    x:position.getX(i),
-    y:position.getY(i),
-    z:position.getZ(i)
+x:position.getX(i),
+y:position.getY(i),
+z:position.getZ(i)
 
 });
 
@@ -131,30 +108,21 @@ original.push({
 
 
 
-let mouse =
-new THREE.Vector2();
+let touchX=0;
+let touchY=0;
 
 
-let active=false;
+function move(x,y){
+
+touchX =
+(x/window.innerWidth-0.5)*0.4;
 
 
+touchY =
+-(y/window.innerHeight-0.5)*0.4;
 
-function setPointer(x,y){
-
-
-mouse.x =
-(x/window.innerWidth)*2-1;
-
-
-mouse.y =
--(y/window.innerHeight)*2+1;
-
-
-active=true;
 
 }
-
-
 
 
 
@@ -162,7 +130,7 @@ window.addEventListener(
 "pointermove",
 e=>{
 
-setPointer(
+move(
 e.clientX,
 e.clientY
 );
@@ -175,12 +143,15 @@ window.addEventListener(
 "touchmove",
 e=>{
 
-const t=e.touches[0];
+const t =
+e.touches[0];
 
-setPointer(
+
+move(
 t.clientX,
 t.clientY
 );
+
 
 },
 {
@@ -191,17 +162,12 @@ passive:true
 
 
 
+function animate(){
 
 
-function update(){
-
-
-if(!active) return;
-
-
-
-const time =
-performance.now()*0.001;
+requestAnimationFrame(
+animate
+);
 
 
 
@@ -212,37 +178,15 @@ i++
 ){
 
 
-const ox =
-original[i].x;
-
-
-const oy =
-original[i].y;
-
-
-const oz =
-original[i].z;
-
-
-
-const wave =
-Math.sin(
-time*3+i
-)
-*
-0.002;
-
-
-
 position.setXYZ(
 
 i,
 
-ox + mouse.x*0.15 + wave,
+original[i].x + touchX,
 
-oy + mouse.y*0.15 + wave,
+original[i].y + touchY,
 
-oz
+original[i].z
 
 );
 
@@ -254,28 +198,9 @@ oz
 position.needsUpdate=true;
 
 
-geometry.computeVertexNormals();
 
+sphere.rotation.y +=0.01;
 
-}
-
-
-
-
-
-
-
-function animate(){
-
-requestAnimationFrame(
-animate
-);
-
-
-update();
-
-
-balloon.rotation.y +=0.002;
 
 
 renderer.render(
@@ -283,32 +208,9 @@ scene,
 camera
 );
 
+
 }
 
 
+
 animate();
-
-
-
-
-
-window.addEventListener(
-"resize",
-()=>{
-
-
-camera.aspect =
-window.innerWidth /
-window.innerHeight;
-
-
-camera.updateProjectionMatrix();
-
-
-renderer.setSize(
-window.innerWidth,
-window.innerHeight
-);
-
-
-});
