@@ -67,21 +67,23 @@ new THREE.SphereGeometry(
 const material =
 new THREE.MeshPhysicalMaterial({
 
-    color:0xffffff,
+    color:0xe8e8e8,
 
     transparent:true,
 
-    opacity:0.35,
+    opacity:0.75,
 
-    transmission:1,
+    transmission:0.15,
 
-    thickness:1.5,
+    thickness:0.8,
 
-    roughness:0.08,
+    roughness:0.12,
+
+    metalness:0,
 
     clearcoat:1,
 
-    clearcoatRoughness:0.05
+    clearcoatRoughness:0.03
 
 });
 
@@ -104,24 +106,25 @@ scene.add(balloon);
 const light =
 new THREE.PointLight(
     0xffffff,
-    6
+    7
 );
 
 
 light.position.set(
-    3,
-    3,
-    5
+    -2,
+    4,
+    6
 );
 
 
 scene.add(light);
 
 
+
 scene.add(
     new THREE.AmbientLight(
         0xffffff,
-        1
+        0.8
     )
 );
 
@@ -174,6 +177,7 @@ let target =
 new THREE.Vector3();
 
 
+
 //
 // POINTER
 //
@@ -219,7 +223,7 @@ window.addEventListener(
 
 
 //
-// PHYSICS UPDATE
+// PHYSICS
 //
 
 function update(){
@@ -243,7 +247,7 @@ function update(){
 
 
         //
-        // elastic return
+        // elastic memory
         //
 
         const restore =
@@ -286,7 +290,7 @@ function update(){
 
 
         //
-        // touch deformation
+        // touch
         //
 
         const distance =
@@ -296,7 +300,7 @@ function update(){
 
 
 
-        if(distance < 1.0){
+        if(distance < 1.15){
 
 
             const push =
@@ -307,8 +311,8 @@ function update(){
 
 
             push.multiplyScalar(
-                (1.0-distance)
-                *0.04
+                (1.15-distance)
+                *0.12
             );
 
 
@@ -321,8 +325,9 @@ function update(){
 
 
 
+
         //
-        // damping
+        // smoothness
         //
 
         p.velocity.multiplyScalar(
@@ -337,7 +342,7 @@ function update(){
 
 
         //
-        // safety radius
+        // safety limit
         //
 
         const maxRadius = 1.6;
