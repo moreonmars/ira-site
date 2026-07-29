@@ -1,90 +1,15 @@
-import * as THREE from 
-"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
-
-
-const container = document.getElementById("container");
-
-
-const scene = new THREE.Scene();
-
-scene.background = new THREE.Color(0x050505);
-
-
-const camera = new THREE.PerspectiveCamera(
-    45,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    100
-);
-
-camera.position.z = 5;
-
-
-const renderer = new THREE.WebGLRenderer({
-    antialias: false
-});
-
-
-renderer.setPixelRatio(
-    Math.min(window.devicePixelRatio, 1.5)
-);
-
-
-renderer.setSize(
-    window.innerWidth,
-    window.innerHeight
-);
-
-
-container.appendChild(
-    renderer.domElement
-);
-
-
-
-const geometry =
-new THREE.SphereGeometry(
-    1.5,
-    32,
-    32
-);
-
-
-const material =
-new THREE.MeshBasicMaterial({
-    color:0xffffff
-});
-
-
-const sphere =
-new THREE.Mesh(
-    geometry,
-    material
-);
-
-
-scene.add(
-    sphere
-);
-
-
-
-function animate(){
-
-    requestAnimationFrame(
-        animate
-    );
-
-
-    sphere.rotation.y += 0.01;
-
-
-    renderer.render(
-        scene,
-        camera
-    );
-
-}
-
-
-animate();
+document.body.innerHTML = `
+<div style="
+width:100vw;
+height:100vh;
+background:#050505;
+color:white;
+display:flex;
+align-items:center;
+justify-content:center;
+font-family:Arial;
+font-size:40px;
+">
+JS WORKS
+</div>
+`;
