@@ -1,7 +1,10 @@
-const container = document.getElementById("container");
+const container =
+document.getElementById("container");
 
 
-const scene = new THREE.Scene();
+const scene =
+new THREE.Scene();
+
 
 scene.background =
 new THREE.Color(0x050505);
@@ -16,7 +19,10 @@ window.innerWidth / window.innerHeight,
 100
 );
 
-camera.position.z = 5;
+
+
+camera.position.z =
+window.innerWidth < 600 ? 7 : 5;
 
 
 
@@ -27,7 +33,7 @@ new THREE.WebGLRenderer({
 
 
 renderer.setPixelRatio(
-Math.min(window.devicePixelRatio,1.5)
+Math.min(window.devicePixelRatio, 1.5)
 );
 
 
@@ -44,119 +50,64 @@ renderer.domElement
 
 
 
+
+const radius =
+window.innerWidth < 600 ? 0.85 : 1.3;
+
+
+
 const geometry =
 new THREE.SphereGeometry(
-1.3,
-48,
-48
+radius,
+32,
+32
 );
 
 
 
 const material =
 new THREE.MeshBasicMaterial({
+
     color:0xffffff
+
 });
 
 
 
-const balloon =
+const sphere =
 new THREE.Mesh(
 geometry,
 material
 );
 
 
-scene.add(balloon);
-
-
-
-
-
-const position =
-geometry.attributes.position;
-
-
-const points=[];
-
-
-for(
-let i=0;
-i<position.count;
-i++
-){
-
-points.push({
-
-    origin:
-    new THREE.Vector3(
-        position.getX(i),
-        position.getY(i),
-        position.getZ(i)
-    ),
-
-    current:
-    new THREE.Vector3(
-        position.getX(i),
-        position.getY(i),
-        position.getZ(i)
-    )
-
-});
-
-}
-
-
-
-
-const raycaster =
-new THREE.Raycaster();
-
-
-const mouse =
-new THREE.Vector2();
-
-
-let hitPoint =
-null;
-
-
-
-function pointerMove(x,y){
-
-
-mouse.x =
-x/window.innerWidth*2-1;
-
-
-mouse.y =
--(y/window.innerHeight)*2+1;
-
-
-
-raycaster.setFromCamera(
-mouse,
-camera
+scene.add(
+sphere
 );
 
 
 
-const hit =
-raycaster.intersectObject(
-balloon
-);
+
+
+let pointerX = 0;
+let pointerY = 0;
 
 
 
-if(hit.length){
+function movePointer(x,y){
 
-    hitPoint =
-    hit[0].point.clone();
+pointerX =
+(x/window.innerWidth - 0.5)
+*
+0.3;
+
+
+pointerY =
+-(y/window.innerHeight - 0.5)
+*
+0.3;
 
 }
-
-}
-
 
 
 
@@ -164,128 +115,12 @@ window.addEventListener(
 "pointermove",
 e=>{
 
-pointerMove(
+movePointer(
 e.clientX,
 e.clientY
 );
 
 });
-
-
-
-window.addEventListener(
-"touchmove",
-e=>{
-
-const t =
-e.touches[0];
-
-
-pointerMove(
-t.clientX,
-t.clientY
-);
-
-
-},
-{
-passive:true
-});
-
-
-
-
-
-
-function update(){
-
-
-for(
-let i=0;
-i<points.length;
-i++
-){
-
-
-const p =
-points[i];
-
-
-
-let target =
-p.origin.clone();
-
-
-
-if(hitPoint){
-
-
-const worldPoint =
-hitPoint.clone();
-
-
-const distance =
-p.current.distanceTo(
-worldPoint
-);
-
-
-
-if(distance < 0.8){
-
-
-const push =
-p.current.clone()
-.sub(worldPoint)
-.normalize();
-
-
-
-push.multiplyScalar(
-(0.8-distance)*0.25
-);
-
-
-
-target.add(
-push
-);
-
-
-}
-
-
-}
-
-
-
-
-p.current.lerp(
-target,
-0.15
-);
-
-
-
-position.setXYZ(
-i,
-p.current.x,
-p.current.y,
-p.current.z
-);
-
-
-}
-
-
-
-position.needsUpdate=true;
-
-
-geometry.computeVertexNormals();
-
-
-}
 
 
 
@@ -297,7 +132,16 @@ animate
 );
 
 
-update();
+sphere.rotation.y +=0.01;
+
+
+sphere.position.x =
+pointerX;
+
+
+sphere.position.y =
+pointerY;
+
 
 
 renderer.render(
@@ -310,3 +154,32 @@ camera
 
 
 animate();
+
+
+
+
+
+window.addEventListener(
+"resize",
+()=>{
+
+
+camera.aspect =
+window.innerWidth /
+window.innerHeight;
+
+
+camera.position.z =
+window.innerWidth < 600 ? 7 : 5;
+
+
+camera.updateProjectionMatrix();
+
+
+renderer.setSize(
+window.innerWidth,
+window.innerHeight
+);
+
+
+});
