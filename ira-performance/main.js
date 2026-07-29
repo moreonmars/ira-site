@@ -9,10 +9,10 @@ const scene = new THREE.Scene();
 
 
 const camera = new THREE.PerspectiveCamera(
-45,
-window.innerWidth / window.innerHeight,
-0.1,
-100
+    45,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    100
 );
 
 camera.position.z = 5;
@@ -39,9 +39,8 @@ renderer.setPixelRatio(
 container.appendChild(renderer.domElement);
 
 
-
 //
-// BALLOON
+// BALLOON GEOMETRY
 //
 
 const geometry = new THREE.SphereGeometry(
@@ -49,6 +48,7 @@ const geometry = new THREE.SphereGeometry(
     180,
     180
 );
+
 
 
 const material = new THREE.MeshPhysicalMaterial({
@@ -63,11 +63,11 @@ const material = new THREE.MeshPhysicalMaterial({
 
     thickness:2,
 
-    roughness:0.08,
+    roughness:0.06,
 
     clearcoat:1,
 
-    clearcoatRoughness:0.05
+    clearcoatRoughness:0.04
 
 });
 
@@ -77,8 +77,8 @@ const balloon = new THREE.Mesh(
     material
 );
 
-scene.add(balloon);
 
+scene.add(balloon);
 
 
 //
@@ -90,11 +90,13 @@ const light = new THREE.PointLight(
     8
 );
 
+
 light.position.set(
     2,
     3,
     5
 );
+
 
 scene.add(light);
 
@@ -107,39 +109,36 @@ scene.add(
 );
 
 
-
 //
-// PHYSICS
+// PHYSICAL STATE
 //
 
 const position =
 geometry.attributes.position;
 
 
-const original=[];
-
-
-const velocity=[];
+const original = [];
+const velocity = [];
 
 
 for(
-let i=0;
-i<position.count;
-i++
+    let i = 0;
+    i < position.count;
+    i++
 ){
 
-original.push(
-    new THREE.Vector3(
-        position.getX(i),
-        position.getY(i),
-        position.getZ(i)
-    )
-);
+    original.push(
+        new THREE.Vector3(
+            position.getX(i),
+            position.getY(i),
+            position.getZ(i)
+        )
+    );
 
 
-velocity.push(
-    new THREE.Vector3()
-);
+    velocity.push(
+        new THREE.Vector3()
+    );
 
 }
 
@@ -153,187 +152,276 @@ let target =
 new THREE.Vector3();
 
 
-let pressure = 0;
+let tension = 0;
+
+let stress = 0;
 
 
+
+//
+// POINTER
+//
 
 window.addEventListener(
-"pointermove",
-(e)=>{
+    "pointermove",
+    (event)=>{
 
 
-mouse.x =
-(e.clientX/window.innerWidth)*2-1;
+        mouse.x =
+        (event.clientX / window.innerWidth) * 2 - 1;
 
 
-mouse.y =
--(e.clientY/window.innerHeight)*2+1;
+        mouse.y =
+        -(event.clientY / window.innerHeight) * 2 + 1;
 
 
-const ray =
-new THREE.Raycaster();
+
+        const ray =
+        new THREE.Raycaster();
 
 
-ray.setFromCamera(
-mouse,
-camera
+        ray.setFromCamera(
+            mouse,
+            camera
+        );
+
+
+        ray.ray.at(
+            3,
+            target
+        );
+
+
+    }
 );
 
 
-ray.ray.at(
-3,
-target
-);
-
-
-});
-
-
+//
+// MATERIAL UPDATE
+//
 
 function updateMaterial(){
 
 
-const time =
-performance.now()*0.001;
+    const time =
+    performance.now() * 0.001;
 
 
 
-//
-// gentle breathing
-//
+    //
+    // natural breathing
+    //
 
-const breathing =
-Math.sin(time*1.2)*0.015;
-
-
-pressure =
-0.08 + breathing;
+    const breathing =
+    Math.sin(time * 1.2) * 0.015;
 
 
 
-for(
-let i=0;
-i<position.count;
-i++
-){
+    //
+    // internal pressure
+    //
 
-let point =
-new THREE.Vector3(
-    position.getX(i),
-    position.getY(i),
-    position.getZ(i)
-);
+    const pressure =
+    0.08 +
+    breathing +
+    tension * 0.08;
 
 
 
-//
-// internal pressure
-//
+    //
+    // tension decay / growth
+    //
 
-const normal =
-original[i].clone()
-.normalize();
-
-
-point.add(
-normal.multiplyScalar(
-pressure
-)
-);
+    const interactionDistance =
+    target.length();
 
 
 
-//
-// touch deformation
-//
+    if(interactionDistance > 0){
 
-const distance =
-point.distanceTo(target);
+        tension += 0.00015;
 
-
-if(distance < 1.4){
-
-const push =
-point.clone()
-.sub(target)
-.normalize();
+    }
 
 
-push.multiplyScalar(
-(1.4-distance)*0.18
-);
+    tension -= 0.00003;
 
 
-velocity[i].add(push);
+    tension =
+    THREE.MathUtils.clamp(
+        tension,
+        0,
+        1
+    );
+
+
+
+    stress =
+    tension * 0.15;
+
+
+
+    for(
+        let i = 0;
+        i < position.count;
+        i++
+    ){
+
+
+        let point =
+        new THREE.Vector3(
+            position.getX(i),
+            position.getY(i),
+            position.getZ(i)
+        );
+
+
+
+        //
+        // original normal direction
+        //
+
+        const normal =
+        original[i]
+        .clone()
+        .normalize();
+
+
+
+        //
+        // internal inflation
+        //
+
+        point.add(
+            normal.clone()
+            .multiplyScalar(
+                pressure
+            )
+        );
+
+
+
+        //
+        // stress vibration
+        //
+
+        point.add(
+            normal.clone()
+            .multiplyScalar(
+                stress *
+                Math.sin(time * 10 + i)
+            )
+        );
+
+
+
+        //
+        // user touch
+        //
+
+        const distance =
+        point.distanceTo(target);
+
+
+
+        if(distance < 1.4){
+
+
+            const push =
+            point.clone()
+            .sub(target)
+            .normalize();
+
+
+
+            push.multiplyScalar(
+                (1.4-distance) * 0.18
+            );
+
+
+
+            velocity[i].add(
+                push
+            );
+
+
+            tension += 0.001;
+
+
+        }
+
+
+
+        //
+        // elastic memory
+        //
+
+        const spring =
+        original[i]
+        .clone()
+        .sub(point)
+        .multiplyScalar(
+            0.035
+        );
+
+
+        velocity[i].add(
+            spring
+        );
+
+
+        velocity[i].multiplyScalar(
+            0.92
+        );
+
+
+        point.add(
+            velocity[i]
+        );
+
+
+
+        position.setXYZ(
+            i,
+            point.x,
+            point.y,
+            point.z
+        );
+
+    }
+
+
+    position.needsUpdate = true;
+
+
+    geometry.computeVertexNormals();
+
 
 }
 
 
 
 //
-// elastic return
+// LOOP
 //
-
-const spring =
-original[i]
-.clone()
-.sub(point)
-.multiplyScalar(0.035);
-
-
-velocity[i].add(
-spring
-);
-
-
-velocity[i].multiplyScalar(
-0.92
-);
-
-
-point.add(
-velocity[i]
-);
-
-
-
-position.setXYZ(
-i,
-point.x,
-point.y,
-point.z
-);
-
-}
-
-
-
-position.needsUpdate=true;
-
-geometry.computeVertexNormals();
-
-
-}
-
-
 
 function animate(){
 
-requestAnimationFrame(
-animate
-);
+    requestAnimationFrame(
+        animate
+    );
 
 
-updateMaterial();
+    updateMaterial();
 
 
-balloon.rotation.y +=0.001;
+    balloon.rotation.y += 0.001;
 
 
-renderer.render(
-scene,
-camera
-);
+    renderer.render(
+        scene,
+        camera
+    );
 
 }
 
@@ -341,20 +429,27 @@ camera
 animate();
 
 
+//
+// RESIZE
+//
 
 window.addEventListener(
-"resize",
-()=>{
-
-camera.aspect =
-window.innerWidth/window.innerHeight;
-
-camera.updateProjectionMatrix();
+    "resize",
+    ()=>{
 
 
-renderer.setSize(
-window.innerWidth,
-window.innerHeight
+        camera.aspect =
+        window.innerWidth /
+        window.innerHeight;
+
+
+        camera.updateProjectionMatrix();
+
+
+        renderer.setSize(
+            window.innerWidth,
+            window.innerHeight
+        );
+
+    }
 );
-
-});
