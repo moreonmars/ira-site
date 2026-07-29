@@ -4,14 +4,16 @@ import * as THREE from
 
 const container = document.getElementById("container");
 
+
 const scene = new THREE.Scene();
 
 
+
 const camera = new THREE.PerspectiveCamera(
-45,
-window.innerWidth / window.innerHeight,
-0.1,
-100
+    45,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    100
 );
 
 camera.position.z = 5;
@@ -57,6 +59,7 @@ light.position.set(
 
 scene.add(light);
 
+
 scene.add(
     new THREE.AmbientLight(
         0xffffff,
@@ -72,9 +75,10 @@ scene.add(
 const geometry =
 new THREE.SphereGeometry(
     1.5,
-    96,
-    96
+    128,
+    128
 );
+
 
 
 const material =
@@ -90,7 +94,7 @@ new THREE.MeshPhysicalMaterial({
 
     thickness:1,
 
-    roughness:0.1,
+    roughness:0.12,
 
     clearcoat:1
 
@@ -107,8 +111,6 @@ new THREE.Mesh(
 scene.add(balloon);
 
 
-
-
 //
 // STATE
 //
@@ -117,7 +119,12 @@ let pressure = 0;
 
 let inflating = false;
 
+let breaking = false;
+
 let broken = false;
+
+let breakTimer = 0;
+
 
 let fragments = [];
 
@@ -126,9 +133,6 @@ let fragments = [];
 // POINTER
 //
 
-let mouse =
-new THREE.Vector2();
-
 let target =
 new THREE.Vector3();
 
@@ -136,32 +140,34 @@ new THREE.Vector3();
 
 window.addEventListener(
 "pointermove",
-e=>{
+(e)=>{
 
 
-mouse.x =
-(e.clientX/window.innerWidth)*2-1;
+const mouse =
+new THREE.Vector2(
+
+    e.clientX / window.innerWidth * 2 - 1,
+
+    -(e.clientY / window.innerHeight * 2 - 1)
+
+);
 
 
-mouse.y =
--(e.clientY/window.innerHeight)*2+1;
-
-
-
-const ray =
+const raycaster =
 new THREE.Raycaster();
 
 
-ray.setFromCamera(
-mouse,
-camera
+raycaster.setFromCamera(
+    mouse,
+    camera
 );
 
 
-ray.ray.at(
-3,
-target
+raycaster.ray.at(
+    3,
+    target
 );
+
 
 });
 
@@ -171,7 +177,7 @@ window.addEventListener(
 "pointerdown",
 ()=>{
 
-inflating=true;
+inflating = true;
 
 });
 
@@ -180,7 +186,7 @@ window.addEventListener(
 "pointerup",
 ()=>{
 
-inflating=false;
+inflating = false;
 
 });
 
@@ -189,52 +195,47 @@ inflating=false;
 
 
 //
-// BREAK CREATION
+// CREATE PIECES
 //
 
-function explode(){
+function createFragments(){
 
 
-broken=true;
+balloon.visible = false;
 
 
-balloon.visible=false;
+const material =
+new THREE.MeshPhysicalMaterial({
 
+    color:0xe8e8e8,
 
+    transparent:true,
 
-const fragGeometry =
-new THREE.IcosahedronGeometry(
-0.18,
-1
-);
+    opacity:0.8,
+
+    roughness:0.2,
+
+    clearcoat:1
+
+});
 
 
 
 for(
 let i=0;
-i<80;
+i<70;
 i++
 ){
 
 
-const frag =
+const piece =
 new THREE.Mesh(
 
-    fragGeometry.clone(),
+    new THREE.TetrahedronGeometry(
+        Math.random()*0.12+0.05
+    ),
 
-    new THREE.MeshPhysicalMaterial({
-
-        color:0xe8e8e8,
-
-        transparent:true,
-
-        opacity:0.75,
-
-        roughness:0.15,
-
-        clearcoat:1
-
-    })
+    material.clone()
 
 );
 
@@ -250,380 +251,41 @@ new THREE.Vector3(
 
 
 
-frag.position.copy(
-direction.clone()
-.multiplyScalar(
-0.2
-)
+piece.position.set(
+    0,
+    0,
+    0
 );
 
 
 
-frag.userData = {
+piece.userData = {
 
     velocity:
     direction.multiplyScalar(
-        Math.random()*0.08+0.04
+        Math.random()*0.09+0.04
     ),
 
-    rotation:
+
+    spin:
     new THREE.Vector3(
-        Math.random()*0.1,
-        Math.random()*0.1,
-        Math.random()*0.1
+        Math.random()*0.15,
+        Math.random()*0.15,
+        Math.random()*0.15
     )
 
 };
 
 
+scene.add(piece);
 
-scene.add(frag);
-
-fragments.push(
-frag
-);
-
-}
-
+fragments.push(piece);
 
 
 }
 
 
-
-
-
-//
-// UPDATE
-//
-
-function update(){
-
-
-if(!broken){
-
-
-if(inflating){
-
-pressure +=0.0018;
-
 }
-else{
-
-pressure -=0.0002;
-
-}
-
-
-
-pressure =
-THREE.MathUtils.clamp(
-pressure,
-0,
-1
-);
-
-
-
-balloon.scale.setScalar(
-1 + pressure*0.45
-);
-
-
-
-material.opacity =
-0.75-pressure*0.2;
-
-
-
-if(pressure>0.92){
-
-setTimeout(
-explode,
-500
-);
-
-}
-
-
-
-//
-// deformation before break
-//
-
-balloon.rotation.x =
-Math.sin(
-performance.now()*0.003
-)
-*
-pressure
-*
-0.05;
-
-
-}
-else{
-
-
-fragments.forEach(
-frag=>{
-
-
-frag.position.add(
-frag.userData.velocity
-);
-
-
-
-frag.rotation.x +=
-frag.userData.rotation.x;
-
-
-frag.rotation.y +=
-frag.userData.rotation.y;
-
-
-frag.rotation.z +=
-frag.userData.rotation.z;
-
-
-
-frag.userData.velocity.y -=0.001;
-
-
-});
-
-}
-
-
-
-}
-
-
-
-
-
-//
-// LOOP
-//
-
-function animate(){
-
-requestAnimationFrame(
-animate
-);
-
-
-update();
-
-
-renderer.render(
-scene,
-camera
-);
-
-}
-
-
-animate();
-
-
-
-
-
-//
-// RESIZE
-//
-
-window.addEventListener(
-"resize",
-()=>{
-
-
-camera.aspect =
-window.innerWidth /
-window.innerHeight;
-
-
-camera.updateProjectionMatrix();
-
-
-renderer.setSize(
-window.innerWidth,
-window.innerHeight
-);
-
-});new THREE.MeshPhysicalMaterial({
-
-    color:0xe8e8e8,
-
-    transparent:true,
-
-    opacity:0.7,
-
-    transmission:0.25,
-
-    thickness:1,
-
-    roughness:0.12,
-
-    clearcoat:1
-
-});
-
-
-const balloon =
-new THREE.Mesh(
-geometry,
-material
-);
-
-
-scene.add(balloon);
-
-
-//
-// LIGHT
-//
-
-const light =
-new THREE.PointLight(
-0xffffff,
-8
-);
-
-
-light.position.set(
--3,
-4,
-6
-);
-
-
-scene.add(light);
-
-
-scene.add(
-new THREE.AmbientLight(
-0xffffff,
-0.8
-)
-);
-
-
-//
-// POINTS
-//
-
-const position =
-geometry.attributes.position;
-
-
-const points=[];
-
-
-for(
-let i=0;
-i<position.count;
-i++
-){
-
-points.push({
-
-    current:new THREE.Vector3(
-        position.getX(i),
-        position.getY(i),
-        position.getZ(i)
-    ),
-
-    velocity:new THREE.Vector3(),
-
-    origin:new THREE.Vector3(
-        position.getX(i),
-        position.getY(i),
-        position.getZ(i)
-    ),
-
-    breakForce:
-    Math.random()
-
-});
-
-}
-
-
-
-let target =
-new THREE.Vector3();
-
-
-let inflating=false;
-
-
-let pressure=0;
-
-
-let broken=false;
-
-
-let rupture=0;
-
-
-//
-// POINTER
-//
-
-window.addEventListener(
-"pointermove",
-e=>{
-
-
-const mouse =
-new THREE.Vector2(
-
-(e.clientX/window.innerWidth)*2-1,
-
--(e.clientY/window.innerHeight)*2+1
-
-);
-
-
-const ray =
-new THREE.Raycaster();
-
-
-ray.setFromCamera(
-mouse,
-camera
-);
-
-
-ray.ray.at(
-3,
-target
-);
-
-
-});
-
-
-
-window.addEventListener(
-"pointerdown",
-()=>{
-
-inflating=true;
-
-});
-
-
-window.addEventListener(
-"pointerup",
-()=>{
-
-inflating=false;
-
-});
 
 
 
@@ -641,139 +303,128 @@ performance.now()*0.001;
 
 
 
-//
-// PRESSURE
-//
-
 if(!broken){
 
-    if(inflating){
 
-        pressure +=0.0015;
+if(inflating && !breaking){
 
-    }
-    else{
+    pressure +=0.0015;
 
-        pressure -=0.0002;
+}
+else if(!breaking){
 
-    }
+    pressure -=0.00015;
 
-
-    pressure =
-    THREE.MathUtils.clamp(
-        pressure,
-        0,
-        1
-    );
+}
 
 
-    if(pressure>0.92){
 
-        broken=true;
+pressure =
+THREE.MathUtils.clamp(
+    pressure,
+    0,
+    1
+);
 
-    }
+
+
+//
+// inflate
+//
+
+if(!breaking){
+
+
+const scale =
+1 + pressure*0.45;
+
+
+balloon.scale.setScalar(
+    scale
+);
+
+
+
+material.opacity =
+0.75-pressure*0.15;
+
+
+
+//
+// tension
+//
+
+if(pressure > 0.75){
+
+
+balloon.rotation.x =
+Math.sin(time*18)
+*
+(pressure-0.75)
+*
+0.1;
+
+
+balloon.rotation.y =
+Math.cos(time*20)
+*
+(pressure-0.75)
+*
+0.1;
+
+
+}
+
+
 
 }
 
 
 
 //
-// NORMAL STATE
+// START BREAK
 //
 
-for(
-let i=0;
-i<points.length;
-i++
+if(
+pressure > 0.94 &&
+!breaking
 ){
 
-
-const p =
-points[i];
-
-
-const normal =
-p.origin.clone()
-.normalize();
-
-
-
-if(!broken){
-
-
-const desired =
-p.origin.clone()
-.add(
-normal.multiplyScalar(
-pressure*0.35
-)
-);
-
-
-
-const force =
-desired
-.sub(p.current)
-.multiplyScalar(
-0.04
-);
-
-
-p.velocity.add(
-force
-);
-
-
-
-const distance =
-p.current.distanceTo(
-target
-);
-
-
-
-if(distance<1.15){
-
-
-const push =
-p.current.clone()
-.sub(target)
-.normalize();
-
-
-push.multiplyScalar(
-(1.15-distance)*0.08
-);
-
-
-p.velocity.add(
-push
-);
+breaking=true;
 
 }
 
 
 
+
+
 //
-// BEFORE BREAK
+// BREAK DELAY
 //
 
-if(pressure>0.75){
+if(breaking){
 
-p.velocity.add(
+breakTimer +=0.016;
 
-normal.clone()
-.multiplyScalar(
-Math.sin(
-time*20+i
-)
-*
-0.002
-)
 
+balloon.scale.setScalar(
+1 + pressure*0.5
 );
 
+
+
+if(
+breakTimer > 0.7
+){
+
+broken=true;
+
+createFragments();
+
 }
+
+}
+
 
 
 }
@@ -781,64 +432,41 @@ time*20+i
 
 
 //
-// RUPTURE
+// FRAGMENTS
 //
 
-else{
+if(broken){
 
 
-rupture +=0.003;
+fragments.forEach(
+(piece)=>{
 
 
-const explosion =
-normal.clone()
-.multiplyScalar(
-rupture *
-p.breakForce *
-0.06
+piece.position.add(
+piece.userData.velocity
 );
 
 
-p.velocity.add(
-explosion
-);
+
+piece.userData.velocity.y -=0.002;
 
 
-material.opacity *=0.995;
+piece.rotation.x +=
+piece.userData.spin.x;
 
+
+piece.rotation.y +=
+piece.userData.spin.y;
+
+
+piece.rotation.z +=
+piece.userData.spin.z;
+
+
+
+});
 
 }
-
-
-
-p.velocity.multiplyScalar(
-0.9
-);
-
-
-p.current.add(
-p.velocity
-);
-
-
-
-position.setXYZ(
-i,
-p.current.x,
-p.current.y,
-p.current.z
-);
-
-
-
-}
-
-
-
-position.needsUpdate=true;
-
-
-geometry.computeVertexNormals();
 
 
 }
@@ -859,9 +487,6 @@ animate
 
 
 update();
-
-
-balloon.rotation.y+=0.001;
 
 
 renderer.render(
