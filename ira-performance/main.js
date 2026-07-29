@@ -20,8 +20,7 @@ window.innerWidth / window.innerHeight,
 );
 
 
-camera.position.z =
-window.innerWidth < 600 ? 6 : 5;
+camera.position.z = 5;
 
 
 
@@ -31,9 +30,7 @@ new THREE.WebGLRenderer({
 });
 
 
-renderer.setPixelRatio(
-Math.min(window.devicePixelRatio, 1.5)
-);
+renderer.setPixelRatio(1);
 
 
 renderer.setSize(
@@ -47,45 +44,20 @@ renderer.domElement
 );
 
 
-//
-// LIGHT
-//
-
-scene.add(
-new THREE.AmbientLight(
-0xffffff,
-1
-)
-);
-
-
-
-
-//
-// BALLOON
-//
-
-const segments =
-window.innerWidth < 600 ? 40 : 64;
-
 
 
 const geometry =
 new THREE.SphereGeometry(
 1.3,
-segments,
-segments
+48,
+48
 );
 
 
 
 const material =
-new THREE.MeshStandardMaterial({
-
-    color:0xe8e8e8,
-
-    roughness:0.35
-
+new THREE.MeshBasicMaterial({
+    color:0xffffff
 });
 
 
@@ -97,25 +69,17 @@ material
 );
 
 
-scene.add(
-balloon
-);
+scene.add(balloon);
 
 
 
 
-
-//
-// POINT MEMORY
-//
 
 const position =
 geometry.attributes.position;
 
 
-
-const points=[];
-
+const original=[];
 
 
 for(
@@ -124,59 +88,42 @@ i<position.count;
 i++
 ){
 
-points.push({
-
-    original:
-    new THREE.Vector3(
-        position.getX(i),
-        position.getY(i),
-        position.getZ(i)
-    ),
-
-
-    current:
-    new THREE.Vector3(
-        position.getX(i),
-        position.getY(i),
-        position.getZ(i)
-    )
-
-});
+original.push(
+new THREE.Vector3(
+    position.getX(i),
+    position.getY(i),
+    position.getZ(i)
+)
+);
 
 }
 
 
 
-let hitPoint =
+let point =
 new THREE.Vector3();
 
 
-
-let touching=false;
-
+let active=false;
 
 
-//
-// POINTER
-//
 
-function updatePointer(x,y){
+
+function setPointer(x,y){
 
 
 const mouse =
 new THREE.Vector2(
 
-    x/window.innerWidth*2-1,
+x/window.innerWidth*2-1,
 
-    -(y/window.innerHeight*2-1)
+-(y/window.innerHeight*2-1)
 
 );
 
 
-
 const ray =
 new THREE.Raycaster();
-
 
 
 ray.setFromCamera(
@@ -185,25 +132,13 @@ camera
 );
 
 
-
-const hit =
-new THREE.Vector3();
-
-
-
 ray.ray.at(
 3,
-hit
+point
 );
 
 
-
-hitPoint.copy(
-hit
-);
-
-
-touching=true;
+active=true;
 
 }
 
@@ -213,13 +148,12 @@ window.addEventListener(
 "pointermove",
 e=>{
 
-updatePointer(
+setPointer(
 e.clientX,
 e.clientY
 );
 
 });
-
 
 
 window.addEventListener(
@@ -229,12 +163,10 @@ e=>{
 const t =
 e.touches[0];
 
-
-updatePointer(
+setPointer(
 t.clientX,
 t.clientY
 );
-
 
 },
 {
@@ -245,82 +177,79 @@ passive:true
 
 
 
-//
-// DEFORM
-//
-
 function update(){
 
 
 for(
 let i=0;
-i<points.length;
+i<position.count;
 i++
 ){
 
 
-const p =
-points[i];
-
-
-
-let target =
-p.original.clone();
-
-
-
-if(touching){
-
-
-const distance =
-p.current.distanceTo(
-hitPoint
+let p =
+new THREE.Vector3(
+position.getX(i),
+position.getY(i),
+position.getZ(i)
 );
 
 
 
-if(distance < 1.0){
-
-
-const push =
-p.current.clone()
-.sub(hitPoint);
+let target =
+original[i].clone();
 
 
 
-push.normalize();
+if(active){
 
 
-push.multiplyScalar(
-(1-distance)*0.25
+let distance =
+p.distanceTo(point);
+
+
+
+if(distance < 1){
+
+
+let force =
+p.clone()
+.sub(point)
+.normalize();
+
+
+
+force.multiplyScalar(
+(1-distance)*0.3
 );
 
 
 
 target.add(
-push
+force
 );
 
-
-}
-
 }
 
 
+}
 
-p.current.lerp(
+
+
+p.lerp(
 target,
-0.08
+0.15
 );
 
 
 
 position.setXYZ(
 i,
-p.current.x,
-p.current.y,
-p.current.z
+p.x,
+p.y,
+p.z
 );
+
 
 
 }
@@ -330,16 +259,7 @@ p.current.z
 position.needsUpdate=true;
 
 
-geometry.computeVertexNormals();
-
-
-touching=false;
-
-
 }
-
-
-
 
 
 
@@ -353,45 +273,12 @@ animate
 update();
 
 
-balloon.rotation.y +=0.001;
-
-
 renderer.render(
 scene,
 camera
 );
 
-
 }
 
 
 animate();
-
-
-
-
-
-window.addEventListener(
-"resize",
-()=>{
-
-
-camera.aspect =
-window.innerWidth /
-window.innerHeight;
-
-
-camera.position.z =
-window.innerWidth < 600 ? 6 : 5;
-
-
-camera.updateProjectionMatrix();
-
-
-renderer.setSize(
-window.innerWidth,
-window.innerHeight
-);
-
-
-});
