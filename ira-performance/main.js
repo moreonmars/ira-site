@@ -5,14 +5,16 @@ import * as THREE from
 const container = document.getElementById("container");
 
 
+// SCENE
+
 const scene = new THREE.Scene();
 
 
 const camera = new THREE.PerspectiveCamera(
-45,
-window.innerWidth / window.innerHeight,
-0.1,
-100
+    45,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    100
 );
 
 camera.position.z = 5;
@@ -26,52 +28,57 @@ const renderer = new THREE.WebGLRenderer({
 
 
 renderer.setSize(
-window.innerWidth,
-window.innerHeight
+    window.innerWidth,
+    window.innerHeight
 );
 
 
 renderer.setPixelRatio(
-window.devicePixelRatio
+    window.devicePixelRatio
 );
 
 
-container.appendChild(renderer.domElement);
+container.appendChild(
+    renderer.domElement
+);
 
 
 
-//
 // BALLOON
-//
 
-const geometry =
-new THREE.SphereGeometry(
-1.5,
-128,
-128
+const geometry = new THREE.SphereGeometry(
+    1.5,
+    128,
+    128
 );
 
 
-const material =
-new THREE.MeshPhysicalMaterial({
+
+const material = new THREE.MeshPhysicalMaterial({
 
     color:0xffffff,
+
     transparent:true,
-    opacity:0.35,
+
+    opacity:0.32,
 
     transmission:1,
+
     thickness:1.5,
 
     roughness:0.08,
-    clearcoat:1
+
+    clearcoat:1,
+
+    clearcoatRoughness:0.05
 
 });
 
 
-const balloon =
-new THREE.Mesh(
-geometry,
-material
+
+const balloon = new THREE.Mesh(
+    geometry,
+    material
 );
 
 
@@ -79,50 +86,48 @@ scene.add(balloon);
 
 
 
-//
-// LIGHT
-//
 
-const light =
-new THREE.PointLight(
-0xffffff,
-6
+// LIGHT
+
+const light = new THREE.PointLight(
+    0xffffff,
+    6
 );
+
 
 light.position.set(
-3,
-3,
-5
+    3,
+    3,
+    5
 );
+
 
 scene.add(light);
 
 
 scene.add(
-new THREE.AmbientLight(
-0xffffff,
-1
-)
+    new THREE.AmbientLight(
+        0xffffff,
+        1
+    )
 );
 
 
 
 
-//
-// PHYSICS MEMORY
-//
+// POINT MEMORY
 
 const position =
 geometry.attributes.position;
 
 
-const points=[];
+const points = [];
 
 
 for(
-let i=0;
-i<position.count;
-i++
+    let i = 0;
+    i < position.count;
+    i++
 ){
 
     points.push({
@@ -133,7 +138,9 @@ i++
             position.getZ(i)
         ),
 
+
         velocity:new THREE.Vector3(),
+
 
         origin:new THREE.Vector3(
             position.getX(i),
@@ -147,6 +154,7 @@ i++
 
 
 
+
 let target =
 new THREE.Vector3();
 
@@ -155,205 +163,210 @@ let tension = 0;
 
 
 
-//
+
 // POINTER
-//
 
 window.addEventListener(
-"pointermove",
-e=>{
+    "pointermove",
+    (event)=>{
 
 
-const mouse =
-new THREE.Vector2(
+        const mouse =
+        new THREE.Vector2(
 
-(e.clientX/window.innerWidth)*2-1,
+            (event.clientX /
+            window.innerWidth) * 2 - 1,
 
--(e.clientY/window.innerHeight)*2+1
 
+            -(event.clientY /
+            window.innerHeight) * 2 + 1
+
+        );
+
+
+        const raycaster =
+        new THREE.Raycaster();
+
+
+        raycaster.setFromCamera(
+            mouse,
+            camera
+        );
+
+
+        raycaster.ray.at(
+            3,
+            target
+        );
+
+    }
 );
 
 
-const ray =
-new THREE.Raycaster();
-
-
-ray.setFromCamera(
-mouse,
-camera
-);
-
-
-ray.ray.at(
-3,
-target
-);
-
-
-});
 
 
 
-
+// UPDATE
 
 function update(){
 
 
-const time =
-performance.now()*0.001;
-
-
-const inflation =
-0.03 +
-Math.sin(time*1.5)*0.01 +
-tension*0.15;
+    const time =
+    performance.now() * 0.001;
 
 
 
-for(
-let i=0;
-i<points.length;
-i++
-){
+    // calm breathing
 
-
-let p =
-points[i];
+    const breathing =
+    Math.sin(time * 1.5) * 0.008;
 
 
 
-//
-// spring back
-//
-
-let force =
-p.origin.clone()
-.sub(p.current)
-.multiplyScalar(
-0.025
-);
+    const inflation =
+    0.025 + breathing;
 
 
 
-p.velocity.add(
-force
-);
+    tension *= 0.995;
 
 
 
-//
-// inflate
-//
-
-let normal =
-p.origin.clone()
-.normalize();
+    for(
+        let i = 0;
+        i < points.length;
+        i++
+    ){
 
 
-p.velocity.add(
-normal.multiplyScalar(
-(inflation)*0.002
-)
-);
+        const p =
+        points[i];
 
 
 
+        // return force
+
+        const spring =
+        p.origin.clone()
+        .sub(p.current)
+        .multiplyScalar(
+            0.035
+        );
 
 
-//
-// touch
-//
-
-let distance =
-p.current.distanceTo(
-target
-);
+        p.velocity.add(
+            spring
+        );
 
 
 
-if(distance < 1.2){
+        // tiny internal pressure
 
-let push =
-p.current.clone()
-.sub(target)
-.normalize();
-
-
-push.multiplyScalar(
-(1.2-distance)*0.02
-);
+        const normal =
+        p.origin.clone()
+        .normalize();
 
 
-p.velocity.add(
-push
-);
+        p.velocity.add(
+            normal.multiplyScalar(
+                inflation * 0.01
+            )
+        );
 
 
-tension +=0.002;
+
+        // touch
+
+        const distance =
+        p.current.distanceTo(
+            target
+        );
+
+
+
+        if(distance < 1.2){
+
+
+            const push =
+            p.current.clone()
+            .sub(target)
+            .normalize();
+
+
+
+            push.multiplyScalar(
+                (1.2-distance) * 0.008
+            );
+
+
+
+            p.velocity.add(
+                push
+            );
+
+
+
+            tension += 0.0005;
+
+        }
+
+
+
+
+        // damping
+
+        p.velocity.multiplyScalar(
+            0.90
+        );
+
+
+        p.current.add(
+            p.velocity
+        );
+
+
+
+        position.setXYZ(
+            i,
+            p.current.x,
+            p.current.y,
+            p.current.z
+        );
+
+    }
+
+
+
+    position.needsUpdate = true;
+
+
+    geometry.computeVertexNormals();
+
 
 }
 
 
 
 
-//
-// damping
-//
-
-p.velocity.multiplyScalar(
-0.92
-);
-
-
-p.current.add(
-p.velocity
-);
-
-
-
-position.setXYZ(
-i,
-p.current.x,
-p.current.y,
-p.current.z
-);
-
-
-}
-
-
-
-tension*=0.995;
-
-
-position.needsUpdate=true;
-
-geometry.computeVertexNormals();
-
-
-}
-
-
-
-
+// LOOP
 
 function animate(){
 
-requestAnimationFrame(
-animate
-);
+    requestAnimationFrame(
+        animate
+    );
 
 
-update();
+    update();
 
 
-balloon.rotation.y+=0.001;
+    balloon.rotation.y += 0.001;
 
 
-renderer.render(
-scene,
-camera
-);
+    renderer.render(
+        scene,
+        camera
+    );
 
 }
 
@@ -362,23 +375,28 @@ animate();
 
 
 
+
+
+// RESIZE
+
 window.addEventListener(
-"resize",
-()=>{
+    "resize",
+    ()=>{
 
 
-camera.aspect =
-window.innerWidth /
-window.innerHeight;
+        camera.aspect =
+        window.innerWidth /
+        window.innerHeight;
 
 
-camera.updateProjectionMatrix();
+        camera.updateProjectionMatrix();
 
 
-renderer.setSize(
-window.innerWidth,
-window.innerHeight
+        renderer.setSize(
+            window.innerWidth,
+            window.innerHeight
+        );
+
+
+    }
 );
-
-
-});
