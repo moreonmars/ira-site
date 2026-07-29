@@ -5,6 +5,10 @@ import * as THREE from
 const container = document.getElementById("container");
 
 
+//
+// SCENE
+//
+
 const scene = new THREE.Scene();
 
 
@@ -36,43 +40,49 @@ renderer.setPixelRatio(
 );
 
 
-container.appendChild(renderer.domElement);
+container.appendChild(
+    renderer.domElement
+);
 
 
 //
-// BALLOON GEOMETRY
+// BALLOON
 //
 
-const geometry = new THREE.SphereGeometry(
+const geometry =
+new THREE.SphereGeometry(
     1.55,
-    180,
-    180
+    160,
+    160
 );
 
 
 
-const material = new THREE.MeshPhysicalMaterial({
+const material =
+new THREE.MeshPhysicalMaterial({
 
     color:0xffffff,
 
     transparent:true,
 
-    opacity:0.28,
+    opacity:0.32,
 
     transmission:1,
 
-    thickness:2,
+    thickness:1.8,
 
-    roughness:0.06,
+    roughness:0.08,
 
     clearcoat:1,
 
-    clearcoatRoughness:0.04
+    clearcoatRoughness:0.05
 
 });
 
 
-const balloon = new THREE.Mesh(
+
+const balloon =
+new THREE.Mesh(
     geometry,
     material
 );
@@ -85,14 +95,15 @@ scene.add(balloon);
 // LIGHT
 //
 
-const light = new THREE.PointLight(
+const light =
+new THREE.PointLight(
     0xffffff,
-    8
+    7
 );
 
 
 light.position.set(
-    2,
+    3,
     3,
     5
 );
@@ -110,7 +121,7 @@ scene.add(
 
 
 //
-// PHYSICAL STATE
+// GEOMETRY MEMORY
 //
 
 const position =
@@ -118,7 +129,6 @@ geometry.attributes.position;
 
 
 const original = [];
-const velocity = [];
 
 
 for(
@@ -135,11 +145,6 @@ for(
         )
     );
 
-
-    velocity.push(
-        new THREE.Vector3()
-    );
-
 }
 
 
@@ -153,8 +158,6 @@ new THREE.Vector3();
 
 
 let tension = 0;
-
-let stress = 0;
 
 
 
@@ -176,28 +179,27 @@ window.addEventListener(
 
 
 
-        const ray =
+        const raycaster =
         new THREE.Raycaster();
 
 
-        ray.setFromCamera(
+        raycaster.setFromCamera(
             mouse,
             camera
         );
 
 
-        ray.ray.at(
+        raycaster.ray.at(
             3,
             target
         );
-
 
     }
 );
 
 
 //
-// MATERIAL UPDATE
+// UPDATE MATERIAL
 //
 
 function updateMaterial(){
@@ -209,42 +211,30 @@ function updateMaterial(){
 
 
     //
-    // natural breathing
+    // breathing
     //
 
     const breathing =
-    Math.sin(time * 1.2) * 0.015;
+    Math.sin(time * 1.5) * 0.015;
 
 
 
     //
-    // internal pressure
+    // controlled pressure
     //
 
     const pressure =
-    0.08 +
+    0.05 +
     breathing +
-    tension * 0.08;
+    tension * 0.04;
 
 
 
     //
-    // tension decay / growth
+    // slowly relax
     //
 
-    const interactionDistance =
-    target.length();
-
-
-
-    if(interactionDistance > 0){
-
-        tension += 0.00015;
-
-    }
-
-
-    tension -= 0.00003;
+    tension -= 0.00008;
 
 
     tension =
@@ -256,11 +246,6 @@ function updateMaterial(){
 
 
 
-    stress =
-    tension * 0.15;
-
-
-
     for(
         let i = 0;
         i < position.count;
@@ -269,17 +254,10 @@ function updateMaterial(){
 
 
         let point =
-        new THREE.Vector3(
-            position.getX(i),
-            position.getY(i),
-            position.getZ(i)
-        );
+        original[i]
+        .clone();
 
 
-
-        //
-        // original normal direction
-        //
 
         const normal =
         original[i]
@@ -289,7 +267,7 @@ function updateMaterial(){
 
 
         //
-        // internal inflation
+        // inflation
         //
 
         point.add(
@@ -302,21 +280,7 @@ function updateMaterial(){
 
 
         //
-        // stress vibration
-        //
-
-        point.add(
-            normal.clone()
-            .multiplyScalar(
-                stress *
-                Math.sin(time * 10 + i)
-            )
-        );
-
-
-
-        //
-        // user touch
+        // touch deformation
         //
 
         const distance =
@@ -324,60 +288,59 @@ function updateMaterial(){
 
 
 
-        if(distance < 1.4){
+        if(distance < 1.35){
 
 
-            const push =
+            const force =
             point.clone()
             .sub(target)
             .normalize();
 
 
 
-            push.multiplyScalar(
-                (1.4-distance) * 0.18
+            force.multiplyScalar(
+                (1.35-distance)*0.35
+            );
+
+
+            point.add(
+                force
             );
 
 
 
-            velocity[i].add(
-                push
-            );
-
-
-            tension += 0.001;
-
+            tension += 0.002;
 
         }
 
 
 
         //
-        // elastic memory
+        // stress vibration
         //
 
-        const spring =
-        original[i]
-        .clone()
-        .sub(point)
-        .multiplyScalar(
-            0.035
-        );
+        if(tension > 0.65){
 
 
-        velocity[i].add(
-            spring
-        );
+            const vibration =
+            Math.sin(
+                time * 18 + i
+            )
+            *
+            (tension-0.65)
+            *
+            0.015;
 
 
-        velocity[i].multiplyScalar(
-            0.92
-        );
 
+            point.add(
+                normal.clone()
+                .multiplyScalar(
+                    vibration
+                )
+            );
 
-        point.add(
-            velocity[i]
-        );
+        }
 
 
 
@@ -389,6 +352,7 @@ function updateMaterial(){
         );
 
     }
+
 
 
     position.needsUpdate = true;
@@ -415,7 +379,7 @@ function animate(){
     updateMaterial();
 
 
-    balloon.rotation.y += 0.001;
+    balloon.rotation.y +=0.001;
 
 
     renderer.render(
