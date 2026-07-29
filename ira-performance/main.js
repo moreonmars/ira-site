@@ -6,7 +6,6 @@ const container =
 document.getElementById("container");
 
 
-
 const scene =
 new THREE.Scene();
 
@@ -15,7 +14,7 @@ new THREE.Scene();
 const camera =
 new THREE.PerspectiveCamera(
 45,
-window.innerWidth/window.innerHeight,
+window.innerWidth / window.innerHeight,
 0.1,
 100
 );
@@ -32,18 +31,18 @@ new THREE.WebGLRenderer({
 
 
 renderer.setSize(
-window.innerWidth,
-window.innerHeight
+    window.innerWidth,
+    window.innerHeight
 );
 
 
 renderer.setPixelRatio(
-window.devicePixelRatio
+    Math.min(window.devicePixelRatio, 2)
 );
 
 
 container.appendChild(
-renderer.domElement
+    renderer.domElement
 );
 
 
@@ -53,24 +52,24 @@ renderer.domElement
 
 const light =
 new THREE.PointLight(
-0xffffff,
-8
+    0xffffff,
+    8
 );
 
 light.position.set(
--3,
-4,
-6
+    -3,
+    4,
+    6
 );
 
 scene.add(light);
 
 
 scene.add(
-new THREE.AmbientLight(
-0xffffff,
-0.8
-)
+    new THREE.AmbientLight(
+        0xffffff,
+        0.8
+    )
 );
 
 
@@ -80,10 +79,11 @@ new THREE.AmbientLight(
 
 const geometry =
 new THREE.SphereGeometry(
-1.5,
-96,
-96
+    1.5,
+    64,
+    64
 );
+
 
 
 const material =
@@ -109,8 +109,8 @@ new THREE.MeshPhysicalMaterial({
 
 const balloon =
 new THREE.Mesh(
-geometry,
-material
+    geometry,
+    material
 );
 
 
@@ -118,14 +118,14 @@ scene.add(balloon);
 
 
 //
-// POINT MEMORY
+// POINTS
 //
 
 const position =
 geometry.attributes.position;
 
 
-const points=[];
+const points = [];
 
 
 for(
@@ -134,23 +134,26 @@ i<position.count;
 i++
 ){
 
-points.push({
+    points.push({
 
-    current:new THREE.Vector3(
-        position.getX(i),
-        position.getY(i),
-        position.getZ(i)
-    ),
+        current:
+        new THREE.Vector3(
+            position.getX(i),
+            position.getY(i),
+            position.getZ(i)
+        ),
 
-    velocity:new THREE.Vector3(),
+        velocity:
+        new THREE.Vector3(),
 
-    origin:new THREE.Vector3(
-        position.getX(i),
-        position.getY(i),
-        position.getZ(i)
-    )
+        origin:
+        new THREE.Vector3(
+            position.getX(i),
+            position.getY(i),
+            position.getZ(i)
+        )
 
-});
+    });
 
 }
 
@@ -160,62 +163,77 @@ let target =
 new THREE.Vector3();
 
 
+let inflating = false;
 
-let inflating=false;
+let pressure = 0;
 
-let pressure=0;
+let broken = false;
 
-let broken=false;
+let breaking = false;
 
-let fragments=[];
+let breakTime = 0;
 
+
+let fragments = [];
 
 
 //
-// POINTER
+// POINTER / TOUCH
 //
+
+function updatePointer(x,y){
+
+    const mouse =
+    new THREE.Vector2(
+
+        (x / window.innerWidth)*2-1,
+
+        -(y / window.innerHeight)*2+1
+
+    );
+
+
+    const ray =
+    new THREE.Raycaster();
+
+
+    ray.setFromCamera(
+        mouse,
+        camera
+    );
+
+
+    ray.ray.at(
+        3,
+        target
+    );
+
+}
+
+
 
 window.addEventListener(
 "pointermove",
 e=>{
 
-
-const mouse =
-new THREE.Vector2(
-
-(e.clientX/window.innerWidth)*2-1,
-
--(e.clientY/window.innerHeight)*2+1
-
-);
-
-
-
-const ray =
-new THREE.Raycaster();
-
-
-ray.setFromCamera(
-mouse,
-camera
-);
-
-
-ray.ray.at(
-3,
-target
-);
-
+    updatePointer(
+        e.clientX,
+        e.clientY
+    );
 
 });
 
 
-
 window.addEventListener(
 "pointerdown",
-()=>{
+e=>{
 
-inflating=true;
+    inflating = true;
+
+    updatePointer(
+        e.clientX,
+        e.clientY
+    );
 
 });
 
@@ -224,7 +242,57 @@ window.addEventListener(
 "pointerup",
 ()=>{
 
-inflating=false;
+    inflating=false;
+
+});
+
+
+
+
+
+//
+// TOUCH SUPPORT
+//
+
+window.addEventListener(
+"touchmove",
+e=>{
+
+    const touch =
+    e.touches[0];
+
+
+    updatePointer(
+        touch.clientX,
+        touch.clientY
+    );
+
+});
+
+
+window.addEventListener(
+"touchstart",
+e=>{
+
+    inflating=true;
+
+    const touch =
+    e.touches[0];
+
+
+    updatePointer(
+        touch.clientX,
+        touch.clientY
+    );
+
+});
+
+
+window.addEventListener(
+"touchend",
+()=>{
+
+    inflating=false;
 
 });
 
@@ -236,7 +304,7 @@ inflating=false;
 // BREAK
 //
 
-function breakBalloon(){
+function explode(){
 
 
 broken=true;
@@ -246,10 +314,15 @@ balloon.visible=false;
 
 
 
+const fragmentMaterial =
+material.clone();
+
+
+
 for(
 let i=0;
 i<points.length;
-i+=6
+i+=8
 ){
 
 
@@ -257,18 +330,17 @@ const p =
 points[i];
 
 
-const geo =
-new THREE.TetrahedronGeometry(
-0.08 +
-Math.random()*0.08
-);
-
-
 
 const piece =
 new THREE.Mesh(
-geo,
-material.clone()
+
+    new THREE.TetrahedronGeometry(
+        0.05+
+        Math.random()*0.08
+    ),
+
+    fragmentMaterial.clone()
+
 );
 
 
@@ -285,20 +357,24 @@ p.current.clone()
 
 
 
-piece.userData.velocity =
-direction.multiplyScalar(
-0.05 +
-Math.random()*0.08
-);
+piece.userData = {
 
+    velocity:
+    direction.multiplyScalar(
+        0.05+
+        Math.random()*0.08
+    ),
 
+    life:0,
 
-piece.userData.spin =
-new THREE.Vector3(
-Math.random()*0.2,
-Math.random()*0.2,
-Math.random()*0.2
-);
+    spin:
+    new THREE.Vector3(
+        Math.random()*0.2,
+        Math.random()*0.2,
+        Math.random()*0.2
+    )
+
+};
 
 
 
@@ -310,9 +386,7 @@ fragments.push(piece);
 }
 
 
-
 }
-
 
 
 
@@ -334,20 +408,17 @@ if(!broken){
 
 
 
-//
-// pressure
-//
-
 if(inflating){
 
-pressure +=0.0012;
+    pressure +=0.0013;
 
 }
 else{
 
-pressure -=0.00015;
+    pressure -=0.0002;
 
 }
+
 
 
 pressure =
@@ -359,14 +430,19 @@ pressure,
 
 
 
+//
+// inflate
+//
+
+balloon.scale.setScalar(
+    1+
+    pressure*0.35
+);
 
 
-//
-// material tension
-//
 
 material.opacity =
-0.75-pressure*0.15;
+0.75-pressure*0.2;
 
 
 
@@ -382,16 +458,13 @@ points[i];
 
 
 
-//
-// elastic return
-//
-
 const restore =
 p.origin.clone()
 .sub(p.current)
 .multiplyScalar(
-0.05
+0.06
 );
+
 
 
 p.velocity.add(
@@ -400,19 +473,15 @@ restore
 
 
 
-
-//
-// inflate
-//
-
 const normal =
 p.origin.clone()
 .normalize();
 
 
+
 p.velocity.add(
 normal.multiplyScalar(
-pressure*0.003
+pressure*0.002
 )
 );
 
@@ -448,32 +517,29 @@ p.velocity.add(
 push
 );
 
-
 }
 
 
 
+if(pressure>0.85){
 
-//
-// near limit
-//
-
-if(pressure>0.8){
 
 p.velocity.add(
 normal.multiplyScalar(
 Math.sin(time*20+i)
 *
-0.003
+0.001
 )
 );
+
 
 }
 
 
 
+
 p.velocity.multiplyScalar(
-0.88
+0.86
 );
 
 
@@ -502,14 +568,26 @@ geometry.computeVertexNormals();
 
 
 
-
-
 if(pressure>0.95){
 
-breakBalloon();
+breaking=true;
 
 }
 
+
+
+if(breaking){
+
+breakTime +=0.016;
+
+
+if(breakTime>0.5){
+
+explode();
+
+}
+
+}
 
 
 }
@@ -519,14 +597,11 @@ breakBalloon();
 
 
 //
-// fragments
+// FRAGMENTS
 //
-
-else{
-
 
 fragments.forEach(
-piece=>{
+(piece,index)=>{
 
 
 piece.position.add(
@@ -534,9 +609,13 @@ piece.userData.velocity
 );
 
 
+piece.userData.velocity.y -=0.002;
+
+
 piece.userData.velocity.multiplyScalar(
 0.98
 );
+
 
 
 piece.rotation.x +=
@@ -547,19 +626,24 @@ piece.rotation.y +=
 piece.userData.spin.y;
 
 
-piece.rotation.z +=
-piece.userData.spin.z;
+piece.userData.life +=0.016;
+
+
+
+if(
+piece.userData.life>4
+){
+
+scene.remove(piece);
+
+}
 
 
 });
 
 
-}
-
-
 
 }
-
 
 
 
