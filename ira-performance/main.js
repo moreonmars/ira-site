@@ -27,6 +27,7 @@ const material = new THREE.MeshPhysicalMaterial({
   metalness: 0,
   clearcoat: 0.7,
   clearcoatRoughness: 0.16,
+  transparent: true,
 });
 const sphere = new THREE.Mesh(geometry, material);
 scene.add(sphere);
@@ -51,6 +52,10 @@ let pressure = 0;
 let targetPressure = 0;
 let pointerX = 0;
 let pointerY = 0;
+let performanceTime = 0;
+let inflation = 1;
+let burstProgress = 0;
+let burstActive = false;
 
 function movePointer(x, y) {
   pointer.x = (x / window.innerWidth) * 2 - 1;
@@ -74,10 +79,42 @@ function updateImpact() {
   return true;
 }
 
-function deformSurface(hit) {
+function resetSurface() {
+  for (let index = 0; index < position.array.length; index += 1) {
+    position.array[index] = base[index];
+    velocity[index] = 0;
+  }
+  position.needsUpdate = true;
+  geometry.computeVertexNormals();
+}
+
+function triggerBurst() {
+  if (burstActive) return;
+  burstActive = true;
+  burstProgress = 0.001;
+  targetPressure = 0;
+}
+
+function deformSurface(hit, delta) {
   pressure += (targetPressure - pressure) * 0.1;
   const influence = radius * 0.72;
   const maxIndent = radius * 0.28 * pressure;
+  const strain = Math.max(0, inflation - 1) / 0.3;
+  if (!burstActive) {
+    inflation = 1 + Math.min(0.3, performanceTime * 0.008) + Math.sin(performanceTime * 2.2) * 0.006;
+    if (inflation > 1.285) triggerBurst();
+  } else {
+    burstProgress += delta / 1.15;
+    material.opacity = Math.max(0, 1 - Math.max(0, burstProgress - 0.16) * 1.2);
+    if (burstProgress >= 1) {
+      resetSurface();
+      burstActive = false;
+      burstProgress = 0;
+      performanceTime = 0;
+      inflation = 1;
+      material.opacity = 1;
+    }
+  }
 
   for (let index = 0; index < position.count; index += 1) {
     const offset = index * 3;
@@ -86,9 +123,14 @@ function deformSurface(hit) {
     const z = base[offset + 2];
     const distance = hit ? Math.hypot(x - impact.x, y - impact.y, z - impact.z) : Infinity;
     const falloff = distance < influence ? Math.pow(1 - distance / influence, 2) : 0;
-    const targetX = hit ? -(x / radius) * maxIndent * falloff : 0;
-    const targetY = hit ? -(y / radius) * maxIndent * falloff : 0;
-    const targetZ = hit ? -(z / radius) * maxIndent * falloff : 0;
+    const inflationX = x * (inflation - 1);
+    const inflationY = y * (inflation - 1);
+    const inflationZ = z * (inflation - 1);
+    const burstNoise = Math.sin(index * 12.9898) * 0.5 + 0.5;
+    const burstForce = burstActive ? burstProgress * burstNoise * (1 + strain) : 0;
+    const targetX = inflationX - (x / radius) * maxIndent * falloff + (x / radius) * burstForce;
+    const targetY = inflationY - (y / radius) * maxIndent * falloff + (y / radius) * burstForce;
+    const targetZ = inflationZ - (z / radius) * maxIndent * falloff + (z / radius) * burstForce;
 
     velocity[offset] += (targetX - (position.array[offset] - x)) * 0.11;
     velocity[offset + 1] += (targetY - (position.array[offset + 1] - y)) * 0.11;
@@ -107,8 +149,10 @@ function deformSurface(hit) {
 
 function animate() {
   requestAnimationFrame(animate);
+  const delta = Math.min(0.05, clock.getDelta());
+  performanceTime += delta;
   const hit = updateImpact();
-  deformSurface(hit);
+  deformSurface(hit, delta);
   sphere.rotation.y += 0.0025;
   sphere.position.x += (pointerX - sphere.position.x) * 0.045;
   sphere.position.y += (pointerY - sphere.position.y) * 0.045;
@@ -117,6 +161,7 @@ function animate() {
   renderer.render(scene, camera);
 }
 
+const clock = new THREE.Clock();
 animate();
 
 window.addEventListener("resize", () => {
