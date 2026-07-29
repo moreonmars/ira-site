@@ -2,28 +2,33 @@ import * as THREE from
 "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
 
 
-const container = document.getElementById("container");
+const container =
+document.getElementById("container");
 
 
 //
 // SCENE
 //
 
-const scene = new THREE.Scene();
+const scene =
+new THREE.Scene();
 
 
-const camera = new THREE.PerspectiveCamera(
-    45,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    100
+
+const camera =
+new THREE.PerspectiveCamera(
+45,
+window.innerWidth / window.innerHeight,
+0.1,
+100
 );
 
 camera.position.z = 5;
 
 
 
-const renderer = new THREE.WebGLRenderer({
+const renderer =
+new THREE.WebGLRenderer({
     antialias:true,
     alpha:true
 });
@@ -49,7 +54,8 @@ container.appendChild(
 // BALLOON
 //
 
-const geometry = new THREE.SphereGeometry(
+const geometry =
+new THREE.SphereGeometry(
     1.5,
     128,
     128
@@ -57,7 +63,8 @@ const geometry = new THREE.SphereGeometry(
 
 
 
-const material = new THREE.MeshPhysicalMaterial({
+const material =
+new THREE.MeshPhysicalMaterial({
 
     color:0xe8e8e8,
 
@@ -65,19 +72,22 @@ const material = new THREE.MeshPhysicalMaterial({
 
     opacity:0.7,
 
-    transmission:0.2,
+    transmission:0.25,
 
     thickness:1,
 
-    roughness:0.12,
+    roughness:0.1,
 
-    clearcoat:1
+    clearcoat:1,
+
+    clearcoatRoughness:0.02
 
 });
 
 
 
-const balloon = new THREE.Mesh(
+const balloon =
+new THREE.Mesh(
     geometry,
     material
 );
@@ -90,10 +100,12 @@ scene.add(balloon);
 // LIGHT
 //
 
-const light = new THREE.PointLight(
+const light =
+new THREE.PointLight(
     0xffffff,
-    7
+    8
 );
+
 
 light.position.set(
     -3,
@@ -125,8 +137,8 @@ const points = [];
 
 
 for(
-    let i = 0;
-    i < position.count;
+    let i=0;
+    i<position.count;
     i++
 ){
 
@@ -139,10 +151,8 @@ for(
             position.getZ(i)
         ),
 
-
         velocity:
         new THREE.Vector3(),
-
 
         origin:
         new THREE.Vector3(
@@ -166,7 +176,6 @@ let inflating = false;
 
 
 let pressure = 0;
-
 
 
 //
@@ -206,7 +215,6 @@ window.addEventListener(
         target
     );
 
-
 });
 
 
@@ -215,17 +223,16 @@ window.addEventListener(
 "pointerdown",
 ()=>{
 
-    inflating = true;
+    inflating=true;
 
 });
-
 
 
 window.addEventListener(
 "pointerup",
 ()=>{
 
-    inflating = false;
+    inflating=false;
 
 });
 
@@ -246,17 +253,17 @@ function update(){
 
 
     //
-    // AIR PRESSURE
+    // PRESSURE
     //
 
     if(inflating){
 
-        pressure += 0.0015;
+        pressure +=0.0012;
 
     }
     else{
 
-        pressure -= 0.0003;
+        pressure -=0.00025;
 
     }
 
@@ -266,7 +273,7 @@ function update(){
     THREE.MathUtils.clamp(
         pressure,
         0,
-        0.35
+        1
     );
 
 
@@ -275,12 +282,24 @@ function update(){
     // MATERIAL RESPONSE
     //
 
-    material.roughness =
-    0.12 + pressure*0.15;
-
-
     material.opacity =
-    0.7 - pressure*0.15;
+    0.7 - pressure*0.18;
+
+
+    material.roughness =
+    0.1 + pressure*0.12;
+
+
+
+    //
+    // LIMIT STRESS
+    //
+
+    let stress =
+    Math.max(
+        0,
+        pressure-0.65
+    );
 
 
 
@@ -303,20 +322,20 @@ function update(){
 
 
         //
-        // inflate
+        // inflation
         //
 
         const desired =
         p.origin.clone()
         .add(
             normal.multiplyScalar(
-                pressure
+                pressure*0.35
             )
         );
 
 
 
-        const spring =
+        const force =
         desired
         .sub(p.current)
         .multiplyScalar(
@@ -325,7 +344,7 @@ function update(){
 
 
         p.velocity.add(
-            spring
+            force
         );
 
 
@@ -340,7 +359,6 @@ function update(){
         );
 
 
-
         if(distance < 1.15){
 
 
@@ -350,8 +368,9 @@ function update(){
             .normalize();
 
 
+
             push.multiplyScalar(
-                (1.15-distance)*0.08
+                (1.15-distance)*0.07
             );
 
 
@@ -364,22 +383,30 @@ function update(){
 
 
         //
-        // wobble near limit
+        // tension vibration
         //
 
-        if(pressure > 0.25){
+        if(stress>0){
 
 
             p.velocity.add(
+
                 normal.multiplyScalar(
+
                     Math.sin(
-                        time*12+i
-                    )*
+                        time*20+i
+                    )
+                    *
+                    stress
+                    *
                     0.002
+
                 )
+
             );
 
         }
+
 
 
 
@@ -405,18 +432,18 @@ function update(){
             p.current.z
         );
 
+
     }
 
 
 
-    position.needsUpdate = true;
+    position.needsUpdate=true;
 
 
     geometry.computeVertexNormals();
 
 
 }
-
 
 
 
@@ -435,7 +462,7 @@ function animate(){
     update();
 
 
-    balloon.rotation.y +=0.001;
+    balloon.rotation.y+=0.001;
 
 
     renderer.render(
@@ -447,9 +474,6 @@ function animate(){
 
 
 animate();
-
-
-
 
 
 //
