@@ -661,6 +661,36 @@
     });
   }
 
+  const loadPublishedContent = async () => {
+    try {
+      const response = await fetch('/content.json', { cache: 'no-store' });
+      if (!response.ok) return;
+      const content = await response.json();
+      const isEnglishContent = document.documentElement.lang === 'en';
+      const slug = window.location.pathname.split('/').pop()?.replace(/\.html$/, '');
+      const work = content.works?.find(item => item.id === slug);
+      if (!work || work.status === 'draft') return;
+      const language = isEnglishContent ? 'en' : 'uk';
+      const title = work.title?.[language];
+      const description = work.description?.[language];
+      const photographer = work.photographer?.[language]?.trim();
+      const projectTitle = document.querySelector('.project-title');
+      const projectDescription = document.querySelector('.project-info > p');
+      if (title && projectTitle) projectTitle.textContent = title;
+      if (description && projectDescription) projectDescription.textContent = description;
+      if (photographer) {
+        const projectMetaContent = document.querySelector('.project-meta');
+        const existingCredit = [...(projectMetaContent?.children || [])].find(item => /photograph|фотограф/i.test(item.textContent || ''));
+        const creditText = isEnglishContent ? `Photography: ${photographer}` : `Фотограф: ${photographer}`;
+        if (existingCredit) existingCredit.textContent = creditText;
+        else if (projectMetaContent) { const credit = document.createElement('span'); credit.textContent = creditText; projectMetaContent.append(credit); }
+        document.querySelectorAll('.gallery figure').forEach(figure => { const caption = figure.querySelector('figcaption') || document.createElement('figcaption'); caption.textContent = creditText; if (!caption.parentElement) figure.append(caption); });
+      }
+      document.querySelectorAll('.work-card[href]').forEach(card => { if (!card.getAttribute('href')?.includes(`${work.id}.html`)) return; const cardTitle = card.querySelector('h3'); if (title && cardTitle) cardTitle.textContent = title; });
+    } catch { /* The static HTML remains the fallback when content is unavailable. */ }
+  };
+  loadPublishedContent();
+
   window.addEventListener('pageshow', () => {
     body.classList.remove('is-transitioning');
     document.querySelectorAll('.project-transition').forEach(transition => transition.remove());
