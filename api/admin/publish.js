@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   if (!authenticated(req)) return res.status(401).json({ error: 'Вхід до адмінки потрібен для публікації.' });
   if (!process.env.GITHUB_TOKEN) return res.status(503).json({ error: 'Publishing is not configured yet.' });
   try {
-    const payload = JSON.stringify({ version: 1, updatedAt: new Date().toISOString(), works: req.body?.works || [] }, null, 2);
+    const payload = JSON.stringify({ version: 1, updatedAt: new Date().toISOString(), profile: req.body?.profile || {}, works: req.body?.works || [] }, null, 2);
     const currentResponse = await fetch(`${githubApi}/repos/${config.owner}/${config.repo}/contents/${config.path}?ref=${config.branch}`, { headers: headers() });
     const current = currentResponse.ok ? await currentResponse.json() : {};
     const response = await fetch(`${githubApi}/repos/${config.owner}/${config.repo}/contents/${config.path}`, { method: 'PUT', headers: { ...headers(), 'Content-Type': 'application/json' }, body: JSON.stringify({ message: 'Update portfolio content from admin', content: Buffer.from(payload).toString('base64'), sha: current.sha, branch: config.branch }) });
