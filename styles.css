@@ -294,6 +294,9 @@ a { color: inherit; }
   font-size: 11px;
 }
 .hero-bottom a { color: #fff; text-decoration: none; }
+.hero-actions { position: absolute; z-index: 3; right: 3vw; bottom: 3vw; display: flex; gap: 8px; }
+.hero-action { display: inline-flex; align-items: center; min-height: 40px; padding: 10px 12px; border: 1px solid currentColor; color: #fff; font-size: 10px; text-decoration: none; transition: background .2s ease, color .2s ease; }
+.hero-action:hover, .hero-action:focus-visible { background: #fff; color: var(--black); }
 
 .manifesto { padding: 8vw 4vw; background: var(--pink); }
 .eyebrow { margin: 0 0 3vw; font-size: var(--meta-size); }
@@ -707,6 +710,11 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
   overflow-wrap: anywhere;
   text-decoration: none;
 }
+.project-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5vw; }
+.project-nav-item { display: grid; gap: 14px; min-width: 0; }
+.project-nav-item > span { font-size: var(--meta-size); }
+.project-nav-item > a { font-size: clamp(36px, 5.8vw, 92px); }
+.project-nav-item:last-child { text-align: right; }
 
 .gallery-toolbar { display: flex; grid-column: 1 / -1; align-items: center; justify-content: space-between; margin-bottom: 18px; padding: 8px 0 20px; border-bottom: 1px solid var(--line); }
 .gallery-toolbar-label { font-size: var(--meta-size); }
@@ -796,6 +804,8 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
   .hero-bottom span { display: none; }
   .hero-bottom { gap: 12px; }
   .hero-bottom a { font-size: 10px; }
+  .hero-actions { right: 16px; bottom: 54px; gap: 6px; }
+  .hero-action { min-height: 36px; padding: 8px 9px; font-size: 9px; }
   .manifesto { padding: 90px 16px; }
   .manifesto-text { font-size: 42px; }
   .works,
@@ -890,6 +900,9 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
     font-size: clamp(40px, 11.5vw, 62px);
     line-height: 0.92;
   }
+  .project-nav { grid-template-columns: 1fr; gap: 38px; }
+  .project-nav-item:last-child { text-align: left; }
+  .project-nav-item > a { font-size: clamp(38px, 11vw, 62px); }
   .inline-arrow {
     width: 21px;
     height: 21px;

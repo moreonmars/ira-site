@@ -140,6 +140,62 @@
     eventList.after(cvActions);
   }
 
+  const homeHero = document.querySelector('.hero');
+  if (homeHero && !homeHero.querySelector('.hero-actions')) {
+    const heroActions = document.createElement('div');
+    heroActions.className = 'hero-actions';
+    const download = document.createElement('a');
+    download.className = 'hero-action mono';
+    download.href = cvPath;
+    download.download = '';
+    download.textContent = isEnglish ? 'DOWNLOAD CV' : 'ЗАВАНТАЖИТИ CV';
+    const contact = document.createElement('a');
+    contact.className = 'hero-action mono';
+    contact.href = 'mailto:irene.kharlamova@gmail.com';
+    contact.textContent = isEnglish ? 'CONTACT IRA' : 'НАПИСАТИ ІРІ';
+    heroActions.append(download, contact);
+    homeHero.append(heroActions);
+  }
+
+  const projectFooter = document.querySelector('.project-footer');
+  if (projectFooter) {
+    const projects = [
+      ['archive-expedition', 'ARCHIVE: EXPEDITION'],
+      ['crossing-2', 'CROSSING 2.0'],
+      ['exploring-don-quixote', 'EXPLORING DON QUIXOTE'],
+      ['zabih', 'JÜRGEN FRITZ WORKSHOP / ZABIH'],
+      ['shards-of-normality', 'SHARDS OF NORMALITY'],
+      ['performance-platform-lublin', 'BORDER']
+    ];
+    const slug = window.location.pathname.split('/').pop()?.replace(/\.html$/, '');
+    const currentProject = projects.findIndex(([projectSlug]) => projectSlug === slug);
+    if (currentProject >= 0) {
+      const isEnglishPage = document.documentElement.lang === 'en';
+      const makeProjectLink = (label, project) => {
+        const item = document.createElement('div');
+        item.className = 'project-nav-item';
+        const eyebrow = document.createElement('span');
+        eyebrow.className = 'mono';
+        eyebrow.textContent = label;
+        const link = document.createElement('a');
+        link.href = `${project[0]}.html`;
+        link.textContent = `${project[1]} ↗`;
+        link.setAttribute('aria-label', `${label}: ${project[1]}`);
+        item.append(eyebrow, link);
+        return item;
+      };
+      const previous = projects[(currentProject - 1 + projects.length) % projects.length];
+      const next = projects[(currentProject + 1) % projects.length];
+      const navigation = document.createElement('div');
+      navigation.className = 'project-nav';
+      navigation.append(
+        makeProjectLink(isEnglishPage ? 'PREVIOUS WORK' : 'ПОПЕРЕДНЯ РОБОТА', previous),
+        makeProjectLink(isEnglishPage ? 'NEXT WORK' : 'НАСТУПНА РОБОТА', next)
+      );
+      projectFooter.replaceChildren(navigation);
+    }
+  }
+
   /* Replace the ↗ text glyph with one consistent drawn arrow.
      This prevents iOS from rendering it as a blue emoji. */
   const makeInlineArrow = () => {
