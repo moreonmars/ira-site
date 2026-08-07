@@ -1,3 +1,8 @@
+#admin-root [hidden],
+[data-view-panel][hidden] {
+  display: none !important;
+}
+
 #cover-field,
 #gallery-field,
 .editor-foot .mono {
