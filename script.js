@@ -686,6 +686,20 @@
         else if (projectMetaContent) { const credit = document.createElement('span'); credit.textContent = creditText; projectMetaContent.append(credit); }
         document.querySelectorAll('.gallery figure').forEach(figure => { const caption = figure.querySelector('figcaption') || document.createElement('figcaption'); caption.textContent = creditText; if (!caption.parentElement) figure.append(caption); });
       }
+      const gallerySources = typeof work.gallery === 'string' ? work.gallery.split(/\r?\n/).map(source => source.trim()).filter(Boolean) : [];
+      const liveGallery = document.querySelector('.gallery');
+      if (gallerySources.length && liveGallery) {
+        const figures = [...liveGallery.querySelectorAll('figure')];
+        gallerySources.forEach((source, index) => {
+          const figure = figures[index] || document.createElement('figure');
+          if (!figure.parentElement) liveGallery.append(figure);
+          const image = figure.querySelector('img') || document.createElement('img');
+          image.src = source; image.alt = title || ''; image.loading = index === 0 ? 'eager' : 'lazy'; image.decoding = 'async';
+          if (!image.parentElement) figure.append(image);
+          if (photographer) { const caption = figure.querySelector('figcaption') || document.createElement('figcaption'); caption.textContent = isEnglishContent ? `Photography: ${photographer}` : `Фотограф: ${photographer}`; if (!caption.parentElement) figure.append(caption); }
+        });
+        figures.slice(gallerySources.length).forEach(figure => figure.remove());
+      }
       document.querySelectorAll('.work-card[href]').forEach(card => { if (!card.getAttribute('href')?.includes(`${work.id}.html`)) return; const cardTitle = card.querySelector('h3'); if (title && cardTitle) cardTitle.textContent = title; });
     } catch { /* The static HTML remains the fallback when content is unavailable. */ }
   };
