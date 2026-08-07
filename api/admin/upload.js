@@ -35,7 +35,7 @@ export default async function handler(req, res) {
     const type = header.match(/Content-Type:\s*([^\r\n]+)/i)?.[1] || 'application/octet-stream';
     const fileBody = Buffer.from(filePart.slice(headerEnd + 4, filePart.endsWith('\r\n') ? -2 : undefined), 'binary');
     if (!type.startsWith('image/')) return res.status(415).json({ error: 'Дозволені тільки зображення.' });
-    if (fileBody.length > 15 * 1024 * 1024) return res.status(413).json({ error: 'Файл завеликий. Максимум 15 MB.' });
+    if (fileBody.length > 4 * 1024 * 1024) return res.status(413).json({ error: 'Файл завеликий. Максимум 4 MB.' });
     const blob = await put(`ira-portfolio/${Date.now()}-${crypto.randomUUID()}-${filename}`, fileBody, { access: 'public', contentType: type, token: process.env.BLOB_READ_WRITE_TOKEN });
     return res.status(200).json({ url: blob.url, pathname: blob.pathname });
   } catch (error) { return res.status(500).json({ error: error.message || 'Upload failed.' }); }
