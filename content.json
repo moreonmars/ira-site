@@ -1,6 +1,26 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-07T23:43:03.738Z",
+  "updatedAt": "2026-08-07T23:45:36.309Z",
+  "profile": {
+    "heading": {
+      "uk": "ІРА ХАРЛАМОВА — АРТИСТКА ПЕРФОРМАНСУ З УКРАЇНИ, ЯКА ПРАЦЮЄ НА ПЕРЕТИНІ ТІЛЕСНОЇ ПРАКТИКИ, ПАМ’ЯТІ ТА КОЛЕКТИВНОЇ ДІЇ.",
+      "en": "IRA KHARLAMOVA IS A PERFORMANCE ARTIST FROM UKRAINE WORKING AT THE INTERSECTION OF EMBODIED PRACTICE, MEMORY AND COLLECTIVE ACTION."
+    },
+    "paragraphs": {
+      "uk": [
+        "Її практика виростає з фізичного театру, live art і довготривалого дослідження тіла як носія досвіду. Іра — співзасновниця ГО «Мистецтво перформансу України» та засновниця проєкту «АРХІВ: мистецтво перформансу України».",
+        "Іра брала участь у міжнародних лабораторіях, фестивалях і проєктах в Україні, Німеччині та Польщі."
+      ],
+      "en": [
+        "Her practice grows from physical theatre, live art and a long-term investigation of the body as a carrier of experience. Ira is co-founder of the NGO “Performance art of Ukraine” and founder of “ARCHIVE: performance art of Ukraine”.",
+        "Ira has participated in international laboratories, festivals and projects in Ukraine, Germany and Poland."
+      ]
+    },
+    "cv": "assets/ira-kharlamova-cv.pdf",
+    "portrait": "https://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786145698563-9ca7898d-012e-44cf-8e6f-90fd462c50c3-exploring-don-quixote-kunstverein-montez-frankfurt-am-main-4.jpg",
+    "email": "irene.kharlamova@gmail.com",
+    "instagram": "https://www.instagram.com/_ira.kharlamova_/"
+  },
   "works": [
     {
       "id": "archive-expedition",
