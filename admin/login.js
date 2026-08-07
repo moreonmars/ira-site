@@ -1,0 +1,3 @@
+const form = document.querySelector('#login-form');
+const error = document.querySelector('#login-error');
+form.addEventListener('submit', async event => { event.preventDefault(); error.textContent = ''; const button = form.querySelector('button'); button.disabled = true; try { const response = await fetch('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.fromEntries(new FormData(form))) }); const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Не вдалося увійти.'); location.href = '/admin/'; } catch (loginError) { error.textContent = loginError.message; button.disabled = false; } });
