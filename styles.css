@@ -683,7 +683,7 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
 .project-info p { margin: 0; font-size: clamp(18px, 2.2vw, 32px); line-height: 1.22; }
 .project-meta { display: grid; gap: 8px; }
 .back-link { position: fixed; z-index: 52; top: 90px; left: 24px; color: #fff; font: 11px "IBM Plex Mono", monospace; text-decoration: none; mix-blend-mode: difference; }
-.gallery { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; padding: 3vw 3vw 0; background: var(--paper); }
+.gallery { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; padding: 3vw; background: var(--paper); }
 .gallery figure { grid-column: span 7; margin: 0; }
 .gallery figure:nth-of-type(3n + 2) { grid-column: 6 / span 7; }
 .gallery figure:nth-of-type(4n) { grid-column: span 5; }
@@ -691,7 +691,6 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
 .gallery figure:hover img { transform: scale(0.992); filter: saturate(1.05); }
 .gallery figure img:focus-visible { outline: 3px solid var(--pink); outline-offset: 5px; }
 .gallery figcaption { padding-top: var(--space-2); font: var(--meta-size) / 1.35 "IBM Plex Mono", monospace; text-transform: uppercase; }
-.gallery figure:last-of-type { margin-bottom: clamp(24px, 3vw, 48px); }
 .gallery figure.no-credit figcaption { display: none; }
 .project-footer { padding: 6vw 3vw; background: var(--pink); }
 .project-footer a {
@@ -733,7 +732,7 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
 .gallery.is-grid figure:nth-of-type(4n) { grid-column: span 4; margin-bottom: 18px; }
 .gallery.is-grid figure img { aspect-ratio: 4 / 3; object-fit: cover; }
 .gallery.is-grid figcaption { min-height: 30px; }
-.gallery.is-grid .gallery-toolbar { position: sticky; z-index: 5; top: 78px; padding-top: 14px; background: var(--paper); }
+.gallery.is-grid .gallery-toolbar { position: static; padding-top: 14px; background: var(--paper); }
 
 /* Fullscreen image view */
 .lightbox { position: fixed; z-index: 1000; inset: 0; display: grid; padding: 54px 78px; background: rgba(5, 5, 5, 0.97); color: #fff; opacity: 0; pointer-events: none; place-items: center; transition: opacity 0.35s ease, visibility 0s linear 0.35s; visibility: hidden; }
@@ -870,12 +869,11 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
   .project-details { padding: 64px 16px; }
   .project-info { grid-template-columns: 1fr; }
   .back-link { top: 75px; left: 16px; }
-  .gallery { display: block; padding: 16px 16px 0; }
+  .gallery { display: block; padding: 16px; }
   .gallery figure { margin-bottom: 42px; }
-  .gallery figure:last-of-type { margin-bottom: 24px; }
   .gallery-toolbar { margin-bottom: 14px; padding: 4px 0 14px; }
   .gallery.is-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-  .gallery.is-grid .gallery-toolbar { grid-column: 1 / -1; top: 64px; }
+  .gallery.is-grid .gallery-toolbar { grid-column: 1 / -1; }
   .gallery.is-grid figure,
   .gallery.is-grid figure:nth-of-type(3n + 2),
   .gallery.is-grid figure:nth-of-type(4n) { grid-column: span 1; margin-bottom: 10px; }
