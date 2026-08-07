@@ -882,7 +882,7 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
   }
   .project-details { padding: 64px 16px; }
   .project-info { grid-template-columns: 1fr; }
-  .back-link { top: 75px; left: 16px; }
+  .back-link { display: none; }
   .gallery { display: block; padding: 16px; }
   .gallery figure { margin-bottom: 42px; }
   .gallery-toolbar { margin-bottom: 14px; padding: 4px 0 14px; }
