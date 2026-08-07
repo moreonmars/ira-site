@@ -732,7 +732,7 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
 .gallery.is-grid figure:nth-of-type(4n) { grid-column: span 4; margin-bottom: 18px; }
 .gallery.is-grid figure img { aspect-ratio: 4 / 3; object-fit: cover; }
 .gallery.is-grid figcaption { min-height: 30px; }
-.gallery.is-grid .gallery-toolbar { position: sticky; z-index: 5; top: 0; padding-top: 14px; background: var(--paper); }
+.gallery.is-grid .gallery-toolbar { position: sticky; z-index: 5; top: 78px; padding-top: 14px; background: var(--paper); }
 
 /* Fullscreen image view */
 .lightbox { position: fixed; z-index: 1000; inset: 0; display: grid; padding: 54px 78px; background: rgba(5, 5, 5, 0.97); color: #fff; opacity: 0; pointer-events: none; place-items: center; transition: opacity 0.35s ease, visibility 0s linear 0.35s; visibility: hidden; }
@@ -873,7 +873,7 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
   .gallery figure { margin-bottom: 42px; }
   .gallery-toolbar { margin-bottom: 14px; padding: 4px 0 14px; }
   .gallery.is-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-  .gallery.is-grid .gallery-toolbar { grid-column: 1 / -1; }
+  .gallery.is-grid .gallery-toolbar { grid-column: 1 / -1; top: 64px; }
   .gallery.is-grid figure,
   .gallery.is-grid figure:nth-of-type(3n + 2),
   .gallery.is-grid figure:nth-of-type(4n) { grid-column: span 1; margin-bottom: 10px; }
