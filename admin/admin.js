@@ -18,6 +18,7 @@
       en: ['Her practice grows from physical theatre, live art and a long-term investigation of the body as a carrier of experience. Ira is co-founder of the NGO “Performance art of Ukraine” and founder of “ARCHIVE: performance art of Ukraine”.', 'Ira has participated in international laboratories, festivals and projects in Ukraine, Germany and Poland.']
     },
     cv: 'assets/ira-kharlamova-cv.pdf',
+    portrait: 'assets/portrait.webp',
     email: 'irene.kharlamova@gmail.com',
     instagram: 'https://www.instagram.com/_ira.kharlamova_/'
   };
@@ -26,6 +27,7 @@
   const clone = value => JSON.parse(JSON.stringify(value));
   let works = JSON.parse(localStorage.getItem(storageKey) || 'null') || clone(initialWorks);
   let profile = JSON.parse(localStorage.getItem(profileStorageKey) || 'null') || clone(initialProfile);
+  profile.portrait ||= initialProfile.portrait;
   let selectedId = works[0]?.id;
   let locale = 'uk';
   const list = document.querySelector('#work-list');
@@ -49,10 +51,14 @@
   const renderProfile = () => {
     const panel = document.querySelector('#profile-editor');
     if (!panel) return;
-    panel.innerHTML = `<div class="locale-tabs"><button type="button" class="locale-tab${locale === 'uk' ? ' is-active' : ''}" data-profile-locale="uk">UA</button><button type="button" class="locale-tab${locale === 'en' ? ' is-active' : ''}" data-profile-locale="en">EN</button></div><div class="form-grid"><div class="field full"><label>Заголовок</label><textarea data-profile-field="heading">${profile.heading[locale] || ''}</textarea></div><div class="field full"><label>Опис — абзац 1</label><textarea data-profile-paragraph="0">${profile.paragraphs[locale]?.[0] || ''}</textarea></div><div class="field full"><label>Опис — абзац 2</label><textarea data-profile-paragraph="1">${profile.paragraphs[locale]?.[1] || ''}</textarea></div><div class="field full"><label>Посилання на CV</label><input data-profile-field="cv" value="${profile.cv || ''}"></div><div class="field"><label>Email</label><input data-profile-field="email" type="email" value="${profile.email || ''}"></div><div class="field"><label>Instagram</label><input data-profile-field="instagram" value="${profile.instagram || ''}"></div></div>`;
+    const portraitPreview = profile.portrait?.startsWith('http') ? profile.portrait : `../${String(profile.portrait || '').replace(/^\.\//, '')}`;
+    panel.innerHTML = `<div class="locale-tabs"><button type="button" class="locale-tab${locale === 'uk' ? ' is-active' : ''}" data-profile-locale="uk">UA</button><button type="button" class="locale-tab${locale === 'en' ? ' is-active' : ''}" data-profile-locale="en">EN</button></div><div class="form-grid"><div class="field full"><label>Заголовок</label><textarea data-profile-field="heading">${profile.heading[locale] || ''}</textarea></div><div class="field full"><label>Опис — абзац 1</label><textarea data-profile-paragraph="0">${profile.paragraphs[locale]?.[0] || ''}</textarea></div><div class="field full"><label>Опис — абзац 2</label><textarea data-profile-paragraph="1">${profile.paragraphs[locale]?.[1] || ''}</textarea></div><div class="field full profile-media-field"><label>Портретне фото</label><input id="profile-portrait-upload" type="file" accept="image/*"><div class="profile-portrait-preview"><img src="${portraitPreview}" alt="Портрет"></div></div><div class="field full profile-media-field"><label>CV-файл</label><input id="profile-cv-upload" type="file" accept="application/pdf"><span class="profile-file-status">${profile.cv ? 'CV-файл завантажено' : 'CV-файл ще не додано'}</span></div><div class="field"><label>Email</label><input data-profile-field="email" type="email" value="${profile.email || ''}"></div><div class="field"><label>Instagram</label><input data-profile-field="instagram" value="${profile.instagram || ''}"></div></div>`;
     panel.querySelectorAll('[data-profile-locale]').forEach(button => button.addEventListener('click', () => { locale = button.dataset.profileLocale; renderProfile(); }));
     panel.querySelectorAll('[data-profile-field]').forEach(field => field.addEventListener('input', event => { profile[event.target.dataset.profileField] = event.target.value; }));
     panel.querySelectorAll('[data-profile-paragraph]').forEach(field => field.addEventListener('input', event => { profile.paragraphs[locale][Number(event.target.dataset.profileParagraph)] = event.target.value; }));
+    const uploadProfileFile = async file => { const formData = new FormData(); formData.append('file', file); const response = await fetch('/api/admin/upload', { method: 'POST', body: formData }); const result = await response.json(); if (!response.ok) throw new Error(result.error || 'Не вдалося завантажити файл.'); return result.url; };
+    panel.querySelector('#profile-portrait-upload').addEventListener('change', async event => { const [file] = event.target.files; if (!file) return; try { profile.portrait = await uploadProfileFile(file); renderProfile(); toast('Портрет завантажено'); } catch (error) { toast(error.message); } });
+    panel.querySelector('#profile-cv-upload').addEventListener('change', async event => { const [file] = event.target.files; if (!file) return; try { profile.cv = await uploadProfileFile(file); renderProfile(); toast('CV завантажено'); } catch (error) { toast(error.message); } });
   };
   const renderEditor = () => {
     const work = selected(); if (!work) { editor.innerHTML = '<p>Додайте першу роботу.</p>'; return; }

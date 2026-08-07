@@ -672,6 +672,9 @@
       if (profile) {
         const about = document.querySelector('.about-copy');
         const profileCv = profile.cv?.startsWith('http') ? profile.cv : `${isEnglishContent ? '../' : ''}${String(profile.cv || '').replace(/^\.\//, '')}`;
+        const profilePortrait = profile.portrait?.startsWith('http') ? profile.portrait : `${isEnglishContent ? '../' : ''}${String(profile.portrait || '').replace(/^\.\//, '')}`;
+        const portrait = document.querySelector('.about-image img');
+        if (portrait && profilePortrait) portrait.src = profilePortrait;
         const aboutHeading = about?.querySelector('h2');
         if (profile.heading?.[language] && aboutHeading) aboutHeading.textContent = profile.heading[language];
         const paragraphs = [...(about?.querySelectorAll(':scope > p:not(.eyebrow)') || [])];

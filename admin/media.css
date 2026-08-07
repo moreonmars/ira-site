@@ -28,6 +28,27 @@
   object-fit: cover;
 }
 
+.profile-portrait-preview {
+  width: min(100%, 260px);
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  margin-top: 8px;
+  border-radius: 12px;
+  background: #eceae5;
+}
+
+.profile-portrait-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-file-status {
+  color: var(--muted);
+  font: 11px "IBM Plex Mono", monospace;
+  text-transform: uppercase;
+}
+
 .gallery-preview {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
