@@ -10,14 +10,17 @@
   const menuButton = document.querySelector('.menu-button');
   const menuClose = document.querySelector('.menu-close');
   const menuLinks = [...document.querySelectorAll('.overlay-nav a')];
+  let previousFocus = null;
 
   const setMenu = open => {
     if (!menu) return;
+    if (open) previousFocus = document.activeElement;
     menu.classList.toggle('is-open', open);
     menu.setAttribute('aria-hidden', String(!open));
     menuButton?.setAttribute('aria-expanded', String(open));
     body.classList.toggle('menu-open', open);
-    (open ? menuClose : menuButton)?.focus({ preventScroll: true });
+    if (open) menuClose?.focus({ preventScroll: true });
+    else (previousFocus || menuButton)?.focus({ preventScroll: true });
   };
 
   if (menu && menuButton) {
@@ -27,6 +30,76 @@
     menuButton.addEventListener('click', () => setMenu(true));
     menuClose?.addEventListener('click', () => setMenu(false));
     menuLinks.forEach(link => link.addEventListener('click', () => setMenu(false)));
+    document.addEventListener('keydown', event => {
+      if (!menu.classList.contains('is-open')) return;
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setMenu(false);
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const focusable = [...menu.querySelectorAll('a[href], button:not([disabled])')];
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+  }
+
+  /* Keep the artist portfolio content actionable and current on both language versions. */
+  const isEnglish = document.documentElement.lang === 'en';
+  const cvPath = isEnglish ? '../assets/ira-kharlamova-cv.pdf' : 'assets/ira-kharlamova-cv.pdf';
+  const aboutCopy = document.querySelector('.about-copy');
+  if (aboutCopy) {
+    const heading = aboutCopy.querySelector('h2');
+    if (heading) heading.textContent = isEnglish
+      ? 'IRA KHARLAMOVA IS A PERFORMANCE ARTIST FROM UKRAINE WORKING AT THE INTERSECTION OF EMBODIED PRACTICE, MEMORY AND COLLECTIVE ACTION.'
+      : 'ІРА ХАРЛАМОВА — АРТИСТКА ПЕРФОРМАНСУ З УКРАЇНИ, ЯКА ПРАЦЮЄ НА ПЕРЕТИНІ ТІЛЕСНОЇ ПРАКТИКИ, ПАМ’ЯТІ ТА КОЛЕКТИВНОЇ ДІЇ.';
+    const paragraphs = [...aboutCopy.querySelectorAll(':scope > p:not(.eyebrow)')];
+    if (paragraphs[0]) paragraphs[0].textContent = isEnglish
+      ? 'Her practice grows from physical theatre, live art and a long-term investigation of the body as a carrier of experience. Ira is co-founder of the NGO “Performance art of Ukraine” and founder of “ARCHIVE: performance art of Ukraine”.'
+      : 'Її практика виростає з фізичного театру, live art і довготривалого дослідження тіла як носія досвіду. Іра — співзасновниця ГО «Мистецтво перформансу України» та засновниця проєкту «АРХІВ: мистецтво перформансу України»';
+    const oldLink = aboutCopy.querySelector('.text-link');
+    if (oldLink) {
+      const actions = document.createElement('div');
+      actions.className = 'about-actions';
+      oldLink.href = cvPath;
+      oldLink.download = '';
+      oldLink.textContent = isEnglish ? 'DOWNLOAD CV ↗' : 'ЗАВАНТАЖИТИ CV ↗';
+      actions.append(oldLink);
+      const contact = document.createElement('a');
+      contact.className = 'text-link mono';
+      contact.href = 'mailto:irene.kharlamova@gmail.com';
+      contact.textContent = isEnglish ? 'CONTACT IRA ↗' : 'НАПИСАТИ ІРІ ↗';
+      actions.append(contact);
+      aboutCopy.append(actions);
+    }
+  }
+
+  const projectMeta = document.querySelector('.project-meta');
+  if (projectMeta) {
+    const projectPath = window.location.pathname.toLowerCase();
+    const credits = projectPath.includes('crossing-2') ? 'Oleg Samoylenko.'
+      : projectPath.includes('archive-expedition') ? 'Anton Karuyk, Dmytro Laryn, Rostyslav Kuzyk.'
+      : projectPath.includes('exploring-don-quixote') || projectPath.includes('zabih') ? 'Jürgen Fritz.'
+      : '';
+    const credit = [...projectMeta.children].find(item => /photograph|фотограф|credit|авторство/i.test(item.textContent || ''));
+    const draft = [...projectMeta.children].find(item => /draft|чернет/i.test(item.textContent || ''));
+    if (credit) {
+      if (credits) credit.textContent = isEnglish ? `Photography: ${credits}` : `Фотографи: ${credits}`;
+      else credit.remove();
+    }
+    draft?.remove();
+    document.querySelectorAll('.gallery figcaption').forEach(caption => {
+      if (credits) caption.textContent = isEnglish ? `Photography: ${credits}` : `Фотографи: ${credits}`;
+      else caption.closest('figure')?.classList.add('no-credit');
+    });
   }
 
   const revealItems = [...document.querySelectorAll('.reveal')];

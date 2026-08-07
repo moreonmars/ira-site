@@ -282,6 +282,7 @@ a { color: inherit; }
   bottom: 28px;
   left: 3vw;
   display: flex;
+  gap: 18px;
   justify-content: space-between;
   font-size: 11px;
 }
@@ -553,6 +554,19 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
 .about-copy h2 { font-size: clamp(31px, 4.2vw, 70px); line-height: 0.94; letter-spacing: -0.055em; }
 .about-copy > p:not(.eyebrow) { max-width: 720px; font-size: 18px; line-height: 1.45; }
 .text-link { display: inline-block; margin-top: 32px; font-size: 12px; text-decoration: none; }
+.about-actions { display: flex; flex-wrap: wrap; gap: 8px 28px; }
+.about-actions .text-link {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  margin-top: 32px;
+  padding: 13px 16px;
+  border: 1px solid var(--black);
+  background: transparent;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+.about-actions .text-link:hover,
+.about-actions .text-link:focus-visible { background: var(--black); color: #fff; }
 
 .footer {
   position: relative;
@@ -670,6 +684,7 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
 .gallery figure:hover img { transform: scale(0.992); filter: saturate(1.05); }
 .gallery figure img:focus-visible { outline: 3px solid var(--pink); outline-offset: 5px; }
 .gallery figcaption { padding-top: 8px; font: 10px "IBM Plex Mono", monospace; text-transform: uppercase; }
+.gallery figure.no-credit figcaption { display: none; }
 .project-footer { padding: 6vw 3vw; background: var(--pink); }
 .project-footer a {
   display: inline-flex;
@@ -769,6 +784,8 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
   }
   .hero-bottom { right: 16px; bottom: 18px; left: 16px; }
   .hero-bottom span { display: none; }
+  .hero-bottom { gap: 12px; }
+  .hero-bottom a { font-size: 10px; }
   .manifesto { padding: 90px 16px; }
   .manifesto-text { font-size: 42px; }
   .works,
@@ -808,6 +825,8 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
   .about { display: block; }
   .about-image { height: 75vh; }
   .about-copy { padding: 75px 16px; }
+  .about-actions { display: grid; gap: 10px; }
+  .about-actions .text-link { width: fit-content; margin-top: 24px; }
   .footer {
     min-height: 0;
     padding: 55px 16px max(24px, env(safe-area-inset-bottom));
