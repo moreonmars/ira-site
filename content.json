@@ -1,0 +1,124 @@
+{
+  "version": 1,
+  "updatedAt": "2026-08-07T23:35:06.484Z",
+  "works": [
+    {
+      "id": "archive-expedition",
+      "status": "published",
+      "year": "2021",
+      "location": {
+        "uk": "Київ / Харків / Львів",
+        "en": "Kyiv / Kharkiv / Lviv"
+      },
+      "title": {
+        "uk": "ARCHIVE: EXPEDITION",
+        "en": "ARCHIVE: EXPEDITION"
+      },
+      "description": {
+        "uk": "Серія сольних, дуетних і групових перформансів, створених у межах мандрівного проєкту.",
+        "en": "A series of solo, duo and group performances created within a travelling project."
+      },
+      "cover": "../assets/archive-kyiv-01.webp",
+      "gallery": "../assets/archive-kyiv-01.webp\n../assets/archive-kyiv-02.webp\n../assets/archive-kyiv-03.webp",
+      "photographer": {
+        "uk": "",
+        "en": ""
+      }
+    },
+    {
+      "id": "crossing-2",
+      "status": "published",
+      "year": "2021",
+      "location": {
+        "uk": "Міжнародний проєкт",
+        "en": "International project"
+      },
+      "title": {
+        "uk": "CROSSING 2.0",
+        "en": "CROSSING 2.0"
+      },
+      "description": {
+        "uk": "Колективний перформативний проєкт про перехід, дистанцію та взаємну присутність.",
+        "en": "A collective performance project about transition, distance and mutual presence."
+      },
+      "cover": "../assets/crossing-01.webp",
+      "gallery": "../assets/crossing-01.webp\n../assets/crossing-02.webp\n../assets/crossing-03.webp"
+    },
+    {
+      "id": "exploring-don-quixote",
+      "status": "published",
+      "year": "2019",
+      "location": {
+        "uk": "Франкфурт-на-Майні",
+        "en": "Frankfurt am Main"
+      },
+      "title": {
+        "uk": "EXPLORING DON QUIXOTE",
+        "en": "EXPLORING DON QUIXOTE"
+      },
+      "description": {
+        "uk": "Тривалий груповий перформанс і лабораторія під керівництвом Юргена Фрітца.",
+        "en": "A durational group performance and laboratory led by Jürgen Fritz."
+      },
+      "cover": "../assets/don-quixote-01.webp",
+      "gallery": "../assets/don-quixote-01.webp\n../assets/don-quixote-02.webp\n../assets/don-quixote-03.webp"
+    },
+    {
+      "id": "zabih",
+      "status": "published",
+      "year": "2019",
+      "location": {
+        "uk": "Львів",
+        "en": "Lviv"
+      },
+      "title": {
+        "uk": "JÜRGEN FRITZ WORKSHOP / ZABIH",
+        "en": "JÜRGEN FRITZ WORKSHOP / ZABIH"
+      },
+      "description": {
+        "uk": "Груповий перформанс, створений під час воркшопу Юргена Фрітца.",
+        "en": "A group performance developed during Jürgen Fritz’s workshop."
+      },
+      "cover": "../assets/zabih-01.webp",
+      "gallery": "../assets/zabih-01.webp\n../assets/zabih-02.webp\n../assets/zabih-03.webp"
+    },
+    {
+      "id": "shards-of-normality",
+      "status": "published",
+      "year": "2025",
+      "location": {
+        "uk": "Кельн / Берлін",
+        "en": "Cologne / Berlin"
+      },
+      "title": {
+        "uk": "SHARDS OF NORMALITY",
+        "en": "SHARDS OF NORMALITY"
+      },
+      "description": {
+        "uk": "Міжнародний ансамблевий проєкт про фрагментарність повсякденності.",
+        "en": "An international ensemble project about the fragmentary nature of everyday life."
+      },
+      "cover": "../assets/shards-01.webp",
+      "gallery": "../assets/shards-01.webp\n../assets/shards-02.webp\n../assets/shards-03.webp"
+    },
+    {
+      "id": "performance-platform-lublin",
+      "status": "published",
+      "year": "2017",
+      "location": {
+        "uk": "Люблін",
+        "en": "Lublin"
+      },
+      "title": {
+        "uk": "BORDER",
+        "en": "BORDER"
+      },
+      "description": {
+        "uk": "Сольна робота, показана на Performance Platform Lublin.",
+        "en": "A solo work presented at Performance Platform Lublin."
+      },
+      "cover": "../assets/border-01.webp",
+      "gallery": "../assets/border-01.webp\n../assets/border-02.webp\n../assets/border-03.webp"
+    }
+  ]
+}
