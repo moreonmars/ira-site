@@ -96,9 +96,15 @@
       else credit.remove();
     }
     draft?.remove();
-    document.querySelectorAll('.gallery figcaption').forEach(caption => {
-      if (credits) caption.textContent = isEnglish ? `Photography: ${credits}` : `Фотографи: ${credits}`;
-      else caption.closest('figure')?.classList.add('no-credit');
+    document.querySelectorAll('.gallery figure').forEach(figure => {
+      const caption = figure.querySelector('figcaption');
+      if (credits) {
+        const creditCaption = caption || document.createElement('figcaption');
+        creditCaption.textContent = isEnglish ? `Photography: ${credits}` : `Фотографи: ${credits}`;
+        if (!caption) figure.append(creditCaption);
+      } else {
+        figure.classList.add('no-credit');
+      }
     });
   }
 
@@ -339,6 +345,9 @@
     lightbox = document.createElement('div');
     lightbox.className = 'lightbox';
     lightbox.setAttribute('aria-hidden', 'true');
+    lightbox.setAttribute('role', 'dialog');
+    lightbox.setAttribute('aria-modal', 'true');
+    lightbox.setAttribute('aria-label', document.documentElement.lang.startsWith('uk') ? 'Перегляд зображення' : 'Image viewer');
     lightbox.innerHTML = `
       <div class="lightbox-stage">
         <img class="lightbox-image" alt="">
@@ -396,6 +405,19 @@
     closeButton.addEventListener('click', closeLightbox);
     previousButton.addEventListener('click', () => showImage(currentImage - 1));
     nextButton.addEventListener('click', () => showImage(currentImage + 1));
+    lightbox.addEventListener('keydown', event => {
+      if (event.key !== 'Tab') return;
+      const focusable = [closeButton, previousButton, nextButton];
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
     lightbox.addEventListener('click', event => {
       if (event.target === lightbox) closeLightbox();
     });
@@ -407,9 +429,9 @@
       toolbar.innerHTML = `
         <span class="gallery-toolbar-label">${isUkrainian ? 'РЕЖИМ ПЕРЕГЛЯДУ' : 'VIEW MODE'}</span>
         <div class="gallery-mode-switch" role="group" aria-label="${isUkrainian ? 'Режим галереї' : 'Gallery view mode'}">
-          <button class="gallery-mode-button is-active" type="button" data-gallery-mode="scroll">SCROLL</button>
+          <button class="gallery-mode-button is-active" type="button" data-gallery-mode="scroll">${isUkrainian ? 'СПИСОК' : 'SCROLL'}</button>
           <span class="gallery-mode-separator">/</span>
-          <button class="gallery-mode-button" type="button" data-gallery-mode="grid">GRID</button>
+          <button class="gallery-mode-button" type="button" data-gallery-mode="grid">${isUkrainian ? 'СІТКА' : 'GRID'}</button>
         </div>`;
       gallery.prepend(toolbar);
       const modeButtons = [...toolbar.querySelectorAll('[data-gallery-mode]')];
@@ -439,7 +461,7 @@
   });
 
   /* Project transition: cards, CV rows and NEXT WORK all use the same x-ray handoff. */
-  if (!reducedMotion) {
+  if (!reducedMotion && finePointer) {
     const canTransition = link => {
       if (!link || link.target === '_blank' || link.hasAttribute('download')) return false;
       const url = new URL(link.href, window.location.href);
