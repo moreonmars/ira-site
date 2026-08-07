@@ -1,8 +1,20 @@
+import crypto from 'node:crypto';
 const githubApi = 'https://api.github.com';
 const config = { owner: process.env.GITHUB_OWNER || 'moreonmars', repo: process.env.GITHUB_REPO || 'ira-site', branch: process.env.GITHUB_BRANCH || 'main', path: 'content.json' };
 const headers = () => ({ Accept: 'application/vnd.github+json', Authorization: `Bearer ${process.env.GITHUB_TOKEN}`, 'X-GitHub-Api-Version': '2022-11-28' });
+const authenticated = req => {
+  const token = (req.headers.cookie || '').split(';').map(item => item.trim()).find(item => item.startsWith('ira_admin_session='))?.split('=').slice(1).join('=');
+  if (!token || !process.env.ADMIN_SESSION_SECRET) return false;
+  const [payload, signature] = token.split('.');
+  if (!payload || !signature) return false;
+  const expected = crypto.createHmac('sha256', process.env.ADMIN_SESSION_SECRET).update(payload).digest('base64url');
+  const a = Buffer.from(signature); const b = Buffer.from(expected);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return false;
+  try { return JSON.parse(Buffer.from(payload, 'base64url').toString()).exp > Date.now(); } catch { return false; }
+};
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (!authenticated(req)) return res.status(401).json({ error: 'Вхід до адмінки потрібен для публікації.' });
   if (!process.env.GITHUB_TOKEN) return res.status(503).json({ error: 'Publishing is not configured yet.' });
   try {
     const payload = JSON.stringify({ version: 1, updatedAt: new Date().toISOString(), works: req.body?.works || [] }, null, 2);
