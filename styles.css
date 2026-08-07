@@ -574,6 +574,9 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
 }
 .about-actions .text-link:hover,
 .about-actions .text-link:focus-visible { background: var(--black); color: #fff; }
+.cv-actions { display: flex; justify-content: flex-end; margin-top: 28px; }
+.cv-action { display: inline-flex; align-items: center; min-height: 44px; padding: 10px 14px; border: 1px solid currentColor; color: inherit; text-decoration: none; transition: background .2s ease, color .2s ease; }
+.cv-action:hover, .cv-action:focus-visible { background: #fff; color: var(--black); }
 
 .footer {
   position: relative;
@@ -834,6 +837,7 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
   .about-copy { padding: 75px 16px; }
   .about-actions { display: grid; gap: 10px; }
   .about-actions .text-link { width: fit-content; margin-top: 24px; }
+  .cv-actions { justify-content: flex-start; margin-top: 22px; }
   .footer {
     min-height: 0;
     padding: 55px 16px max(24px, env(safe-area-inset-bottom));

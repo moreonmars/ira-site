@@ -126,6 +126,20 @@
     event.style.setProperty('--event-index', index);
   });
 
+  const currentSection = document.querySelector('.current');
+  const eventList = currentSection?.querySelector('.event-list');
+  if (eventList && !currentSection.querySelector('.cv-actions')) {
+    const cvActions = document.createElement('div');
+    cvActions.className = 'cv-actions reveal visible';
+    const cvLink = document.createElement('a');
+    cvLink.className = 'cv-action mono';
+    cvLink.href = cvPath;
+    cvLink.download = '';
+    cvLink.textContent = isEnglish ? 'DOWNLOAD FULL CV ↗' : 'ЗАВАНТАЖИТИ ПОВНЕ CV ↗';
+    cvActions.append(cvLink);
+    eventList.after(cvActions);
+  }
+
   /* Replace the ↗ text glyph with one consistent drawn arrow.
      This prevents iOS from rendering it as a blue emoji. */
   const makeInlineArrow = () => {
