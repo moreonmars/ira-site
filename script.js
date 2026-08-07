@@ -667,10 +667,25 @@
       if (!response.ok) return;
       const content = await response.json();
       const isEnglishContent = document.documentElement.lang === 'en';
+      const language = isEnglishContent ? 'en' : 'uk';
+      const profile = content.profile;
+      if (profile) {
+        const about = document.querySelector('.about-copy');
+        const profileCv = profile.cv?.startsWith('http') ? profile.cv : `${isEnglishContent ? '../' : ''}${String(profile.cv || '').replace(/^\.\//, '')}`;
+        const aboutHeading = about?.querySelector('h2');
+        if (profile.heading?.[language] && aboutHeading) aboutHeading.textContent = profile.heading[language];
+        const paragraphs = [...(about?.querySelectorAll(':scope > p:not(.eyebrow)') || [])];
+        profile.paragraphs?.[language]?.forEach((text, index) => { if (paragraphs[index]) paragraphs[index].textContent = text; });
+        const cvLink = about?.querySelector('.about-actions .text-link');
+        if (cvLink && profileCv) { cvLink.href = profileCv; }
+        const contactLinks = [...document.querySelectorAll('.about-actions .text-link, .hero-actions a, .footer-links a')].filter(link => /CV|CONTACT|НАПИСАТИ|ЗАПИТАТИ|EMAIL|GMAIL/i.test(link.textContent || ''));
+        contactLinks.forEach(link => { if (link.href.startsWith('mailto:')) link.href = `mailto:${profile.email || 'irene.kharlamova@gmail.com'}`; });
+        document.querySelectorAll('.footer-links a').forEach(link => { if (/instagram/i.test(link.textContent || '')) link.href = profile.instagram || link.href; });
+        document.querySelectorAll('.hero-actions a').forEach(link => { if (/CONTACT|НАПИСАТИ/i.test(link.textContent || '')) link.href = `mailto:${profile.email || 'irene.kharlamova@gmail.com'}`; if (/DOWNLOAD|ЗАВАНТАЖИТИ/i.test(link.textContent || '') && profileCv) link.href = profileCv; });
+      }
       const slug = window.location.pathname.split('/').pop()?.replace(/\.html$/, '');
       const work = content.works?.find(item => item.id === slug);
       if (!work || work.status === 'draft') return;
-      const language = isEnglishContent ? 'en' : 'uk';
       const title = work.title?.[language];
       const description = work.description?.[language];
       const photographer = work.photographer?.[language]?.trim();

@@ -1,5 +1,24 @@
 {
   "version": 1,
+  "profile": {
+    "heading": {
+      "uk": "ІРА ХАРЛАМОВА — АРТИСТКА ПЕРФОРМАНСУ З УКРАЇНИ, ЯКА ПРАЦЮЄ НА ПЕРЕТИНІ ТІЛЕСНОЇ ПРАКТИКИ, ПАМ’ЯТІ ТА КОЛЕКТИВНОЇ ДІЇ.",
+      "en": "IRA KHARLAMOVA IS A PERFORMANCE ARTIST FROM UKRAINE WORKING AT THE INTERSECTION OF EMBODIED PRACTICE, MEMORY AND COLLECTIVE ACTION."
+    },
+    "paragraphs": {
+      "uk": [
+        "Її практика виростає з фізичного театру, live art і довготривалого дослідження тіла як носія досвіду. Іра — співзасновниця ГО «Мистецтво перформансу України» та засновниця проєкту «АРХІВ: мистецтво перформансу України».",
+        "Іра брала участь у міжнародних лабораторіях, фестивалях і проєктах в Україні, Німеччині та Польщі."
+      ],
+      "en": [
+        "Her practice grows from physical theatre, live art and a long-term investigation of the body as a carrier of experience. Ira is co-founder of the NGO “Performance art of Ukraine” and founder of “ARCHIVE: performance art of Ukraine”.",
+        "Ira has participated in international laboratories, festivals and projects in Ukraine, Germany and Poland."
+      ]
+    },
+    "cv": "assets/ira-kharlamova-cv.pdf",
+    "email": "irene.kharlamova@gmail.com",
+    "instagram": "https://www.instagram.com/_ira.kharlamova_/"
+  },
   "works": [
     {"id":"archive-expedition","status":"published","year":"2021","location":{"uk":"Київ / Харків / Львів","en":"Kyiv / Kharkiv / Lviv"},"title":{"uk":"ARCHIVE: EXPEDITION","en":"ARCHIVE: EXPEDITION"},"description":{"uk":"Серія сольних, дуетних і групових перформансів, створених у межах мандрівного проєкту.","en":"A series of solo, duo and group performances created within a travelling project."},"photographer":{"uk":"Anton Karuyk, Dmytro Laryn, Rostyslav Kuzyk.","en":"Anton Karuyk, Dmytro Laryn, Rostyslav Kuzyk."},"cover":"assets/archive-kyiv-01.webp"},
     {"id":"crossing-2","status":"published","year":"2021","location":{"uk":"Міжнародний проєкт","en":"International project"},"title":{"uk":"CROSSING 2.0","en":"CROSSING 2.0"},"description":{"uk":"Колективний перформативний проєкт про перехід, дистанцію та взаємну присутність.","en":"A collective performance project about transition, distance and mutual presence."},"photographer":{"uk":"Oleg Samoylenko.","en":"Oleg Samoylenko."},"cover":"assets/crossing-01.webp"},
