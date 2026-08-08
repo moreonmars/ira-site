@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-08T11:47:39.619Z",
+  "updatedAt": "2026-08-08T11:47:54.385Z",
   "profile": {
     "heading": {
       "uk": "ІРА ХАРЛАМОВА — АРТИСТКА ПЕРФОРМАНСУ З УКРАЇНИ, ЯКА ПРАЦЮЄ НА ПЕРЕТИНІ ТІЛЕСНОЇ ПРАКТИКИ, ПАМ’ЯТІ ТА КОЛЕКТИВНОЇ ДІЇ.",
@@ -17,7 +17,7 @@
       ]
     },
     "cv": "assets/ira-kharlamova-cv.pdf",
-    "portrait": "assets/portrait.webp",
+    "portrait": "https://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786189670677-e303e7a6-7886-43b9-8de6-539d1f90935b-exploring-don-quixote-kunstverein-montez-frankfurt-am-main-4.jpg",
     "email": "irene.kharlamova@gmail.com",
     "instagram": "https://www.instagram.com/_ira.kharlamova_/"
   },
