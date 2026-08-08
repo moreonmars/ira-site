@@ -34,13 +34,38 @@ const latestDraft = async () => {
   return response.ok ? decrypt(await response.text()) : null;
 };
 
+const migrateLegacyGalleries = async draft => {
+  if (!draft || draft.version !== 1) return draft;
+  try {
+    const response = await fetch('https://irakharlamova.com/content.json', { cache: 'no-store' });
+    if (!response.ok) return draft;
+    const published = await response.json();
+    const publishedById = new Map((published.works || []).map(work => [work.id, work]));
+    let changed = false;
+    const works = (draft.works || []).map(work => {
+      const source = publishedById.get(work.id);
+      const current = String(work.gallery || '').split(/\r?\n/).map(item => item.trim()).filter(Boolean);
+      const complete = String(source?.gallery || '').split(/\r?\n/).map(item => item.trim()).filter(Boolean);
+      const isLegacySubset = complete.length > current.length && current.every(item => complete.includes(item));
+      if (!isLegacySubset) return work;
+      changed = true;
+      return { ...work, gallery: source.gallery };
+    });
+    if (!changed) return { ...draft, version: 2 };
+    const migrated = { ...draft, version: 2, works, updatedAt: new Date().toISOString() };
+    return migrated;
+  } catch {
+    return draft;
+  }
+};
+
 export default async function handler(req, res) {
   if (!authenticated(req)) return res.status(401).json({ error: 'Увійдіть до адмінки.' });
   if (!process.env.BLOB_READ_WRITE_TOKEN) return res.status(503).json({ error: 'Сховище не налаштоване.' });
   try {
-    if (req.method === 'GET') return res.status(200).json({ draft: await latestDraft() });
+    if (req.method === 'GET') return res.status(200).json({ draft: await migrateLegacyGalleries(await latestDraft()) });
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-    const payload = { version: 1, updatedAt: new Date().toISOString(), works: req.body?.works || [], profile: req.body?.profile || {} };
+    const payload = { version: 2, updatedAt: new Date().toISOString(), works: req.body?.works || [], profile: req.body?.profile || {} };
     await put('ira-settings/draft.json', encrypt(JSON.stringify(payload)), { access: 'public', addRandomSuffix: false, contentType: 'application/json', token: process.env.BLOB_READ_WRITE_TOKEN });
     return res.status(200).json({ ok: true });
   } catch (error) { return res.status(500).json({ error: error.message || 'Не вдалося зберегти чернетку.' }); }
