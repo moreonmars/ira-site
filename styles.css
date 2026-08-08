@@ -367,14 +367,17 @@ a { color: inherit; }
 .work-card:hover .media-wrap img,
 .media-wrap.is-lens-active img { transform: scale(1.025); }
 .work-meta {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(88px, 0.72fr) minmax(0, 1.28fr);
+  align-items: start;
   gap: 20px;
   padding-top: 10px;
   transform: translateZ(18px);
 }
-.work-meta span { font-size: var(--meta-size); }
+.work-meta span { min-width: 0; font-size: var(--meta-size); overflow-wrap: anywhere; word-break: break-word; }
 .work-meta h3 {
+  min-width: 0;
+  width: 100%;
   margin: 0;
   font-size: clamp(22px, 3vw, 52px);
   line-height: 0.9;
@@ -706,7 +709,8 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
 .archive-works .work-meta h2 { margin: 0; font-size: clamp(20px, 2.4vw, 34px); line-height: .9; letter-spacing: -.06em; overflow-wrap: anywhere; word-break: break-word; }
 .archive-works .work-card,
 .archive-works .work-meta { min-width: 0; }
-.archive-works .work-meta > span { min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
+.archive-works .work-meta > span { min-width: 0; }
+.archive-works .work-meta h2 { min-width: 0; width: 100%; text-align: right; white-space: normal; }
 .archive-error { padding: 60px 3vw; color: var(--muted); }
 .project-footer { padding: 6vw 3vw; background: var(--pink); }
 .project-footer a {
