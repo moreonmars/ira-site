@@ -10,7 +10,10 @@
   const menuButton = document.querySelector('.menu-button');
   const menuClose = document.querySelector('.menu-close');
   const menuLinks = [...document.querySelectorAll('.overlay-nav a')];
+  menuLinks.filter(link => /^#works$/.test(link.getAttribute('href') || '')).forEach(link => { link.href = isEnglishRoute() ? '/en/works/' : '/works/'; });
   let previousFocus = null;
+
+  function isEnglishRoute() { return document.documentElement.lang === 'en'; }
 
   const setMenu = open => {
     if (!menu) return;
@@ -83,7 +86,7 @@
   }
 
   const projectMeta = document.querySelector('.project-meta');
-  if (projectMeta) {
+  if (projectMeta && !document.body.classList.contains('dynamic-work-page')) {
     const projectPath = window.location.pathname.toLowerCase();
     const credits = projectPath.includes('crossing-2') ? 'Oleg Samoylenko.'
       : projectPath.includes('archive-expedition') ? 'Anton Karuyk, Dmytro Laryn, Rostyslav Kuzyk.'

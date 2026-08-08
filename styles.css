@@ -700,6 +700,13 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
 .gallery figure img:focus-visible { outline: 3px solid var(--pink); outline-offset: 5px; }
 .gallery figcaption { padding-top: var(--space-2); font: var(--meta-size) / 1.35 "IBM Plex Mono", monospace; text-transform: uppercase; }
 .gallery figure.no-credit figcaption { display: none; }
+.archive-page { background: var(--paper); }
+.archive-intro { display: grid; gap: 24px; padding: 150px 3vw 80px; background: var(--pink); }
+.archive-intro h1 { max-width: 900px; margin: 0; font-size: clamp(72px, 13vw, 190px); line-height: .78; letter-spacing: -.09em; }
+.archive-intro .text-link { width: fit-content; color: var(--ink); }
+.archive-works { padding-top: 5vw; }
+.archive-works .work-meta h2 { margin: 0; font-size: clamp(20px, 2.4vw, 34px); line-height: .9; letter-spacing: -.06em; }
+.archive-error { padding: 60px 3vw; color: var(--muted); }
 .project-footer { padding: 6vw 3vw; background: var(--pink); }
 .project-footer a {
   display: inline-flex;
