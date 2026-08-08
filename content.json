@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-07T23:50:55.658Z",
+  "updatedAt": "2026-08-07T23:59:29.150Z",
   "profile": {
     "heading": {
       "uk": "ІРА ХАРЛАМОВА — АРТИСТКА ПЕРФОРМАНСУ З УКРАЇНИ, ЯКА ПРАЦЮЄ НА ПЕРЕТИНІ ТІЛЕСНОЇ ПРАКТИКИ, ПАМ’ЯТІ ТА КОЛЕКТИВНОЇ ДІЇ.",
@@ -17,7 +17,7 @@
       ]
     },
     "cv": "assets/ira-kharlamova-cv.pdf",
-    "portrait": "https://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786145698563-9ca7898d-012e-44cf-8e6f-90fd462c50c3-exploring-don-quixote-kunstverein-montez-frankfurt-am-main-4.jpg",
+    "portrait": "https://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786146672207-abe05b5c-2457-4c16-b2c6-dfff3ada87ea-exploring-don-quixote-kunstverein-montez-frankfurt-am-main-4.jpg",
     "email": "irene.kharlamova@gmail.com",
     "instagram": "https://www.instagram.com/_ira.kharlamova_/"
   },
@@ -38,8 +38,8 @@
         "uk": "Серія сольних, дуетних і групових перформансів, створених у межах мандрівного проєкту.",
         "en": "A series of solo, duo and group performances created within a travelling project."
       },
-      "cover": "assets/archive-kyiv-01.webp",
-      "gallery": "assets/archive-kyiv-01.webp\nassets/archive-kyiv-02.webp\nassets/archive-kyiv-03.webp",
+      "cover": "../assets/archive-kyiv-01.webp",
+      "gallery": "../assets/archive-kyiv-01.webp\n../assets/archive-kyiv-02.webp\n../assets/archive-kyiv-03.webp",
       "photographer": {
         "uk": "",
         "en": ""
@@ -61,8 +61,8 @@
         "uk": "Колективний перформативний проєкт про перехід, дистанцію та взаємну присутність.",
         "en": "A collective performance project about transition, distance and mutual presence."
       },
-      "cover": "assets/crossing-01.webp",
-      "gallery": "assets/crossing-01.webp\nassets/crossing-02.webp\nassets/crossing-03.webp"
+      "cover": "../assets/crossing-01.webp",
+      "gallery": "../assets/crossing-01.webp\n../assets/crossing-02.webp\n../assets/crossing-03.webp"
     },
     {
       "id": "exploring-don-quixote",
@@ -80,8 +80,8 @@
         "uk": "Тривалий груповий перформанс і лабораторія під керівництвом Юргена Фрітца.",
         "en": "A durational group performance and laboratory led by Jürgen Fritz."
       },
-      "cover": "assets/don-quixote-01.webp",
-      "gallery": "assets/don-quixote-01.webp\nassets/don-quixote-02.webp\nassets/don-quixote-03.webp"
+      "cover": "../assets/don-quixote-01.webp",
+      "gallery": "../assets/don-quixote-01.webp\n../assets/don-quixote-02.webp\n../assets/don-quixote-03.webp"
     },
     {
       "id": "zabih",
@@ -99,8 +99,8 @@
         "uk": "Груповий перформанс, створений під час воркшопу Юргена Фрітца.",
         "en": "A group performance developed during Jürgen Fritz’s workshop."
       },
-      "cover": "assets/zabih-01.webp",
-      "gallery": "assets/zabih-01.webp\nassets/zabih-02.webp\nassets/zabih-03.webp"
+      "cover": "../assets/zabih-01.webp",
+      "gallery": "../assets/zabih-01.webp\n../assets/zabih-02.webp\n../assets/zabih-03.webp"
     },
     {
       "id": "shards-of-normality",
@@ -118,8 +118,8 @@
         "uk": "Міжнародний ансамблевий проєкт про фрагментарність повсякденності.",
         "en": "An international ensemble project about the fragmentary nature of everyday life."
       },
-      "cover": "assets/shards-01.webp",
-      "gallery": "assets/shards-01.webp\nassets/shards-02.webp\nassets/shards-03.webp"
+      "cover": "../assets/shards-01.webp",
+      "gallery": "../assets/shards-01.webp\n../assets/shards-02.webp\n../assets/shards-03.webp"
     },
     {
       "id": "performance-platform-lublin",
@@ -137,8 +137,8 @@
         "uk": "Сольна робота, показана на Performance Platform Lublin.",
         "en": "A solo work presented at Performance Platform Lublin."
       },
-      "cover": "assets/border-01.webp",
-      "gallery": "assets/border-01.webp\nassets/border-02.webp\nassets/border-03.webp"
+      "cover": "../assets/border-01.webp",
+      "gallery": "../assets/border-01.webp\n../assets/border-02.webp\n../assets/border-03.webp"
     }
   ]
 }
