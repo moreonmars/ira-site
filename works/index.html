@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles.css?v=56">
+  <link rel="stylesheet" href="../styles.css?v=57">
 </head>
 <body class="archive-page">
   <header class="site-header">
@@ -20,9 +20,23 @@
   </header>
   <main>
     <section class="archive-intro"><p class="eyebrow mono">ARCHIVE / WORKS</p><h1>Всі<br>роботи.</h1><a class="text-link mono" href="../">← На головну</a></section>
-    <section class="works archive-works" id="all-works"><div class="work-grid" id="archive-grid"></div></section>
+    <section class="works archive-works" id="all-works">
+      <div class="archive-toolbar" aria-label="Керування архівом">
+        <div class="archive-view-switch" role="group" aria-label="Вигляд">
+          <button type="button" class="archive-view-button is-active" data-view="collage">КОЛАЖ</button>
+          <button type="button" class="archive-view-button" data-view="grid">СІТКА</button>
+        </div>
+        <div class="archive-filters">
+          <label class="archive-select"><span>РІК</span><select id="archive-year"><option value="all">УСІ</option></select></label>
+          <label class="archive-select"><span>МІСЦЕ</span><select id="archive-location"><option value="all">УСІ</option></select></label>
+          <label class="archive-select"><span>СОРТУВАННЯ</span><select id="archive-sort"><option value="default">ЗА ПОЧАТКОВИМ ПОРЯДКОМ</option><option value="newest">СПОЧАТКУ НОВІШІ</option><option value="oldest">СПОЧАТКУ СТАРІШІ</option><option value="title">ЗА НАЗВОЮ</option></select></label>
+        </div>
+      </div>
+      <p class="archive-count mono" id="archive-count" aria-live="polite"></p>
+      <div class="work-grid" id="archive-grid"></div>
+    </section>
   </main>
   <div class="menu-overlay" aria-hidden="true"><div class="menu-top mono"><span>INDEX</span><button class="menu-close">ЗАКРИТИ ×</button></div><nav class="overlay-nav"><a href="/works/">РОБОТИ</a><a href="../#about">ПРО МЕНЕ</a><a href="../#current">CV</a><a href="../#contact">КОНТАКТИ</a></nav><div class="menu-foot mono"><a href="../en/works/">ENGLISH VERSION</a><a href="https://www.instagram.com/_ira.kharlamova_/" target="_blank" rel="noopener noreferrer">INSTAGRAM ↗</a></div></div>
-  <script src="../script.js?v=40"></script><script src="../works-archive.js?v=1"></script>
+  <script src="../script.js?v=40"></script><script src="../works-archive.js?v=2"></script>
 </body>
 </html>
