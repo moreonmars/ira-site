@@ -793,6 +793,7 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
   background: var(--pink);
   box-shadow: 5px 5px 0 var(--black);
 }
+.archive-select-menu[hidden] { display: none; }
 .archive-select-option {
   min-height: 34px;
   padding: 8px 9px;
