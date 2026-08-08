@@ -2,7 +2,7 @@
   const grid = document.querySelector('#archive-grid');
   if (!grid) return;
   const english = document.documentElement.lang === 'en';
-  const assetUrl = source => source?.startsWith('http') ? source : new URL(String(source || '').replace(/^\.\.\//, ''), window.location.origin + (english ? '/en/works/' : '/works/')).href;
+  const assetUrl = source => source?.startsWith('http') ? source : new URL(String(source || '').replace(/^(\.\.\/)+/, ''), window.location.origin + '/').href;
   fetch('/content.json', { cache: 'no-store' }).then(response => response.json()).then(content => {
     const works = (content.works || []).filter(work => work.status !== 'draft');
     grid.replaceChildren(...works.map((work, index) => {

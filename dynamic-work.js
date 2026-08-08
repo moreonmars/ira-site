@@ -3,7 +3,7 @@
   if (!root) return;
   const english = document.documentElement.lang === 'en';
   const id = new URLSearchParams(window.location.search).get('id');
-  const assetUrl = source => source?.startsWith('http') ? source : new URL(String(source || '').replace(/^\.\.\//, ''), window.location.origin + (english ? '/en/' : '/')).href;
+  const assetUrl = source => source?.startsWith('http') ? source : new URL(String(source || '').replace(/^(\.\.\/)+/, ''), window.location.origin + '/').href;
   const esc = value => String(value || '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
   fetch('/content.json', { cache: 'no-store' }).then(response => response.json()).then(content => {
     const work = content.works?.find(item => item.id === id && item.status !== 'draft');

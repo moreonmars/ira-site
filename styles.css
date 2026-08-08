@@ -705,7 +705,7 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
 .archive-intro h1 { max-width: 900px; margin: 0; font-size: clamp(72px, 13vw, 190px); line-height: .78; letter-spacing: -.09em; }
 .archive-intro .text-link { width: fit-content; color: var(--ink); }
 .archive-works { padding-top: 5vw; }
-.archive-works .work-meta h2 { margin: 0; font-size: clamp(20px, 2.4vw, 34px); line-height: .9; letter-spacing: -.06em; }
+.archive-works .work-meta h2 { margin: 0; font-size: clamp(20px, 2.4vw, 34px); line-height: .9; letter-spacing: -.06em; overflow-wrap: anywhere; word-break: break-word; }
 .archive-error { padding: 60px 3vw; color: var(--muted); }
 .project-footer { padding: 6vw 3vw; background: var(--pink); }
 .project-footer a {
