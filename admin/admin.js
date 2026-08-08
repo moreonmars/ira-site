@@ -24,16 +24,19 @@
   };
   const storageKey = 'ira-admin-drafts-v1';
   const profileStorageKey = 'ira-admin-profile-v1';
+  const backupKey = 'ira-admin-backup-v1';
   const clone = value => JSON.parse(JSON.stringify(value));
   let works = JSON.parse(localStorage.getItem(storageKey) || 'null') || clone(initialWorks);
   let profile = JSON.parse(localStorage.getItem(profileStorageKey) || 'null') || clone(initialProfile);
   profile.portrait ||= initialProfile.portrait;
+  let savedSnapshot = { works: clone(works), profile: clone(profile) };
   let selectedId = works[0]?.id;
   let locale = 'uk';
   const list = document.querySelector('#work-list');
   const editor = document.querySelector('#editor-panel');
   const toast = message => { document.querySelector('#toast').textContent = message; window.clearTimeout(toast.timer); toast.timer = window.setTimeout(() => { document.querySelector('#toast').textContent = ''; }, 2600); };
-  const save = () => { localStorage.setItem(storageKey, JSON.stringify(works)); localStorage.setItem(profileStorageKey, JSON.stringify(profile)); toast('Збережено локально'); renderList(); };
+  const save = () => { const snapshot = { works: clone(works), profile: clone(profile), savedAt: new Date().toISOString() }; localStorage.setItem(storageKey, JSON.stringify(works)); localStorage.setItem(profileStorageKey, JSON.stringify(profile)); localStorage.setItem(backupKey, JSON.stringify(snapshot)); savedSnapshot = { works: clone(works), profile: clone(profile) }; toast('Збережено локально'); renderList(); };
+  const restoreSaved = () => { works = clone(savedSnapshot.works); profile = clone(savedSnapshot.profile); localStorage.setItem(storageKey, JSON.stringify(works)); localStorage.setItem(profileStorageKey, JSON.stringify(profile)); selectedId = works[0]?.id; renderList(); renderEditor(); renderProfile(); renderSettings(); toast('Зміни скасовано'); };
   const selected = () => works.find(work => work.id === selectedId) || works[0];
   const renderList = () => {
     document.querySelector('#work-count').textContent = works.length;
@@ -111,6 +114,7 @@
     editor.querySelector('#delete-work').addEventListener('click', () => { if (works.length === 1) return; works = works.filter(item => item.id !== work.id); selectedId = works[0].id; save(); renderEditor(); });
   };
   document.querySelector('#save-button').addEventListener('click', save);
+  document.querySelector('#discard-button').addEventListener('click', restoreSaved);
   document.querySelector('#publish-button').addEventListener('click', async () => { save(); const button = document.querySelector('#publish-button'); const status = document.querySelector('#publish-status'); button.disabled = true; status.textContent = 'Публікую…'; status.dataset.state = 'loading'; try { const response = await fetch('/api/admin/publish', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ works, profile }) }); const result = await response.json(); if (!response.ok) throw new Error(result.error || 'Публікація не вдалася.'); status.textContent = 'Опубліковано'; status.dataset.state = 'success'; toast('Зміни опубліковано'); } catch (error) { status.textContent = 'Не опубліковано'; status.dataset.state = 'error'; toast(error.message); } finally { button.disabled = false; } });
   document.querySelector('#logout-button').addEventListener('click', async () => { await fetch('/api/admin/logout', { method: 'POST' }); location.replace('/admin/login.html'); });
   document.querySelector('#new-work').addEventListener('click', () => { const id = `new-work-${Date.now()}`; works.unshift({ id, status: 'draft', year: new Date().getFullYear().toString(), location: { uk: '', en: '' }, title: { uk: 'НОВА РОБОТА', en: 'NEW WORK' }, description: { uk: '', en: '' }, photographer: { uk: '', en: '' }, cover: '', gallery: '' }); selectedId = id; renderList(); renderEditor(); });
