@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-08T18:16:52.708Z",
+  "updatedAt": "2026-08-08T18:29:10.611Z",
   "profile": {
     "heading": {
       "uk": "ІРА ХАРЛАМОВА — АРТИСТКА ПЕРФОРМАНСУ З УКРАЇНИ, ЯКА ПРАЦЮЄ НА ПЕРЕТИНІ ТІЛЕСНОЇ ПРАКТИКИ, ПАМ’ЯТІ ТА КОЛЕКТИВНОЇ ДІЇ.",
@@ -24,26 +24,23 @@
   "works": [
     {
       "id": "new-work-1786212898426",
-      "status": "draft",
+      "status": "published",
       "year": "2021",
       "location": {
         "uk": "Львів",
-        "en": ""
+        "en": "Lviv"
       },
       "title": {
-        "uk": "ARCHIVE: EXPEDITION / LVIV",
-        "en": "NEW WORK"
+        "uk": "ARCHIVE: EXPEDITION / ЛЬВІВ",
+        "en": "ARCHIVE: EXPEDITION / LVIV"
       },
       "description": {
         "uk": "",
         "en": ""
       },
-      "photographer": {
-        "uk": "",
-        "en": ""
-      },
-      "cover": "",
-      "gallery": "https://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786212968924-bf536cd2-02b8-4916-8c5b-7c808e3bb99b-_1014192.jpg"
+      "photographer": "Rostyslav Kuzyk",
+      "cover": "https://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786213573027-7d80f030-90a1-4881-bc74-88360f0161fa-_1014207.webp",
+      "gallery": "https://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786213580847-b52ad337-048c-4560-836d-484299014f47-_1014192.webp\nhttps://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786213585401-19ae7eaf-33a8-4143-a1b4-182e779e95cc-_1014194.webp\nhttps://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786213589302-36fa7641-cd56-4d83-895d-e79fd2abe66d-_1014199.webp\nhttps://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786213593874-47874fd2-5b81-4bc4-9484-7ca8f41bf461-_1014137.webp"
     },
     {
       "id": "archive-expedition",
