@@ -372,7 +372,8 @@ a { color: inherit; }
   align-items: start;
   gap: 20px;
   padding-top: 10px;
-  transform: translateZ(18px);
+  /* Keep metadata inside the card while the card itself uses 3D motion. */
+  transform: none;
 }
 .work-meta span { min-width: 0; font-size: var(--meta-size); overflow-wrap: anywhere; word-break: break-word; }
 .work-meta h3 {
