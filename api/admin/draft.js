@@ -35,7 +35,7 @@ const latestDraft = async () => {
 };
 
 const migrateLegacyGalleries = async draft => {
-  if (!draft || draft.version !== 1) return draft;
+  if (!draft || draft.version >= 3) return draft;
   try {
     const response = await fetch('https://irakharlamova.com/content.json', { cache: 'no-store' });
     if (!response.ok) return draft;
@@ -52,7 +52,7 @@ const migrateLegacyGalleries = async draft => {
       return { ...work, gallery: source.gallery };
     });
     if (!changed) return { ...draft, version: 2 };
-    const migrated = { ...draft, version: 2, works, updatedAt: new Date().toISOString() };
+    const migrated = { ...draft, version: 3, works, updatedAt: new Date().toISOString() };
     return migrated;
   } catch {
     return draft;
@@ -65,7 +65,7 @@ export default async function handler(req, res) {
   try {
     if (req.method === 'GET') return res.status(200).json({ draft: await migrateLegacyGalleries(await latestDraft()) });
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-    const payload = { version: 2, updatedAt: new Date().toISOString(), works: req.body?.works || [], profile: req.body?.profile || {} };
+    const payload = { version: 3, updatedAt: new Date().toISOString(), works: req.body?.works || [], profile: req.body?.profile || {} };
     await put('ira-settings/draft.json', encrypt(JSON.stringify(payload)), { access: 'public', addRandomSuffix: false, contentType: 'application/json', token: process.env.BLOB_READ_WRITE_TOKEN });
     return res.status(200).json({ ok: true });
   } catch (error) { return res.status(500).json({ error: error.message || 'Не вдалося зберегти чернетку.' }); }
