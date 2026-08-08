@@ -43,7 +43,7 @@
         "en": "Anton Karuyk, Dmytro Laryn, Rostyslav Kuzyk."
       },
       "cover": "../assets/archive-kyiv-01.webp",
-      "gallery": "../assets/archive-kyiv-01.webp\n../assets/archive-kyiv-02.webp\n../assets/archive-kyiv-03.webp"
+      "gallery": "../assets/archive-kyiv-01.webp\n../assets/archive-kyiv-02.webp\n../assets/archive-kyiv-03.webp\n../assets/archive-kyiv-04.webp\n../assets/archive-kyiv-05.webp\n../assets/archive-kyiv-06.webp\n../assets/archive-kharkiv-01.webp\n../assets/archive-kharkiv-02.webp\n../assets/archive-kharkiv-03.webp\n../assets/archive-kharkiv-04.webp\n../assets/archive-lviv-01.webp\n../assets/archive-lviv-02.webp\n../assets/archive-lviv-03.webp\n../assets/archive-lviv-04.webp\n../assets/archive-lviv-05.webp"
     },
     {
       "id": "crossing-2",
@@ -66,7 +66,7 @@
         "en": "Oleg Samoylenko."
       },
       "cover": "../assets/crossing-01.webp",
-      "gallery": "../assets/crossing-01.webp\n../assets/crossing-02.webp\n../assets/crossing-03.webp"
+      "gallery": "../assets/crossing-01.webp\n../assets/crossing-02.webp\n../assets/crossing-03.webp\n../assets/crossing-04.webp"
     },
     {
       "id": "exploring-don-quixote",
@@ -89,7 +89,7 @@
         "en": "Jürgen Fritz."
       },
       "cover": "../assets/don-quixote-01.webp",
-      "gallery": "../assets/don-quixote-01.webp\n../assets/don-quixote-02.webp\n../assets/don-quixote-03.webp"
+      "gallery": "../assets/don-quixote-01.webp\n../assets/don-quixote-02.webp\n../assets/don-quixote-03.webp\n../assets/don-quixote-04.webp\n../assets/don-quixote-05.webp"
     },
     {
       "id": "zabih",
@@ -112,7 +112,7 @@
         "en": "Jürgen Fritz."
       },
       "cover": "../assets/zabih-01.webp",
-      "gallery": "../assets/zabih-01.webp\n../assets/zabih-02.webp\n../assets/zabih-03.webp"
+      "gallery": "../assets/zabih-01.webp\n../assets/zabih-02.webp\n../assets/zabih-03.webp\n../assets/zabih-04.webp\n../assets/zabih-05.webp"
     },
     {
       "id": "shards-of-normality",
@@ -158,7 +158,7 @@
         "en": ""
       },
       "cover": "../assets/border-01.webp",
-      "gallery": "../assets/border-01.webp\n../assets/border-02.webp\n../assets/border-03.webp"
+      "gallery": "../assets/border-01.webp\n../assets/border-02.webp\n../assets/border-03.webp\n../assets/border-04.webp\n../assets/border-05.webp\n../assets/border-06.webp"
     }
   ]
 }
