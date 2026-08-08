@@ -703,8 +703,8 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
 .gallery figcaption { padding-top: var(--space-2); font: var(--meta-size) / 1.35 "IBM Plex Mono", monospace; text-transform: uppercase; }
 .gallery figure.no-credit figcaption { display: none; }
 .archive-page { background: var(--paper); }
-.archive-intro { display: grid; gap: 24px; padding: 150px 3vw 80px; background: var(--pink); }
-.archive-intro h1 { max-width: 900px; margin: 0; font-size: clamp(72px, 13vw, 190px); line-height: .78; letter-spacing: -.09em; }
+.archive-intro { display: grid; gap: 24px; padding: 142px 3vw 68px; background: var(--pink); }
+.archive-intro h1 { max-width: 760px; margin: 0; font-size: clamp(64px, 10vw, 150px); line-height: .8; letter-spacing: -.085em; }
 .archive-intro .text-link { width: fit-content; color: var(--ink); }
 .archive-works { padding-top: 5vw; }
 .archive-toolbar {
