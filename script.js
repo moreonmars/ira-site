@@ -692,6 +692,19 @@
       const title = work.title?.[language];
       const description = work.description?.[language];
       const photographer = work.photographer?.[language]?.trim();
+      const image = work.cover?.startsWith('http') ? work.cover : new URL(String(work.cover || '').replace(/^\.\.\//, ''), window.location.origin + (isEnglishContent ? '/en/' : '/')).href;
+      const setMeta = (selector, value, attribute = 'content') => { const meta = document.querySelector(selector); if (meta && value) meta.setAttribute(attribute, value); };
+      if (title) {
+        document.title = `${title} — Ira Kharlamova`;
+        setMeta('meta[name="description"]', description);
+        setMeta('meta[property="og:title"]', `${title} — Ira Kharlamova`);
+        setMeta('meta[property="og:description"]', description);
+        setMeta('meta[property="og:image"]', image);
+        setMeta('meta[property="og:image:alt"]', `${title} — Ira Kharlamova`);
+        setMeta('meta[name="twitter:title"]', `${title} — Ira Kharlamova`);
+        setMeta('meta[name="twitter:description"]', description);
+        setMeta('meta[name="twitter:image"]', image);
+      }
       const projectTitle = document.querySelector('.project-title');
       const projectDescription = document.querySelector('.project-info > p');
       if (title && projectTitle) projectTitle.textContent = title;
