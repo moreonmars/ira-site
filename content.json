@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-08T11:52:32.221Z",
+  "updatedAt": "2026-08-08T18:16:52.708Z",
   "profile": {
     "heading": {
       "uk": "ІРА ХАРЛАМОВА — АРТИСТКА ПЕРФОРМАНСУ З УКРАЇНИ, ЯКА ПРАЦЮЄ НА ПЕРЕТИНІ ТІЛЕСНОЇ ПРАКТИКИ, ПАМ’ЯТІ ТА КОЛЕКТИВНОЇ ДІЇ.",
@@ -22,6 +22,29 @@
     "instagram": "https://www.instagram.com/_ira.kharlamova_/"
   },
   "works": [
+    {
+      "id": "new-work-1786212898426",
+      "status": "draft",
+      "year": "2021",
+      "location": {
+        "uk": "Львів",
+        "en": ""
+      },
+      "title": {
+        "uk": "ARCHIVE: EXPEDITION / LVIV",
+        "en": "NEW WORK"
+      },
+      "description": {
+        "uk": "",
+        "en": ""
+      },
+      "photographer": {
+        "uk": "",
+        "en": ""
+      },
+      "cover": "",
+      "gallery": "https://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786212968924-bf536cd2-02b8-4916-8c5b-7c808e3bb99b-_1014192.jpg"
+    },
     {
       "id": "archive-expedition",
       "status": "published",
