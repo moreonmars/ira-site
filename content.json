@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-07T23:59:29.150Z",
+  "updatedAt": "2026-08-08T11:48:02.057Z",
   "profile": {
     "heading": {
       "uk": "ІРА ХАРЛАМОВА — АРТИСТКА ПЕРФОРМАНСУ З УКРАЇНИ, ЯКА ПРАЦЮЄ НА ПЕРЕТИНІ ТІЛЕСНОЇ ПРАКТИКИ, ПАМ’ЯТІ ТА КОЛЕКТИВНОЇ ДІЇ.",
@@ -17,7 +17,7 @@
       ]
     },
     "cv": "assets/ira-kharlamova-cv.pdf",
-    "portrait": "https://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786146672207-abe05b5c-2457-4c16-b2c6-dfff3ada87ea-exploring-don-quixote-kunstverein-montez-frankfurt-am-main-4.jpg",
+    "portrait": "https://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786189670677-e303e7a6-7886-43b9-8de6-539d1f90935b-exploring-don-quixote-kunstverein-montez-frankfurt-am-main-4.jpg",
     "email": "irene.kharlamova@gmail.com",
     "instagram": "https://www.instagram.com/_ira.kharlamova_/"
   },
@@ -38,12 +38,12 @@
         "uk": "Серія сольних, дуетних і групових перформансів, створених у межах мандрівного проєкту.",
         "en": "A series of solo, duo and group performances created within a travelling project."
       },
-      "cover": "../assets/archive-kyiv-01.webp",
-      "gallery": "../assets/archive-kyiv-01.webp\n../assets/archive-kyiv-02.webp\n../assets/archive-kyiv-03.webp",
       "photographer": {
-        "uk": "",
-        "en": ""
-      }
+        "uk": "Anton Karuyk, Dmytro Laryn, Rostyslav Kuzyk.",
+        "en": "Anton Karuyk, Dmytro Laryn, Rostyslav Kuzyk."
+      },
+      "cover": "../assets/archive-kyiv-01.webp",
+      "gallery": "../assets/archive-kyiv-01.webp\n../assets/archive-kyiv-02.webp\n../assets/archive-kyiv-03.webp"
     },
     {
       "id": "crossing-2",
@@ -60,6 +60,10 @@
       "description": {
         "uk": "Колективний перформативний проєкт про перехід, дистанцію та взаємну присутність.",
         "en": "A collective performance project about transition, distance and mutual presence."
+      },
+      "photographer": {
+        "uk": "Oleg Samoylenko.",
+        "en": "Oleg Samoylenko."
       },
       "cover": "../assets/crossing-01.webp",
       "gallery": "../assets/crossing-01.webp\n../assets/crossing-02.webp\n../assets/crossing-03.webp"
@@ -80,6 +84,10 @@
         "uk": "Тривалий груповий перформанс і лабораторія під керівництвом Юргена Фрітца.",
         "en": "A durational group performance and laboratory led by Jürgen Fritz."
       },
+      "photographer": {
+        "uk": "Jürgen Fritz.",
+        "en": "Jürgen Fritz."
+      },
       "cover": "../assets/don-quixote-01.webp",
       "gallery": "../assets/don-quixote-01.webp\n../assets/don-quixote-02.webp\n../assets/don-quixote-03.webp"
     },
@@ -98,6 +106,10 @@
       "description": {
         "uk": "Груповий перформанс, створений під час воркшопу Юргена Фрітца.",
         "en": "A group performance developed during Jürgen Fritz’s workshop."
+      },
+      "photographer": {
+        "uk": "Jürgen Fritz.",
+        "en": "Jürgen Fritz."
       },
       "cover": "../assets/zabih-01.webp",
       "gallery": "../assets/zabih-01.webp\n../assets/zabih-02.webp\n../assets/zabih-03.webp"
@@ -118,6 +130,10 @@
         "uk": "Міжнародний ансамблевий проєкт про фрагментарність повсякденності.",
         "en": "An international ensemble project about the fragmentary nature of everyday life."
       },
+      "photographer": {
+        "uk": "",
+        "en": ""
+      },
       "cover": "../assets/shards-01.webp",
       "gallery": "../assets/shards-01.webp\n../assets/shards-02.webp\n../assets/shards-03.webp"
     },
@@ -136,6 +152,10 @@
       "description": {
         "uk": "Сольна робота, показана на Performance Platform Lublin.",
         "en": "A solo work presented at Performance Platform Lublin."
+      },
+      "photographer": {
+        "uk": "",
+        "en": ""
       },
       "cover": "../assets/border-01.webp",
       "gallery": "../assets/border-01.webp\n../assets/border-02.webp\n../assets/border-03.webp"
