@@ -49,6 +49,27 @@
   text-transform: uppercase;
 }
 
+.settings-form {
+  display: grid;
+  max-width: 520px;
+  gap: 18px;
+}
+
+.settings-form small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.settings-feedback {
+  min-height: 18px;
+  margin: 0;
+  font: 11px "IBM Plex Mono", monospace;
+  text-transform: uppercase;
+}
+
+.settings-feedback[data-state="success"] { color: #3caa71; }
+.settings-feedback[data-state="error"] { color: #c43c61; }
+
 .publish-status {
   display: inline-flex;
   align-items: center;
