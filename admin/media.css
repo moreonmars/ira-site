@@ -49,6 +49,49 @@
   text-transform: uppercase;
 }
 
+.publish-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 38px;
+  color: var(--muted);
+  font: 10px "IBM Plex Mono", monospace;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.publish-status::before {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  content: "";
+}
+
+.publish-status[data-state="loading"] {
+  color: #c58a18;
+}
+
+.publish-status[data-state="loading"]::before {
+  animation: publish-pulse 1s ease-in-out infinite;
+}
+
+.publish-status[data-state="success"] {
+  color: #3caa71;
+}
+
+.publish-status[data-state="error"] {
+  color: #c43c61;
+}
+
+@keyframes publish-pulse {
+  50% { opacity: .3; transform: scale(.7); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .publish-status[data-state="loading"]::before { animation: none; }
+}
+
 .gallery-preview {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
