@@ -35,6 +35,31 @@
   const list = document.querySelector('#work-list');
   const editor = document.querySelector('#editor-panel');
   const toast = message => { document.querySelector('#toast').textContent = message; window.clearTimeout(toast.timer); toast.timer = window.setTimeout(() => { document.querySelector('#toast').textContent = ''; }, 2600); };
+  const compressImage = file => new Promise((resolve, reject) => {
+    if (!file.type.startsWith('image/') || file.size <= 2 * 1024 * 1024) return resolve(file);
+    const source = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => {
+      URL.revokeObjectURL(source);
+      const canvas = document.createElement('canvas');
+      const maxSide = 2600;
+      let scale = Math.min(1, maxSide / Math.max(image.naturalWidth, image.naturalHeight));
+      const encode = () => {
+        canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+        canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+        canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(blob => {
+          if (!blob) return reject(new Error('Не вдалося стиснути фото.'));
+          if (blob.size <= 2 * 1024 * 1024 || scale < 0.45) return resolve(new File([blob], `${file.name.replace(/\.[^.]+$/, '')}.webp`, { type: 'image/webp' }));
+          scale *= 0.84;
+          encode();
+        }, 'image/webp', 0.92);
+      };
+      encode();
+    };
+    image.onerror = () => { URL.revokeObjectURL(source); reject(new Error('Не вдалося прочитати фото.')); };
+    image.src = source;
+  });
   const syncDraft = async () => { try { await fetch('/api/admin/draft', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ works, profile }) }); } catch { /* local backup remains available when cloud sync is unavailable */ } };
   const save = () => { const snapshot = { works: clone(works), profile: clone(profile), savedAt: new Date().toISOString() }; localStorage.setItem(storageKey, JSON.stringify(works)); localStorage.setItem(profileStorageKey, JSON.stringify(profile)); localStorage.setItem(backupKey, JSON.stringify(snapshot)); savedSnapshot = { works: clone(works), profile: clone(profile) }; syncDraft(); toast('Збережено'); renderList(); };
   const restoreSaved = () => { works = clone(savedSnapshot.works); profile = clone(savedSnapshot.profile); localStorage.setItem(storageKey, JSON.stringify(works)); localStorage.setItem(profileStorageKey, JSON.stringify(profile)); selectedId = works[0]?.id; renderList(); renderEditor(); renderProfile(); renderSettings(); syncDraft(); toast('Зміни скасовано'); };
@@ -72,7 +97,7 @@
     panel.querySelectorAll('[data-profile-locale]').forEach(button => button.addEventListener('click', () => { locale = button.dataset.profileLocale; renderProfile(); }));
     panel.querySelectorAll('[data-profile-field]').forEach(field => field.addEventListener('input', event => { profile[event.target.dataset.profileField] = event.target.value; }));
     panel.querySelectorAll('[data-profile-paragraph]').forEach(field => field.addEventListener('input', event => { profile.paragraphs[locale][Number(event.target.dataset.profileParagraph)] = event.target.value; }));
-    const uploadProfileFile = async file => { const formData = new FormData(); formData.append('file', file); const response = await fetch('/api/admin/upload', { method: 'POST', body: formData }); const result = await response.json(); if (!response.ok) throw new Error(result.error || 'Не вдалося завантажити файл.'); return result.url; };
+    const uploadProfileFile = async file => { const prepared = await compressImage(file); const formData = new FormData(); formData.append('file', prepared, prepared.name); const response = await fetch('/api/admin/upload', { method: 'POST', body: formData }); const text = await response.text(); let result; try { result = JSON.parse(text); } catch { throw new Error('Сервер не прийняв файл. Спробуйте ще раз.'); } if (!response.ok) throw new Error(result.error || 'Не вдалося завантажити файл.'); return result.url; };
     panel.querySelector('#profile-portrait-upload').addEventListener('change', async event => { const [file] = event.target.files; if (!file) return; try { profile.portrait = await uploadProfileFile(file); renderProfile(); toast('Портрет завантажено'); } catch (error) { toast(error.message); } });
     panel.querySelector('#profile-cv-upload').addEventListener('change', async event => { const [file] = event.target.files; if (!file) return; try { profile.cv = await uploadProfileFile(file); renderProfile(); toast('CV завантажено'); } catch (error) { toast(error.message); } });
   };
@@ -113,9 +138,11 @@
     editor.querySelectorAll('[data-locale]').forEach(button => button.addEventListener('click', () => { locale = button.dataset.locale; renderList(); renderEditor(); }));
     editor.querySelectorAll('[data-field]').forEach(field => field.addEventListener('input', event => { const key = event.target.dataset.field; work[key] = ['title', 'location', 'description'].includes(key) ? { ...work[key], [locale]: event.target.value } : event.target.value; if (key === 'cover') editor.querySelector('.cover-preview img').src = event.target.value; }));
     const upload = async (file, multiple = false) => {
-      const formData = new FormData(); formData.append('file', file);
+      const prepared = await compressImage(file);
+      const formData = new FormData(); formData.append('file', prepared, prepared.name);
       const response = await fetch('/api/admin/upload', { method: 'POST', body: formData });
-      const result = await response.json();
+      const text = await response.text(); let result;
+      try { result = JSON.parse(text); } catch { throw new Error('Сервер не прийняв файл. Спробуйте ще раз.'); }
       if (!response.ok) throw new Error(result.error || 'Не вдалося завантажити файл.');
       if (multiple) { work.gallery = `${work.gallery ? `${work.gallery}\n` : ''}${result.url}`; }
       else { work.cover = result.url; }
