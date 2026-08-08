@@ -22,6 +22,7 @@
     const selectedYear = yearSelect?.value || 'all';
     const selectedLocation = locationSelect?.value || 'all';
     const sort = sortSelect?.value || 'default';
+    [yearSelect, locationSelect, sortSelect].forEach(select => select?.classList.toggle('is-active', select.value !== 'all' && select.value !== 'default'));
     const filtered = allWorks.filter(work => {
       const location = label(work, 'location');
       return (selectedYear === 'all' || String(work.year || '') === selectedYear) &&

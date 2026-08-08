@@ -732,20 +732,24 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
 .archive-view-button.is-active,
 .archive-view-button:hover,
 .archive-view-button:focus-visible { background: var(--pink); }
-.archive-select { display: grid; gap: 5px; min-width: 132px; }
+.archive-select { position: relative; display: grid; gap: 5px; min-width: 132px; }
 .archive-select span { font: 500 9px "IBM Plex Mono", monospace; }
 .archive-select select {
-  min-height: 38px;
+  min-height: 42px;
   max-width: 190px;
-  padding: 8px 28px 8px 10px;
+  padding: 9px 28px 9px 12px;
   border: 1px solid var(--black);
   border-radius: 0;
-  background: var(--paper);
+  background: transparent;
   color: var(--black);
   font: 500 10px "IBM Plex Mono", monospace;
+  text-transform: uppercase;
   text-overflow: ellipsis;
   cursor: pointer;
 }
+.archive-select select:hover,
+.archive-select select:focus-visible,
+.archive-select select.is-active { background: var(--pink); outline: none; }
 .archive-count { min-height: 16px; margin: 0 0 18px; font-size: 10px; opacity: .55; }
 .archive-works .work-meta h2 { margin: 0; font-size: clamp(20px, 2.4vw, 34px); line-height: .9; letter-spacing: -.06em; overflow-wrap: anywhere; word-break: break-word; }
 .archive-works .work-card,
