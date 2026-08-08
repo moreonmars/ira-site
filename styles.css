@@ -174,10 +174,10 @@ a { color: inherit; }
 }
 .site-arrow-cursor.is-visible { opacity: 1; }
 .site-arrow-cursor.is-active svg {
-  filter: drop-shadow(3px 4px 0 var(--pink-deep));
-  transform: scale(1.25) translate(-1px, -1px);
+  filter: none;
+  transform: scale(1.1) translate(-1px, -1px);
 }
-.site-arrow-cursor.is-over-media { opacity: 0; }
+.site-arrow-cursor.is-over-media { opacity: 1; }
 .site-arrow-cursor .arrow-shadow,
 .site-arrow-cursor .arrow-main { transition: stroke 0.16s ease; }
 .site-arrow-cursor.is-on-pink .arrow-shadow { stroke: #fff; opacity: 0.58; }
@@ -363,7 +363,7 @@ a { color: inherit; }
   object-fit: cover;
   transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-.work-card:hover .media-wrap { transform: translateZ(14px); box-shadow: 0 26px 70px rgba(0, 0, 0, 0.12); }
+.work-card:hover .media-wrap { transform: none; box-shadow: none; }
 .work-card:hover .media-wrap img,
 .media-wrap.is-lens-active img { transform: scale(1.025); }
 .work-meta {
@@ -668,10 +668,8 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
 .project-hero {
   position: relative;
   display: block;
-  /* Work pages have a stray 25px top flow gap in the deployed markup.
-     Pull the hero to the viewport edge so the image starts at y=0. */
-  margin-top: -25px !important;
-  margin-block-start: -25px !important;
+  margin-top: 0 !important;
+  margin-block-start: 0 !important;
   min-height: 100svh;
   height: 100svh;
   overflow: hidden;
@@ -684,8 +682,8 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
 .project-hero-content { position: absolute; z-index: 2; inset: 0; }
 .project-kicker,
 .project-meta { font-size: var(--meta-size); line-height: 1.35; }
-.project-kicker { position: absolute; top: 18vh; left: 2.5vw; }
-.project-title { position: absolute; right: 2.5vw; bottom: 4vh; left: 2.5vw; max-width: none; margin: 0; color: var(--pink); font-size: clamp(56px, 11vw, 190px); font-weight: 900; line-height: 0.76; letter-spacing: -0.075em; }
+.project-kicker { position: absolute; top: 18vh; left: 2.5vw; max-width: 42vw; overflow-wrap: anywhere; }
+.project-title { position: absolute; right: 2.5vw; bottom: 4vh; left: 2.5vw; max-width: 92vw; margin: 0; color: var(--pink); font-size: clamp(56px, 8vw, 150px); font-weight: 900; line-height: 0.82; letter-spacing: -0.075em; overflow-wrap: anywhere; word-break: break-word; text-wrap: balance; }
 .project-details { padding: 6vw 3vw; background: var(--black); color: #fff; }
 .project-info { display: grid; grid-template-columns: 1fr 1fr; gap: 5vw; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.35); }
 .project-info p { margin: 0; font-size: clamp(18px, 2.2vw, 32px); line-height: 1.22; }
@@ -706,6 +704,9 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
 .archive-intro .text-link { width: fit-content; color: var(--ink); }
 .archive-works { padding-top: 5vw; }
 .archive-works .work-meta h2 { margin: 0; font-size: clamp(20px, 2.4vw, 34px); line-height: .9; letter-spacing: -.06em; overflow-wrap: anywhere; word-break: break-word; }
+.archive-works .work-card,
+.archive-works .work-meta { min-width: 0; }
+.archive-works .work-meta > span { min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
 .archive-error { padding: 60px 3vw; color: var(--muted); }
 .project-footer { padding: 6vw 3vw; background: var(--pink); }
 .project-footer a {
@@ -885,17 +886,19 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
   .project-hero {
     min-height: 620px;
     height: 100svh;
-    margin-top: -25px !important;
+    margin-top: 0 !important;
     margin-bottom: 0;
   }
-  .project-kicker { top: 18vh; left: 16px; }
+  .project-kicker { top: 18vh; left: 16px; max-width: calc(100vw - 32px); }
   .project-title {
     right: 16px;
     bottom: 5vh;
     left: 16px;
-    font-size: clamp(46px, 14vw, 72px);
-    line-height: 0.8;
+    max-width: calc(100vw - 32px);
+    font-size: clamp(46px, 12.5vw, 72px);
+    line-height: 0.84;
     overflow-wrap: anywhere;
+    word-break: break-word;
   }
   .project-details { padding: 64px 16px; }
   .project-info { grid-template-columns: 1fr; }

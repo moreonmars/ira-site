@@ -582,11 +582,9 @@
       link.querySelector('.work-meta h3, .event-title') ||
       (link.closest('.project-footer') ? link : null);
 
-    const transitionLinks = [
-      ...workCards,
-      ...document.querySelectorAll('.event[href]'),
-      ...document.querySelectorAll('.project-footer a[href]'),
-    ];
+    /* Normal navigation keeps the card arrow visible and avoids a full-screen
+       overlay that can look like a square shadow on hover. */
+    const transitionLinks = [];
 
     transitionLinks.forEach(link => {
       link.addEventListener('click', event => {
