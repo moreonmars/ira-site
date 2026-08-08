@@ -437,8 +437,11 @@
     const closeButton = lightbox.querySelector('.lightbox-close');
     const previousButton = lightbox.querySelector('.lightbox-prev');
     const nextButton = lightbox.querySelector('.lightbox-next');
+    const lightboxStage = lightbox.querySelector('.lightbox-stage');
     let currentImage = 0;
     let lastFocus = null;
+    let touchStartX = 0;
+    let touchStartY = 0;
 
     const showImage = index => {
       currentImage = (index + galleryImages.length) % galleryImages.length;
@@ -475,6 +478,19 @@
     closeButton.addEventListener('click', closeLightbox);
     previousButton.addEventListener('click', () => showImage(currentImage - 1));
     nextButton.addEventListener('click', () => showImage(currentImage + 1));
+    lightboxStage.addEventListener('touchstart', event => {
+      const [touch] = event.touches;
+      touchStartX = touch?.clientX || 0;
+      touchStartY = touch?.clientY || 0;
+    }, { passive: true });
+    lightboxStage.addEventListener('touchend', event => {
+      const [touch] = event.changedTouches;
+      const deltaX = (touch?.clientX || 0) - touchStartX;
+      const deltaY = (touch?.clientY || 0) - touchStartY;
+      if (Math.abs(deltaX) < 44 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2) return;
+      if (deltaX < 0) showImage(currentImage + 1);
+      else showImage(currentImage - 1);
+    }, { passive: true });
     lightbox.addEventListener('keydown', event => {
       if (event.key !== 'Tab') return;
       const focusable = [closeButton, previousButton, nextButton];

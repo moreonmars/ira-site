@@ -893,8 +893,8 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
   .project-details { padding: 64px 16px; }
   .project-info { grid-template-columns: 1fr; }
   .back-link { display: none; }
-  .gallery { display: block; padding: 16px; }
-  .gallery figure { margin-bottom: 42px; }
+  .gallery { display: block; padding: 12px; }
+  .gallery figure { margin-bottom: 30px; }
   .gallery-toolbar { margin-bottom: 14px; padding: 4px 0 14px; }
   .gallery.is-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .gallery.is-grid .gallery-toolbar { grid-column: 1 / -1; }
@@ -918,9 +918,10 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
     height: 21px;
     margin-left: 0.18em;
   }
-  .lightbox { padding: 58px 16px 64px; }
+  .lightbox { padding: 58px 12px 64px; }
+  .lightbox-stage { touch-action: pan-y; }
   .lightbox-image { max-height: calc(100vh - 130px); }
-  .lightbox-caption { bottom: -34px; max-width: 82%; }
+  .lightbox-caption { display: none; }
   .lightbox-nav { top: auto; bottom: 8px; width: 60px; height: 44px; transform: none; }
   .lightbox-prev { left: 8px; }
   .lightbox-next { right: 8px; }
