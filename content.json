@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-08T18:39:34.300Z",
+  "updatedAt": "2026-08-09T10:32:37.178Z",
   "profile": {
     "heading": {
       "uk": "ІРА ХАРЛАМОВА — АРТИСТКА ПЕРФОРМАНСУ З УКРАЇНИ, ЯКА ПРАЦЮЄ НА ПЕРЕТИНІ ТІЛЕСНОЇ ПРАКТИКИ, ПАМ’ЯТІ ТА КОЛЕКТИВНОЇ ДІЇ.",
@@ -22,6 +22,29 @@
     "instagram": "https://www.instagram.com/_ira.kharlamova_/"
   },
   "works": [
+    {
+      "id": "new-work-1786271452618",
+      "status": "draft",
+      "year": "2021",
+      "location": {
+        "uk": "Київ",
+        "en": "Kyiv"
+      },
+      "title": {
+        "uk": "ARCHIVE: EXPEDITION / КИЇВ",
+        "en": "ARCHIVE: EXPEDITION / KYIV"
+      },
+      "description": {
+        "uk": "",
+        "en": ""
+      },
+      "photographer": {
+        "uk": "Dmytro Laryn",
+        "en": "Dmytro Laryn"
+      },
+      "cover": "https://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786271523592-cf7ef022-b38e-4b14-9e74-90bf186f8b1b-69826.jpg.jpg",
+      "gallery": "https://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786271534237-d494ce99-4830-4250-af6b-7fa1accf4375-9523.jpg.jpg\nhttps://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786271537253-6543b56b-1f2c-493b-b49d-251e274ec28e-19401841.jpg\nhttps://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786271539025-78fe8e83-c316-4d4a-a128-7e6ec0c0e369-9752.jpg.jpg\nhttps://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786271541715-d7fd5a29-736f-42f6-8da5-81d299b3ef6a-35421.jpg.jpg\nhttps://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786271543687-4277d191-8910-438a-9827-84d386bc82cf-736026.jpg"
+    },
     {
       "id": "new-work-1786212898426",
       "status": "published",
