@@ -685,6 +685,25 @@
       const content = await response.json();
       const isEnglishContent = document.documentElement.lang === 'en';
       const language = isEnglishContent ? 'en' : 'uk';
+      const homeGrid = document.querySelector('.works .work-grid');
+      if (homeGrid && Array.isArray(content.works)) {
+        const featuredOrder = ['archive-expedition', 'crossing-2', 'exploring-don-quixote', 'zabih', 'shards-of-normality', 'performance-platform-lublin'];
+        const publishedWorks = content.works.filter(item => item.status !== 'draft');
+        const publishedById = new Map(publishedWorks.map(item => [item.id, item]));
+        const newWorks = publishedWorks.filter(item => !featuredOrder.includes(item.id));
+        const homeWorks = [...newWorks, ...featuredOrder.map(id => publishedById.get(id)).filter(Boolean)];
+        const legacyPages = { 'archive-expedition': 'archive-expedition', 'crossing-2': 'crossing-2', 'exploring-don-quixote': 'exploring-don-quixote', zabih: 'zabih', 'shards-of-normality': 'shards-of-normality', 'performance-platform-lublin': 'performance-platform-lublin' };
+        const resolveAsset = source => source?.startsWith('http') ? source : `${isEnglishContent ? '../' : ''}${String(source || '').replace(/^\.\//, '')}`;
+        homeGrid.replaceChildren(...homeWorks.map((work, index) => {
+          const title = work.title?.[language] || work.title?.uk || '';
+          const location = work.location?.[language] || work.location?.uk || '';
+          const card = document.createElement('a');
+          card.className = `work-card work-card--${['wide', 'portrait', 'landscape'][index % 3]} reveal visible`;
+          card.href = legacyPages[work.id] ? `${isEnglishContent ? '../' : ''}works/${legacyPages[work.id]}.html` : `${isEnglishContent ? '../' : ''}work.html?id=${encodeURIComponent(work.id)}`;
+          card.innerHTML = `<div class="media-wrap"><img src="${resolveAsset(work.cover)}" alt="${title}" loading="lazy" decoding="async"></div><div class="work-meta"><span class="mono">${String(index + 1).padStart(2, '0')} / ${work.year || ''}${location ? ` / ${location}` : ''}</span><h3>${title}</h3></div>`;
+          return card;
+        }));
+      }
       const profile = content.profile;
       if (profile) {
         const about = document.querySelector('.about-copy');
