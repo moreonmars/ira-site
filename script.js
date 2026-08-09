@@ -267,77 +267,66 @@
     document.documentElement.addEventListener('pointerenter', () => siteArrowCursor.classList.add('is-visible'));
   }
 
-  /* VIEW lens: used only over image cards. */
+  /* X-ray arrow: delegated so it also works on dynamically published cards. */
   const viewCursor = document.querySelector('.cursor');
-  const mediaSurfaces = [...document.querySelectorAll('.media-wrap')];
   if (viewCursor && finePointer && !reducedMotion) {
-    let targetX = window.innerWidth / 2;
-    let targetY = window.innerHeight / 2;
-    let currentX = targetX;
-    let currentY = targetY;
-    let isVisible = false;
-    let cursorFrame = 0;
+    let activeSurface = null;
 
-    const drawCursor = () => {
-      currentX += (targetX - currentX) * 0.22;
-      currentY += (targetY - currentY) * 0.22;
-      viewCursor.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) translate(-50%, -50%) scale(${isVisible ? 1 : 0})`;
-      cursorFrame = requestAnimationFrame(drawCursor);
+    const ensureLens = surface => {
+      const image = surface.querySelector('img');
+      if (!image) return null;
+      let lens = surface.querySelector('.xray-lens');
+      if (!lens) {
+        lens = document.createElement('span');
+        lens.className = 'xray-lens';
+        lens.setAttribute('aria-hidden', 'true');
+        surface.appendChild(lens);
+      }
+      const syncLens = () => { lens.style.backgroundImage = `url("${image.currentSrc || image.src}")`; };
+      if (image.complete) syncLens();
+      else image.addEventListener('load', syncLens, { once: true });
+      return { image, lens };
+    };
+
+    const updateLens = (surface, event) => {
+      const state = ensureLens(surface);
+      if (!state) return;
+      const { image, lens } = state;
+      const rect = surface.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      const naturalWidth = image.naturalWidth || image.clientWidth;
+      const naturalHeight = image.naturalHeight || image.clientHeight;
+      const scale = Math.max(rect.width / naturalWidth, rect.height / naturalHeight);
+      const renderedWidth = naturalWidth * scale;
+      const renderedHeight = naturalHeight * scale;
+      const offsetX = (rect.width - renderedWidth) / 2;
+      const offsetY = (rect.height - renderedHeight) / 2;
+      const lensRadius = 29;
+      lens.style.left = `${x}px`;
+      lens.style.top = `${y}px`;
+      lens.style.backgroundSize = `${renderedWidth}px ${renderedHeight}px`;
+      lens.style.backgroundPosition = `${offsetX - x + lensRadius}px ${offsetY - y + lensRadius}px`;
     };
 
     window.addEventListener('pointermove', event => {
-      targetX = event.clientX;
-      targetY = event.clientY;
-      if (!cursorFrame) cursorFrame = requestAnimationFrame(drawCursor);
+      const surface = event.target instanceof Element ? event.target.closest('.media-wrap') : null;
+      if (surface !== activeSurface) {
+        activeSurface?.classList.remove('is-lens-active');
+        activeSurface = surface;
+        if (activeSurface) {
+          activeSurface.classList.add('is-lens-active');
+          body.classList.add('custom-cursor-active');
+        } else {
+          body.classList.remove('custom-cursor-active');
+        }
+      }
+      if (activeSurface) updateLens(activeSurface, event);
     }, { passive: true });
-
-    mediaSurfaces.forEach(surface => {
-      const image = surface.querySelector('img');
-      if (!image) return;
-
-      const lens = document.createElement('span');
-      lens.className = 'xray-lens';
-      lens.setAttribute('aria-hidden', 'true');
-      surface.appendChild(lens);
-
-      const syncLens = () => {
-        lens.style.backgroundImage = `url("${image.currentSrc || image.src}")`;
-      };
-      image.complete ? syncLens() : image.addEventListener('load', syncLens, { once: true });
-
-      const updateLens = event => {
-        const rect = surface.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-        const naturalWidth = image.naturalWidth || image.clientWidth;
-        const naturalHeight = image.naturalHeight || image.clientHeight;
-        const scale = Math.max(rect.width / naturalWidth, rect.height / naturalHeight);
-        const renderedWidth = naturalWidth * scale;
-        const renderedHeight = naturalHeight * scale;
-        const offsetX = (rect.width - renderedWidth) / 2;
-        const offsetY = (rect.height - renderedHeight) / 2;
-        const lensRadius = 29;
-
-        lens.style.left = `${x}px`;
-        lens.style.top = `${y}px`;
-        lens.style.backgroundSize = `${renderedWidth}px ${renderedHeight}px`;
-        lens.style.backgroundPosition = `${offsetX - x + lensRadius}px ${offsetY - y + lensRadius}px`;
-      };
-
-      surface.addEventListener('pointerenter', event => {
-        isVisible = true;
-        viewCursor.classList.add('visible');
-        body.classList.add('custom-cursor-active');
-        surface.classList.add('is-lens-active');
-        updateLens(event);
-      });
-      surface.addEventListener('pointermove', updateLens, { passive: true });
-      surface.addEventListener('pointerleave', () => {
-        isVisible = false;
-        viewCursor.classList.remove('visible');
-        body.classList.remove('custom-cursor-active');
-        surface.classList.remove('is-lens-active');
-      });
+    document.documentElement.addEventListener('pointerleave', () => {
+      activeSurface?.classList.remove('is-lens-active');
+      activeSurface = null;
+      body.classList.remove('custom-cursor-active');
     });
   } else {
     viewCursor?.remove();
