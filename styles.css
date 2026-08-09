@@ -391,62 +391,28 @@ a { color: inherit; }
 .work-card:focus-visible .work-meta h3 { color: var(--pink); }
 .work-card:focus-visible { outline: 2px solid var(--pink); outline-offset: 8px; }
 
-/* VIEW is reserved for photographs. */
+/* The homepage uses the arrow itself as the x-ray focus. */
 .cursor {
-  position: fixed;
-  z-index: 90;
-  top: 0;
-  left: 0;
-  display: grid;
-  width: 132px;
-  height: 132px;
-  overflow: hidden;
-  place-items: center;
-  border: 1.5px solid rgba(255, 255, 255, 0.92);
-  border-radius: 50%;
-  background: rgba(255, 92, 173, 0.2);
-  color: #fff;
-  opacity: 0;
-  pointer-events: none;
-  transform: translate3d(-200px, -200px, 0) translate(-50%, -50%) scale(0);
-  box-shadow: 0 10px 38px rgba(0, 0, 0, 0.18), inset 0 0 0 1px rgba(0, 0, 0, 0.12);
-  transition: opacity 0.18s ease;
-  will-change: transform;
-  backdrop-filter: saturate(1.35) contrast(1.15);
-}
-.cursor::before {
-  position: absolute;
-  inset: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.34);
-  border-radius: 50%;
-  content: "";
-}
-.cursor.visible { opacity: 1; }
-.cursor span {
-  position: relative;
-  z-index: 2;
-  font: 600 12px "IBM Plex Mono", monospace;
-  letter-spacing: 0.08em;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+  display: none;
 }
 .xray-lens {
   position: absolute;
   z-index: 3;
   top: 0;
   left: 0;
-  width: 132px;
-  height: 132px;
-  border-radius: 50%;
+  width: 58px;
+  height: 58px;
   opacity: 0;
   pointer-events: none;
-  transform: translate(-50%, -50%) scale(0.72);
+  transform: translate(-50%, -50%) scale(0.72) rotate(0.5deg);
+  clip-path: polygon(0 88%, 10% 100%, 56% 54%, 82% 82%, 100% 0%, 18% 18%, 46% 46%);
   background-repeat: no-repeat;
   filter: invert(0.82) hue-rotate(155deg) saturate(2.25) contrast(1.18);
   mix-blend-mode: screen;
   transition: opacity 0.18s ease, transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: left, top, background-position, transform;
 }
-.media-wrap.is-lens-active .xray-lens { opacity: 0.92; transform: translate(-50%, -50%) scale(1); }
+.media-wrap.is-lens-active .xray-lens { opacity: 0.94; transform: translate(-50%, -50%) scale(1) rotate(0.5deg); }
 @media (hover: hover) and (pointer: fine) {
   .media-wrap,
   .media-wrap * { cursor: none !important; }

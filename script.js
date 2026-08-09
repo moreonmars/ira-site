@@ -316,7 +316,7 @@
         const renderedHeight = naturalHeight * scale;
         const offsetX = (rect.width - renderedWidth) / 2;
         const offsetY = (rect.height - renderedHeight) / 2;
-        const lensRadius = 66;
+        const lensRadius = 29;
 
         lens.style.left = `${x}px`;
         lens.style.top = `${y}px`;
