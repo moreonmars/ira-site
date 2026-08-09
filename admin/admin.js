@@ -64,6 +64,30 @@
   const save = () => { const snapshot = { works: clone(works), profile: clone(profile), savedAt: new Date().toISOString() }; localStorage.setItem(storageKey, JSON.stringify(works)); localStorage.setItem(profileStorageKey, JSON.stringify(profile)); localStorage.setItem(backupKey, JSON.stringify(snapshot)); savedSnapshot = { works: clone(works), profile: clone(profile) }; syncDraft(); toast('Збережено'); renderList(); };
   const restoreSaved = () => { works = clone(savedSnapshot.works); profile = clone(savedSnapshot.profile); localStorage.setItem(storageKey, JSON.stringify(works)); localStorage.setItem(profileStorageKey, JSON.stringify(profile)); selectedId = works[0]?.id; renderList(); renderEditor(); renderProfile(); renderSettings(); syncDraft(); toast('Зміни скасовано'); };
   const loadCloudDraft = async () => { try { const response = await fetch('/api/admin/draft'); if (!response.ok) return; const result = await response.json(); if (!result.draft?.works) return; const localBackup = JSON.parse(localStorage.getItem(backupKey) || 'null'); if (localBackup?.savedAt && result.draft.updatedAt && localBackup.savedAt >= result.draft.updatedAt) return; works = mergeFullGalleries(result.draft.works); profile = { ...clone(initialProfile), ...result.draft.profile, heading: { ...clone(initialProfile.heading), ...(result.draft.profile.heading || {}) }, paragraphs: { ...clone(initialProfile.paragraphs), ...(result.draft.profile.paragraphs || {}) }, portrait: result.draft.profile.portrait || initialProfile.portrait }; savedSnapshot = { works: clone(works), profile: clone(profile) }; localStorage.setItem(storageKey, JSON.stringify(works)); localStorage.setItem(profileStorageKey, JSON.stringify(profile)); localStorage.setItem(backupKey, JSON.stringify({ works: clone(works), profile: clone(profile), savedAt: result.draft.updatedAt || new Date().toISOString() })); selectedId = works[0]?.id; renderList(); renderEditor(); renderProfile(); renderSettings(); toast('Синхронізовано'); } catch { /* local data remains the fallback */ } };
+  const syncPublishedContent = async () => {
+    try {
+      const response = await fetch('/content.json', { cache: 'no-store' });
+      if (!response.ok) return;
+      const published = await response.json();
+      const localBackup = JSON.parse(localStorage.getItem(backupKey) || 'null');
+      const publishedAt = Date.parse(published.updatedAt || '');
+      const localAt = Date.parse(localBackup?.savedAt || '');
+      if (!publishedAt || (localAt && publishedAt <= localAt)) return;
+
+      const publishedWorks = Array.isArray(published.works) ? published.works : [];
+      const publishedIds = new Set(publishedWorks.map(work => work.id));
+      const localDrafts = works.filter(work => work.status === 'draft' && !publishedIds.has(work.id));
+      works = [...localDrafts, ...mergeFullGalleries(publishedWorks)];
+      profile = { ...clone(initialProfile), ...(published.profile || {}), heading: { ...clone(initialProfile.heading), ...(published.profile?.heading || {}) }, paragraphs: { ...clone(initialProfile.paragraphs), ...(published.profile?.paragraphs || {}) }, portrait: published.profile?.portrait || initialProfile.portrait };
+      savedSnapshot = { works: clone(works), profile: clone(profile) };
+      localStorage.setItem(storageKey, JSON.stringify(works));
+      localStorage.setItem(profileStorageKey, JSON.stringify(profile));
+      localStorage.setItem(backupKey, JSON.stringify({ works: clone(works), profile: clone(profile), savedAt: published.updatedAt }));
+      selectedId = works[0]?.id;
+      renderList(); renderEditor(); renderProfile(); renderSettings();
+      toast('Синхронізовано з сайтом');
+    } catch { /* local data remains the fallback */ }
+  };
   const fullGalleryById = {
     'archive-expedition': ['../assets/archive-kyiv-01.webp', '../assets/archive-kyiv-02.webp', '../assets/archive-kyiv-03.webp', '../assets/archive-kyiv-04.webp', '../assets/archive-kyiv-05.webp', '../assets/archive-kyiv-06.webp', '../assets/archive-kharkiv-01.webp', '../assets/archive-kharkiv-02.webp', '../assets/archive-kharkiv-03.webp', '../assets/archive-kharkiv-04.webp', '../assets/archive-lviv-01.webp', '../assets/archive-lviv-02.webp', '../assets/archive-lviv-03.webp', '../assets/archive-lviv-04.webp', '../assets/archive-lviv-05.webp'],
     'crossing-2': ['../assets/crossing-01.webp', '../assets/crossing-02.webp', '../assets/crossing-03.webp', '../assets/crossing-04.webp'],
@@ -164,5 +188,5 @@
   document.querySelector('#reset-button').addEventListener('click', () => { works = clone(initialWorks); selectedId = works[0].id; save(); renderEditor(); });
   document.querySelector('#notice-close').addEventListener('click', event => event.currentTarget.closest('.notice').remove());
   document.querySelectorAll('.side-link').forEach(button => button.addEventListener('click', () => { document.querySelectorAll('.side-link').forEach(item => item.classList.toggle('is-active', item === button)); document.querySelectorAll('[data-view-panel]').forEach(panel => { panel.hidden = panel.dataset.viewPanel !== button.dataset.view; }); const title = document.querySelector('.topbar h1'); if (title) title.textContent = { works: 'Роботи', profile: 'Про мене', settings: 'Налаштування' }[button.dataset.view] || 'Роботи'; window.scrollTo({ top: 0, behavior: 'smooth' }); if (button.dataset.view === 'profile') renderProfile(); if (button.dataset.view === 'settings') renderSettings(); }));
-  renderList(); renderEditor(); renderProfile(); renderSettings(); loadCloudDraft();
+  renderList(); renderEditor(); renderProfile(); renderSettings(); loadCloudDraft().finally(syncPublishedContent);
 })();
