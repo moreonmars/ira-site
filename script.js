@@ -253,7 +253,7 @@
       const interactive = Boolean(element?.closest('a[href], button, [role="button"], .gallery figure img'));
       const onPink = Boolean(element?.closest('.manifesto, .ticker, .footer, .menu-overlay, .project-footer'));
       siteArrowCursor.classList.toggle('is-over-media', overMedia);
-      siteArrowCursor.classList.toggle('is-active', interactive && !overMedia);
+      siteArrowCursor.classList.toggle('is-active', interactive);
       siteArrowCursor.classList.toggle('is-on-pink', onPink && !overMedia);
     };
     window.addEventListener('pointermove', event => {

@@ -174,8 +174,8 @@ a { color: inherit; }
 }
 .site-arrow-cursor.is-visible { opacity: 1; }
 .site-arrow-cursor.is-active svg {
-  filter: none;
-  transform: scale(1.1) translate(-1px, -1px);
+  filter: drop-shadow(3px 3px 0 rgba(123, 21, 71, 0.72));
+  transform: scale(1.12) translate(-1px, -1px);
 }
 .site-arrow-cursor.is-over-media { opacity: 1; }
 .site-arrow-cursor .arrow-shadow,
