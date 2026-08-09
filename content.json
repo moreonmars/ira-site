@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-09T10:33:34.514Z",
+  "updatedAt": "2026-08-09T10:41:39.521Z",
   "profile": {
     "heading": {
       "uk": "ІРА ХАРЛАМОВА — АРТИСТКА ПЕРФОРМАНСУ З УКРАЇНИ, ЯКА ПРАЦЮЄ НА ПЕРЕТИНІ ТІЛЕСНОЇ ПРАКТИКИ, ПАМ’ЯТІ ТА КОЛЕКТИВНОЇ ДІЇ.",
@@ -22,6 +22,29 @@
     "instagram": "https://www.instagram.com/_ira.kharlamova_/"
   },
   "works": [
+    {
+      "id": "new-work-1786272013442",
+      "status": "draft",
+      "year": "2021",
+      "location": {
+        "uk": "Харків",
+        "en": "Kharkiv"
+      },
+      "title": {
+        "uk": "ARCHIVE: EXPEDITION / ХАРКІВ",
+        "en": "ARCHIVE: EXPEDITION / KHARKIV"
+      },
+      "description": {
+        "uk": "",
+        "en": ""
+      },
+      "photographer": {
+        "uk": "Anton Karuyk",
+        "en": "Anton Karuyk"
+      },
+      "cover": "https://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786272055840-f166cbe3-601c-4d00-9062-385ec6e3e5b5-61537780.jpg",
+      "gallery": "https://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786272063274-085321b8-25c5-402d-9217-e6d5bd0b8d75-71036.jpg\nhttps://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786272064840-9bfe44ed-57cc-4219-b549-4471200c0955-871122.jpg\nhttps://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786272066111-70e96424-f9ff-4687-b01d-49c470c95b38-8204513.jpg"
+    },
     {
       "id": "new-work-1786271452618",
       "status": "published",
