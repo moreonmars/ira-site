@@ -41,6 +41,7 @@ body:has(.project-hero) > main { display: block; margin-block-start: 0 !importan
 body.dynamic-work-page,
 body.dynamic-work-page #dynamic-work { margin: 0; padding: 0; }
 body.dynamic-work-page #dynamic-work { display: contents; }
+body.dynamic-work-page #dynamic-work > main { position: relative; top: -20px; margin-bottom: -20px; }
 main,
 footer { width: 100%; }
 body.menu-open,
