@@ -441,10 +441,7 @@ a { color: inherit; }
   pointer-events: none;
   transform: translate(-50%, -50%) scale(0.72);
   background-repeat: no-repeat;
-  background-color: var(--pink);
-  background-blend-mode: color;
-  filter: contrast(1.5) saturate(1.8);
-  mix-blend-mode: normal;
+  filter: invert(0.82) hue-rotate(155deg) saturate(2.25) contrast(1.18);
   transition: opacity 0.18s ease, transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: left, top, background-position, transform;
 }
