@@ -249,12 +249,10 @@
     };
     const setArrowState = target => {
       const element = target instanceof Element ? target : null;
-      const overMedia = Boolean(element?.closest('.media-wrap'));
       const interactive = Boolean(element?.closest('a[href], button, [role="button"], .gallery figure img'));
       const onPink = Boolean(element?.closest('.manifesto, .ticker, .footer, .menu-overlay, .project-footer'));
-      siteArrowCursor.classList.toggle('is-over-media', overMedia);
       siteArrowCursor.classList.toggle('is-active', interactive);
-      siteArrowCursor.classList.toggle('is-on-pink', onPink && !overMedia);
+      siteArrowCursor.classList.toggle('is-on-pink', onPink);
     };
     window.addEventListener('pointermove', event => {
       targetX = event.clientX;
@@ -332,6 +330,7 @@
       if (surface !== activeSurface) {
         activeSurface?.classList.remove('is-lens-active');
         activeSurface = surface;
+        siteArrowCursor?.classList.toggle('is-over-media', Boolean(activeSurface));
         if (activeSurface) {
           isCursorVisible = true;
           viewCursor.classList.add('visible');
@@ -350,6 +349,7 @@
       activeSurface = null;
       isCursorVisible = false;
       viewCursor.classList.remove('visible');
+      siteArrowCursor?.classList.remove('is-over-media');
       body.classList.remove('custom-cursor-active');
     });
   } else {
@@ -712,7 +712,8 @@
           const location = work.location?.[language] || work.location?.uk || '';
           const card = document.createElement('a');
           card.className = `work-card work-card--${['wide', 'portrait', 'landscape'][index % 3]} reveal visible`;
-          card.href = legacyPages[work.id] ? `${isEnglishContent ? '../' : ''}works/${legacyPages[work.id]}.html` : `${isEnglishContent ? '../' : ''}work.html?id=${encodeURIComponent(work.id)}`;
+          const dynamicWorkPath = window.location.pathname.includes('/works/') ? '../work.html' : 'work.html';
+          card.href = legacyPages[work.id] ? `${isEnglishContent ? '../' : ''}works/${legacyPages[work.id]}.html` : `${dynamicWorkPath}?id=${encodeURIComponent(work.id)}`;
           card.innerHTML = `<div class="media-wrap"><img src="${resolveAsset(work.cover)}" alt="${title}" loading="lazy" decoding="async"></div><div class="work-meta"><span class="mono">${String(index + 1).padStart(2, '0')} / ${work.year || ''}${location ? ` / ${location}` : ''}</span><h3>${title}</h3></div>`;
           return card;
         }));
