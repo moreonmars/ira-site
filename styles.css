@@ -824,6 +824,10 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
 .archive-works .work-meta h2 { margin: 0; font-size: clamp(20px, 2.4vw, 34px); line-height: .9; letter-spacing: -.06em; overflow-wrap: anywhere; word-break: break-word; }
 .archive-works .work-card,
 .archive-works .work-meta { min-width: 0; }
+.archive-works .work-card {
+  content-visibility: visible;
+  contain-intrinsic-size: auto;
+}
 .archive-works .work-meta > span { min-width: 0; }
 .archive-works .work-meta h2 { min-width: 0; width: 100%; text-align: right; white-space: normal; }
 .archive-works.is-grid-view .work-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }

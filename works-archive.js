@@ -38,7 +38,9 @@
 
     const sync = () => {
       const selected = select.options[select.selectedIndex];
-      trigger.textContent = selected?.textContent || '';
+      trigger.textContent = select.value === 'default'
+        ? (english ? 'SORT' : 'СОРТУВАННЯ')
+        : (selected?.textContent || '');
       trigger.classList.toggle('is-active', select.value !== 'all' && select.value !== 'default');
       menu.querySelectorAll('[role="option"]').forEach(option => {
         option.classList.toggle('is-selected', option.dataset.value === select.value);
@@ -55,7 +57,7 @@
       trigger.setAttribute('aria-expanded', String(open));
     });
     select.addEventListener('change', () => { menu.hidden = true; wrapper.classList.remove('is-open'); trigger.setAttribute('aria-expanded', 'false'); });
-    [...select.options].forEach(option => {
+    [...select.options].filter(option => option.value !== 'default').forEach(option => {
       const item = document.createElement('button');
       item.type = 'button';
       item.className = 'archive-select-option';
