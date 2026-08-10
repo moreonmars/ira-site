@@ -1,6 +1,25 @@
 import crypto from 'node:crypto';
 const githubApi = 'https://api.github.com';
 const config = { owner: process.env.GITHUB_OWNER || 'moreonmars', repo: process.env.GITHUB_REPO || 'ira-site', branch: process.env.GITHUB_BRANCH || 'main', path: 'content.json' };
+const defaultHeadings = {
+  uk: 'ІРА ХАРЛАМОВА — АРТИСТКА ПЕРФОРМАНСУ З УКРАЇНИ, ЯКА ПРАЦЮЄ НА ПЕРЕТИНІ ТІЛЕСНОЇ ПРАКТИКИ, ПАМ’ЯТІ ТА КОЛЕКТИВНОЇ ДІЇ.',
+  en: 'IRA KHARLAMOVA IS A PERFORMANCE ARTIST FROM UKRAINE WORKING AT THE INTERSECTION OF EMBODIED PRACTICE, MEMORY AND COLLECTIVE ACTION.'
+};
+const normalizeProfile = value => {
+  const profile = value && typeof value === 'object' ? { ...value } : {};
+  const legacyHeading = typeof profile.heading === 'string' ? profile.heading.trim() : '';
+  if (legacyHeading) {
+    const legacyIsEnglish = !/[А-Яа-яІіЇїЄєҐґ]/.test(legacyHeading);
+    profile.heading = legacyIsEnglish
+      ? { uk: defaultHeadings.uk, en: legacyHeading }
+      : { uk: legacyHeading, en: defaultHeadings.en };
+  } else {
+    profile.heading = { ...defaultHeadings, ...(profile.heading || {}) };
+  }
+  profile.heading.uk ||= defaultHeadings.uk;
+  profile.heading.en ||= defaultHeadings.en;
+  return profile;
+};
 const headers = () => ({ Accept: 'application/vnd.github+json', Authorization: `Bearer ${process.env.GITHUB_TOKEN}`, 'X-GitHub-Api-Version': '2022-11-28' });
 const authenticated = req => {
   const token = (req.headers.cookie || '').split(';').map(item => item.trim()).find(item => item.startsWith('ira_admin_session='))?.split('=').slice(1).join('=');
@@ -17,7 +36,7 @@ export default async function handler(req, res) {
   if (!authenticated(req)) return res.status(401).json({ error: 'Вхід до адмінки потрібен для публікації.' });
   if (!process.env.GITHUB_TOKEN) return res.status(503).json({ error: 'Publishing is not configured yet.' });
   try {
-    const payload = JSON.stringify({ version: 1, updatedAt: new Date().toISOString(), profile: req.body?.profile || {}, works: req.body?.works || [] }, null, 2);
+    const payload = JSON.stringify({ version: 1, updatedAt: new Date().toISOString(), profile: normalizeProfile(req.body?.profile), works: req.body?.works || [] }, null, 2);
     const currentResponse = await fetch(`${githubApi}/repos/${config.owner}/${config.repo}/contents/${config.path}?ref=${config.branch}`, { headers: headers() });
     const current = currentResponse.ok ? await currentResponse.json() : {};
     const response = await fetch(`${githubApi}/repos/${config.owner}/${config.repo}/contents/${config.path}`, { method: 'PUT', headers: { ...headers(), 'Content-Type': 'application/json' }, body: JSON.stringify({ message: 'Update portfolio content from admin', content: Buffer.from(payload).toString('base64'), sha: current.sha, branch: config.branch }) });

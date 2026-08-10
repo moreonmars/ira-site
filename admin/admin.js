@@ -28,9 +28,16 @@
   const clone = value => JSON.parse(JSON.stringify(value));
   const normalizeProfile = value => {
     const input = value && typeof value === 'object' ? value : {};
+    const legacyHeading = typeof input.heading === 'string' ? input.heading.trim() : '';
+    const legacyIsEnglish = legacyHeading && !/[А-Яа-яІіЇїЄєҐґ]/.test(legacyHeading);
     const heading = typeof input.heading === 'string'
-      ? { uk: input.heading, en: input.heading }
+      ? {
+        uk: legacyIsEnglish ? initialProfile.heading.uk : legacyHeading,
+        en: legacyIsEnglish ? legacyHeading : initialProfile.heading.en
+      }
       : { ...clone(initialProfile.heading), ...(input.heading || {}) };
+    heading.uk ||= initialProfile.heading.uk;
+    heading.en ||= initialProfile.heading.en;
     const paragraphs = { ...clone(initialProfile.paragraphs), ...(input.paragraphs || {}) };
     paragraphs.uk = Array.isArray(paragraphs.uk) ? paragraphs.uk : clone(initialProfile.paragraphs.uk);
     paragraphs.en = Array.isArray(paragraphs.en) ? paragraphs.en : clone(initialProfile.paragraphs.en);

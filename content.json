@@ -2,7 +2,10 @@
   "version": 1,
   "updatedAt": "2026-08-10T22:25:03.202Z",
   "profile": {
-    "heading": "HI, I AM IRA KHARLAMOVA - A PERFORMANCE ARTIST FROM UKRAINE WORKING AT THE INTERSECTION OF EMBODIED PRACTICE, MEMORY AND COLLECTIVE ACTION.",
+    "heading": {
+      "uk": "ПРИВІТ, Я ІРА ХАРЛАМОВА — АРТИСТКА ПЕРФОРМАНСУ З УКРАЇНИ, ЯКА ПРАЦЮЄ НА ПЕРЕТИНІ ТІЛЕСНОЇ ПРАКТИКИ, ПАМ’ЯТІ ТА КОЛЕКТИВНОЇ ДІЇ.",
+      "en": "HI, I AM IRA KHARLAMOVA - A PERFORMANCE ARTIST FROM UKRAINE WORKING AT THE INTERSECTION OF EMBODIED PRACTICE, MEMORY AND COLLECTIVE ACTION."
+    },
     "paragraphs": {
       "uk": [
         "Моя практика виростає з фізичного театру, live art і довготривалого дослідження тіла як носія досвіду. Я співзасновниця ініціативної групи «Мистецтво перформансу України» та засновниця проєкту «АРХІВ: мистецтво перформансу України».",
