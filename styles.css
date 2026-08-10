@@ -114,6 +114,7 @@ a { color: inherit; }
   .menu-button,
   .menu-close,
   .hero-bottom a,
+  .hero-action,
   .text-link,
   .footer-links a,
   .menu-foot a,
@@ -132,6 +133,7 @@ a { color: inherit; }
   .menu-button,
   .menu-close,
   .hero-bottom a,
+  .hero-action,
   .text-link,
   .footer-links a,
   .menu-foot a,
@@ -142,7 +144,7 @@ a { color: inherit; }
   .lightbox-close
 )::after {
   position: absolute;
-  inset: -9px -7px -18px;
+  inset: -12px -10px -20px;
   content: "";
 }
 

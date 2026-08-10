@@ -260,7 +260,9 @@
       targetX = event.clientX;
       targetY = event.clientY;
       siteArrowCursor.classList.add('is-visible');
-      setArrowState(event.target);
+      // Resolve the actual element under the pointer. This keeps the active
+      // state reliable on padded hit areas and when hovering link contents.
+      setArrowState(document.elementFromPoint(event.clientX, event.clientY) || event.target);
       if (!arrowFrame) arrowFrame = requestAnimationFrame(drawArrow);
     }, { passive: true });
     document.documentElement.addEventListener('pointerleave', () => siteArrowCursor.classList.remove('is-visible'));
