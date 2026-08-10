@@ -300,9 +300,14 @@ a { color: inherit; }
   font-size: 11px;
 }
 .hero-bottom a { color: #fff; text-decoration: none; }
-.hero-actions { position: absolute; z-index: 3; right: 3vw; bottom: 3vw; display: flex; gap: 8px; }
-.hero-action { display: inline-flex; align-items: center; min-height: 40px; padding: 10px 12px; border: 1px solid currentColor; color: #fff; font-size: 10px; text-decoration: none; transition: background .2s ease, color .2s ease; }
+.hero-actions { position: absolute; z-index: 3; right: 3vw; bottom: 3vw; display: flex; max-width: calc(100% - 6vw); gap: 8px; justify-content: flex-end; }
+.hero-action { display: inline-flex; flex: 0 0 auto; align-items: center; min-height: 40px; padding: 10px 12px; border: 1px solid currentColor; color: #fff; font-size: 10px; line-height: 1; text-decoration: none; white-space: nowrap; transition: background .2s ease, color .2s ease; }
 .hero-action:hover, .hero-action:focus-visible { background: #fff; color: var(--black); }
+
+/* Keep both calls to action readable when browser zoom makes the hero narrower. */
+@media (max-width: 1400px) and (min-width: 761px) {
+  .hero-actions { flex-direction: column; align-items: flex-end; }
+}
 
 .manifesto { padding: 8vw 4vw; background: var(--pink); }
 .eyebrow { margin: 0 0 3vw; font-size: var(--meta-size); }
@@ -940,7 +945,7 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
   .hero-bottom span { display: none; }
   .hero-bottom { gap: 12px; }
   .hero-bottom a { font-size: 10px; }
-  .hero-actions { right: 16px; bottom: 54px; gap: 6px; }
+  .hero-actions { right: 16px; bottom: 54px; max-width: calc(100% - 32px); flex-direction: column; align-items: flex-end; gap: 6px; }
   .hero-action { min-height: 36px; padding: 8px 9px; font-size: 9px; }
   .manifesto { padding: 90px 16px; }
   .manifesto-text { font-size: 42px; }
