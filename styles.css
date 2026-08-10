@@ -833,22 +833,13 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
 .archive-works.is-grid-view .work-meta h2 { margin-top: 9px; text-align: left; }
 .archive-error { padding: 60px 3vw; color: var(--muted); }
 .project-footer { padding: 6vw 3vw; background: var(--pink); }
-.project-footer a {
-  display: inline-flex;
-  max-width: 100%;
-  align-items: baseline;
-  font-size: clamp(44px, 8vw, 120px);
-  font-weight: 900;
-  letter-spacing: -0.06em;
-  line-height: 0.9;
-  overflow-wrap: anywhere;
-  text-decoration: none;
-}
-.project-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5vw; }
-.project-nav-item { display: grid; gap: 14px; min-width: 0; }
+.project-nav { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, .8fr) minmax(0, 1fr); gap: 3vw; align-items: end; }
+.project-nav-item { display: grid; gap: 14px; min-width: 0; color: var(--black); text-decoration: none; }
 .project-nav-item > span { font-size: var(--meta-size); }
-.project-nav-item > a { font-size: clamp(36px, 5.8vw, 92px); }
-.project-nav-item:last-child { text-align: right; }
+.project-nav-item > strong { display: block; font-size: clamp(22px, 3.5vw, 56px); font-weight: 900; letter-spacing: -0.06em; line-height: .9; overflow-wrap: anywhere; }
+.project-nav-archive { text-align: center; }
+.project-nav-next { text-align: right; }
+.project-nav-item.is-empty { visibility: hidden; pointer-events: none; }
 .error-page { min-height: 100vh; background: var(--pink); color: var(--black); }
 .error-page .site-header { color: var(--black); mix-blend-mode: normal; }
 .error-content { display: grid; min-height: 100vh; align-content: center; gap: 24px; padding: 12vw 6vw; }
@@ -1056,8 +1047,9 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
     line-height: 0.92;
   }
   .project-nav { grid-template-columns: 1fr; gap: 38px; }
-  .project-nav-item:last-child { text-align: left; }
-  .project-nav-item > a { font-size: clamp(38px, 11vw, 62px); }
+  .project-nav-item,
+  .project-nav-next { text-align: left; }
+  .project-nav-item > strong { font-size: clamp(38px, 11vw, 62px); }
   .inline-arrow {
     width: 21px;
     height: 21px;
