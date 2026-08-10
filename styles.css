@@ -441,7 +441,9 @@ a { color: inherit; }
   pointer-events: none;
   transform: translate(-50%, -50%) scale(0.72);
   background-repeat: no-repeat;
-  filter: invert(1) hue-rotate(132deg) saturate(4) contrast(1.35);
+  background-color: var(--pink);
+  background-blend-mode: color;
+  filter: grayscale(1) contrast(1.6);
   mix-blend-mode: normal;
   transition: opacity 0.18s ease, transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: left, top, background-position, transform;
