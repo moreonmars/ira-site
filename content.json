@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-09T10:42:00.623Z",
+  "updatedAt": "2026-08-10T15:17:04.052Z",
   "profile": {
     "heading": {
       "uk": "ІРА ХАРЛАМОВА — АРТИСТКА ПЕРФОРМАНСУ З УКРАЇНИ, ЯКА ПРАЦЮЄ НА ПЕРЕТИНІ ТІЛЕСНОЇ ПРАКТИКИ, ПАМ’ЯТІ ТА КОЛЕКТИВНОЇ ДІЇ.",
@@ -43,7 +43,8 @@
         "en": "Anton Karuyk"
       },
       "cover": "https://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786272055840-f166cbe3-601c-4d00-9062-385ec6e3e5b5-61537780.jpg",
-      "gallery": "https://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786272063274-085321b8-25c5-402d-9217-e6d5bd0b8d75-71036.jpg\nhttps://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786272064840-9bfe44ed-57cc-4219-b549-4471200c0955-871122.jpg\nhttps://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786272066111-70e96424-f9ff-4687-b01d-49c470c95b38-8204513.jpg"
+      "gallery": "https://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786272063274-085321b8-25c5-402d-9217-e6d5bd0b8d75-71036.jpg\nhttps://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786272064840-9bfe44ed-57cc-4219-b549-4471200c0955-871122.jpg\nhttps://l1e1ebr8xkozaewa.public.blob.vercel-storage.com/ira-portfolio/1786272066111-70e96424-f9ff-4687-b01d-49c470c95b38-8204513.jpg",
+      "galleryCredits": ""
     },
     {
       "id": "new-work-1786271452618",
@@ -177,11 +178,12 @@
         "en": "A group performance developed during Jürgen Fritz’s workshop."
       },
       "photographer": {
-        "uk": "Jürgen Fritz.",
+        "uk": "Jürgen Fritz",
         "en": "Jürgen Fritz."
       },
       "cover": "../assets/zabih-01.webp",
-      "gallery": "../assets/zabih-01.webp\n../assets/zabih-02.webp\n../assets/zabih-03.webp\n../assets/zabih-04.webp\n../assets/zabih-05.webp"
+      "gallery": "../assets/zabih-01.webp\n../assets/zabih-02.webp\n../assets/zabih-03.webp\n../assets/zabih-04.webp\n../assets/zabih-05.webp",
+      "galleryCredits": ""
     },
     {
       "id": "shards-of-normality",
