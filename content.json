@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-10T15:17:17.341Z",
+  "updatedAt": "2026-08-10T15:17:22.329Z",
   "profile": {
     "heading": {
       "uk": "ІРА ХАРЛАМОВА — АРТИСТКА ПЕРФОРМАНСУ З УКРАЇНИ, ЯКА ПРАЦЮЄ НА ПЕРЕТИНІ ТІЛЕСНОЇ ПРАКТИКИ, ПАМ’ЯТІ ТА КОЛЕКТИВНОЇ ДІЇ.",
@@ -132,11 +132,12 @@
         "en": "A collective performance project about transition, distance and mutual presence."
       },
       "photographer": {
-        "uk": "Oleg Samoylenko.",
+        "uk": "Oleg Samoylenko",
         "en": "Oleg Samoylenko."
       },
       "cover": "../assets/crossing-01.webp",
-      "gallery": "../assets/crossing-01.webp\n../assets/crossing-02.webp\n../assets/crossing-03.webp\n../assets/crossing-04.webp"
+      "gallery": "../assets/crossing-01.webp\n../assets/crossing-02.webp\n../assets/crossing-03.webp\n../assets/crossing-04.webp",
+      "galleryCredits": ""
     },
     {
       "id": "exploring-don-quixote",
