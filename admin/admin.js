@@ -26,9 +26,18 @@
   const profileStorageKey = 'ira-admin-profile-v1';
   const backupKey = 'ira-admin-backup-v1';
   const clone = value => JSON.parse(JSON.stringify(value));
+  const normalizeProfile = value => {
+    const input = value && typeof value === 'object' ? value : {};
+    const heading = typeof input.heading === 'string'
+      ? { uk: input.heading, en: input.heading }
+      : { ...clone(initialProfile.heading), ...(input.heading || {}) };
+    const paragraphs = { ...clone(initialProfile.paragraphs), ...(input.paragraphs || {}) };
+    paragraphs.uk = Array.isArray(paragraphs.uk) ? paragraphs.uk : clone(initialProfile.paragraphs.uk);
+    paragraphs.en = Array.isArray(paragraphs.en) ? paragraphs.en : clone(initialProfile.paragraphs.en);
+    return { ...clone(initialProfile), ...input, heading, paragraphs, portrait: input.portrait || initialProfile.portrait };
+  };
   let works = JSON.parse(localStorage.getItem(storageKey) || 'null') || clone(initialWorks);
-  let profile = JSON.parse(localStorage.getItem(profileStorageKey) || 'null') || clone(initialProfile);
-  profile.portrait ||= initialProfile.portrait;
+  let profile = normalizeProfile(JSON.parse(localStorage.getItem(profileStorageKey) || 'null'));
   let savedSnapshot = { works: clone(works), profile: clone(profile) };
   let selectedId = works[0]?.id;
   let locale = 'uk';
@@ -61,10 +70,10 @@
     image.src = source;
   });
   const syncDraft = async () => { try { await fetch('/api/admin/draft', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ works, profile }) }); } catch { /* local backup remains available when cloud sync is unavailable */ } };
-  const save = () => { const snapshot = { works: clone(works), profile: clone(profile), savedAt: new Date().toISOString() }; localStorage.setItem(storageKey, JSON.stringify(works)); localStorage.setItem(profileStorageKey, JSON.stringify(profile)); localStorage.setItem(backupKey, JSON.stringify(snapshot)); savedSnapshot = { works: clone(works), profile: clone(profile) }; syncDraft(); toast('Збережено'); renderList(); };
+  const save = () => { profile = normalizeProfile(profile); const snapshot = { works: clone(works), profile: clone(profile), savedAt: new Date().toISOString() }; localStorage.setItem(storageKey, JSON.stringify(works)); localStorage.setItem(profileStorageKey, JSON.stringify(profile)); localStorage.setItem(backupKey, JSON.stringify(snapshot)); savedSnapshot = { works: clone(works), profile: clone(profile) }; syncDraft(); toast('Збережено'); renderList(); };
   const publishWorks = async () => { const response = await fetch('/api/admin/publish', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ works, profile }) }); const result = await response.json(); if (!response.ok) throw new Error(result.error || 'Публікація не вдалася.'); return result; };
   const restoreSaved = () => { works = clone(savedSnapshot.works); profile = clone(savedSnapshot.profile); localStorage.setItem(storageKey, JSON.stringify(works)); localStorage.setItem(profileStorageKey, JSON.stringify(profile)); selectedId = works[0]?.id; renderList(); renderEditor(); renderProfile(); renderSettings(); syncDraft(); toast('Зміни скасовано'); };
-  const loadCloudDraft = async () => { try { const response = await fetch('/api/admin/draft'); if (!response.ok) return; const result = await response.json(); if (!result.draft?.works) return; const localBackup = JSON.parse(localStorage.getItem(backupKey) || 'null'); if (localBackup?.savedAt && result.draft.updatedAt && localBackup.savedAt >= result.draft.updatedAt) return; works = mergeFullGalleries(result.draft.works); profile = { ...clone(initialProfile), ...result.draft.profile, heading: { ...clone(initialProfile.heading), ...(result.draft.profile.heading || {}) }, paragraphs: { ...clone(initialProfile.paragraphs), ...(result.draft.profile.paragraphs || {}) }, portrait: result.draft.profile.portrait || initialProfile.portrait }; savedSnapshot = { works: clone(works), profile: clone(profile) }; localStorage.setItem(storageKey, JSON.stringify(works)); localStorage.setItem(profileStorageKey, JSON.stringify(profile)); localStorage.setItem(backupKey, JSON.stringify({ works: clone(works), profile: clone(profile), savedAt: result.draft.updatedAt || new Date().toISOString() })); selectedId = works[0]?.id; renderList(); renderEditor(); renderProfile(); renderSettings(); toast('Синхронізовано'); } catch { /* local data remains the fallback */ } };
+  const loadCloudDraft = async () => { try { const response = await fetch('/api/admin/draft'); if (!response.ok) return; const result = await response.json(); if (!result.draft?.works) return; const localBackup = JSON.parse(localStorage.getItem(backupKey) || 'null'); if (localBackup?.savedAt && result.draft.updatedAt && localBackup.savedAt >= result.draft.updatedAt) return; works = mergeFullGalleries(result.draft.works); profile = normalizeProfile(result.draft.profile); savedSnapshot = { works: clone(works), profile: clone(profile) }; localStorage.setItem(storageKey, JSON.stringify(works)); localStorage.setItem(profileStorageKey, JSON.stringify(profile)); localStorage.setItem(backupKey, JSON.stringify({ works: clone(works), profile: clone(profile), savedAt: result.draft.updatedAt || new Date().toISOString() })); selectedId = works[0]?.id; renderList(); renderEditor(); renderProfile(); renderSettings(); toast('Синхронізовано'); } catch { /* local data remains the fallback */ } };
   const syncPublishedContent = async () => {
     try {
       const response = await fetch('/content.json', { cache: 'no-store' });
@@ -79,7 +88,7 @@
       const publishedIds = new Set(publishedWorks.map(work => work.id));
       const localDrafts = works.filter(work => work.status === 'draft' && !publishedIds.has(work.id));
       works = [...localDrafts, ...mergeFullGalleries(publishedWorks)];
-      profile = { ...clone(initialProfile), ...(published.profile || {}), heading: { ...clone(initialProfile.heading), ...(published.profile?.heading || {}) }, paragraphs: { ...clone(initialProfile.paragraphs), ...(published.profile?.paragraphs || {}) }, portrait: published.profile?.portrait || initialProfile.portrait };
+      profile = normalizeProfile(published.profile);
       savedSnapshot = { works: clone(works), profile: clone(profile) };
       localStorage.setItem(storageKey, JSON.stringify(works));
       localStorage.setItem(profileStorageKey, JSON.stringify(profile));
@@ -120,7 +129,7 @@
     const portraitPreview = profile.portrait?.startsWith('http') ? profile.portrait : `../${String(profile.portrait || '').replace(/^\.\//, '')}`;
     panel.innerHTML = `<div class="locale-tabs"><button type="button" class="locale-tab${locale === 'uk' ? ' is-active' : ''}" data-profile-locale="uk">UA</button><button type="button" class="locale-tab${locale === 'en' ? ' is-active' : ''}" data-profile-locale="en">EN</button></div><div class="form-grid"><div class="field full"><label>Заголовок</label><textarea data-profile-field="heading">${profile.heading[locale] || ''}</textarea></div><div class="field full"><label>Опис — абзац 1</label><textarea data-profile-paragraph="0">${profile.paragraphs[locale]?.[0] || ''}</textarea></div><div class="field full"><label>Опис — абзац 2</label><textarea data-profile-paragraph="1">${profile.paragraphs[locale]?.[1] || ''}</textarea></div><div class="field full profile-media-field"><label>Портретне фото</label><input id="profile-portrait-upload" type="file" accept="image/*"><div class="profile-portrait-preview"><img src="${portraitPreview}" alt="Портрет"></div></div><div class="field full profile-media-field"><label>CV-файл</label><input id="profile-cv-upload" type="file" accept="application/pdf"><span class="profile-file-status">${profile.cv ? 'CV-файл завантажено' : 'CV-файл ще не додано'}</span></div><div class="field"><label>Email</label><input data-profile-field="email" type="email" value="${profile.email || ''}"></div><div class="field"><label>Instagram</label><input data-profile-field="instagram" value="${profile.instagram || ''}"></div></div>`;
     panel.querySelectorAll('[data-profile-locale]').forEach(button => button.addEventListener('click', () => { locale = button.dataset.profileLocale; renderProfile(); }));
-    panel.querySelectorAll('[data-profile-field]').forEach(field => field.addEventListener('input', event => { profile[event.target.dataset.profileField] = event.target.value; }));
+    panel.querySelectorAll('[data-profile-field]').forEach(field => field.addEventListener('input', event => { const key = event.target.dataset.profileField; if (key === 'heading') { profile.heading ||= {}; profile.heading[locale] = event.target.value; } else { profile[key] = event.target.value; } }));
     panel.querySelectorAll('[data-profile-paragraph]').forEach(field => field.addEventListener('input', event => { profile.paragraphs[locale][Number(event.target.dataset.profileParagraph)] = event.target.value; }));
     const uploadProfileFile = async file => { const prepared = await compressImage(file); const formData = new FormData(); formData.append('file', prepared, prepared.name); const response = await fetch('/api/admin/upload', { method: 'POST', body: formData }); const text = await response.text(); let result; try { result = JSON.parse(text); } catch { throw new Error('Сервер не прийняв файл. Спробуйте ще раз.'); } if (!response.ok) throw new Error(result.error || 'Не вдалося завантажити файл.'); return result.url; };
     panel.querySelector('#profile-portrait-upload').addEventListener('change', async event => { const [file] = event.target.files; if (!file) return; try { profile.portrait = await uploadProfileFile(file); renderProfile(); toast('Портрет завантажено'); } catch (error) { toast(error.message); } });
