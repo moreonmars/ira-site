@@ -1007,7 +1007,8 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
     text-align: left;
   }
   .cursor,
-  .xray-lens { display: none; }
+  .xray-lens,
+  .site-arrow-cursor { display: none !important; }
   .event {
     grid-template-columns: 52px minmax(0, 1fr) 28px;
     gap: 12px;
@@ -1112,6 +1113,21 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
     height: 13px;
     margin-left: 0.1em;
   }
+  .inline-arrow::before {
+    top: 2px;
+    right: 1px;
+    width: 8px;
+    height: 8px;
+    border-width: 2px;
+  }
+  .inline-arrow::after {
+    top: 6px;
+    left: 1px;
+    width: 12px;
+    height: 2px;
+  }
+  a:hover > .inline-arrow,
+  a:focus-visible > .inline-arrow { transform: translate(1px, -1px); }
   .lightbox { padding: 58px 12px 64px; }
   .lightbox-stage { touch-action: pan-y; }
   .lightbox-image { max-height: calc(100vh - 130px); }
