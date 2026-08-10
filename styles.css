@@ -38,6 +38,8 @@ html:has(.project-hero),
 body:has(.project-hero),
 body:has(.project-hero) main { margin: 0; padding-top: 0; }
 body:has(.project-hero) > main { display: block; margin-block-start: 0 !important; }
+body.dynamic-work-page,
+body.dynamic-work-page #dynamic-work { margin: 0; padding: 0; }
 main,
 footer { width: 100%; }
 body.menu-open,
@@ -682,17 +684,19 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
   background: #0a0a0a;
   color: #fff;
 }
-.project-hero-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+.project-hero-media { position: absolute; top: -1px; right: 0; bottom: -1px; left: 0; width: 100%; height: calc(100% + 2px); object-fit: cover; object-position: center; }
 .project-hero-shade { position: absolute; z-index: 1; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.48)); }
 .project-hero-content { position: absolute; z-index: 2; inset: 0; }
 .project-kicker,
 .project-meta { font-size: var(--meta-size); line-height: 1.35; }
 .project-kicker { position: absolute; top: 18vh; left: 2.5vw; max-width: 42vw; overflow-wrap: anywhere; }
 .project-title { position: absolute; right: 2.5vw; bottom: 4vh; left: 2.5vw; max-width: 92vw; margin: 0; color: var(--pink); font-size: clamp(56px, 8vw, 150px); font-weight: 900; line-height: 0.82; letter-spacing: -0.075em; overflow-wrap: anywhere; word-break: break-word; text-wrap: balance; }
-.project-details { padding: 6vw 3vw; background: var(--black); color: #fff; }
-.project-info { display: grid; grid-template-columns: 1fr 1fr; gap: 5vw; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.35); }
+.project-details { padding: clamp(32px, 4vw, 72px) 3vw; background: var(--paper); color: var(--black); }
+.project-details::before { display: block; margin-bottom: 18px; color: var(--pink-deep); content: "ПРО РОБОТУ"; font: var(--meta-size) / 1.35 "IBM Plex Mono", monospace; text-transform: uppercase; }
+html[lang="en"] .project-details::before { content: "ABOUT THE WORK"; }
+.project-info { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(220px, .6fr); gap: 5vw; padding-top: 20px; border-top: 1px solid var(--black); }
 .project-info p { margin: 0; font-size: clamp(18px, 2.2vw, 32px); line-height: 1.22; }
-.project-meta { display: grid; gap: 8px; }
+.project-meta { display: grid; align-content: start; gap: 8px; color: var(--pink-deep); }
 .back-link { position: fixed; z-index: 52; top: 90px; left: 24px; color: #fff; font: 11px "IBM Plex Mono", monospace; text-decoration: none; mix-blend-mode: difference; }
 .gallery { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; padding: 3vw; background: var(--paper); }
 .gallery figure { grid-column: span 7; margin: 0; content-visibility: auto; contain-intrinsic-size: 520px; }
@@ -1024,7 +1028,7 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
     overflow-wrap: anywhere;
     word-break: break-word;
   }
-  .project-details { padding: 64px 16px; }
+  .project-details { padding: 36px 16px; }
   .project-info { grid-template-columns: 1fr; }
   .back-link { display: none; }
   .gallery { display: block; padding: 12px; }
