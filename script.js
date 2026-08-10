@@ -79,7 +79,7 @@
       const contact = document.createElement('a');
       contact.className = 'text-link mono';
       contact.href = 'mailto:irene.kharlamova@gmail.com';
-      contact.textContent = isEnglish ? 'CONTACT IRA ↗' : 'НАПИСАТИ ІРІ ↗';
+      contact.textContent = isEnglish ? 'CONTACT ME ↗' : 'НАПИСАТИ МЕНІ ↗';
       actions.append(contact);
       aboutCopy.append(actions);
     }
@@ -157,7 +157,7 @@
     const contact = document.createElement('a');
     contact.className = 'hero-action mono';
     contact.href = 'mailto:irene.kharlamova@gmail.com';
-    contact.textContent = isEnglish ? 'CONTACT IRA' : 'НАПИСАТИ ІРІ';
+    contact.textContent = isEnglish ? 'CONTACT ME' : 'НАПИСАТИ МЕНІ';
     heroActions.append(download, contact);
     homeHero.append(heroActions);
   }
