@@ -830,7 +830,7 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
   contain-intrinsic-size: none;
 }
 .archive-works #archive-grid {
-  height: max-content;
+  height: auto;
   min-height: 0;
   align-content: start;
   contain: none;
@@ -967,7 +967,7 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
   .section-head { align-items: start; }
   .section-head h2 { font-size: 56px; }
   .work-grid { display: block; }
-  .archive-toolbar { display: grid; align-items: stretch; gap: 10px; margin-bottom: 10px; }
+  .archive-toolbar { display: grid; width: 100%; grid-template-columns: minmax(0, 1fr); align-items: stretch; gap: 10px; margin-bottom: 10px; }
   .archive-view-switch,
   .archive-filters { display: grid; width: 100%; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; column-gap: 14px; row-gap: 8px; }
   .archive-view-button { min-height: 48px; padding: 10px 8px; }
@@ -989,7 +989,7 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
   .archive-select-trigger { width: 100%; max-width: none; }
   .archive-select:last-child { grid-column: auto; }
   .archive-count { margin-bottom: 12px; }
-  .archive-works #archive-grid { height: max-content; min-height: 0; grid-auto-rows: max-content; align-content: start; }
+  .archive-works #archive-grid { height: auto; min-height: 0; grid-auto-rows: max-content; align-content: start; }
   .archive-works #archive-grid .work-card { opacity: 1; transform: none; }
   .archive-works.is-grid-view .work-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
   .archive-works.is-grid-view .work-card { grid-column: span 1; margin-bottom: 28px; }
