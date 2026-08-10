@@ -92,6 +92,7 @@
       : projectPath.includes('archive-expedition') ? 'Anton Karuyk, Dmytro Laryn, Rostyslav Kuzyk.'
       : projectPath.includes('exploring-don-quixote') || projectPath.includes('zabih') ? 'Jürgen Fritz.'
       : '';
+    const multipleCredits = credits.split(',').map(item => item.trim()).filter(Boolean).length > 1;
     const credit = [...projectMeta.children].find(item => /photograph|фотограф|credit|авторство/i.test(item.textContent || ''));
     const draft = [...projectMeta.children].find(item => /draft|чернет/i.test(item.textContent || ''));
     if (credit) {
@@ -101,11 +102,12 @@
     draft?.remove();
     document.querySelectorAll('.gallery figure').forEach(figure => {
       const caption = figure.querySelector('figcaption');
-      if (credits) {
+      if (credits && multipleCredits) {
         const creditCaption = caption || document.createElement('figcaption');
         creditCaption.textContent = isEnglish ? `Photography: ${credits}` : `Фотографи: ${credits}`;
         if (!caption) figure.append(creditCaption);
       } else {
+        caption?.remove();
         figure.classList.add('no-credit');
       }
     });
@@ -742,11 +744,13 @@
       const title = work.title?.[language];
       const description = work.description?.[language];
       const photographer = work.photographer?.[language]?.trim();
+      const galleryCredits = typeof work.galleryCredits === 'string' ? work.galleryCredits.split(/\r?\n/).map(item => item.trim()) : [];
       const image = work.cover?.startsWith('http') ? work.cover : new URL(String(work.cover || '').replace(/^\.\.\//, ''), window.location.origin + (isEnglishContent ? '/en/' : '/')).href;
       const setMeta = (selector, value, attribute = 'content') => { const meta = document.querySelector(selector); if (meta && value) meta.setAttribute(attribute, value); };
       if (title) {
         document.title = `${title} — Ira Kharlamova`;
         setMeta('meta[name="description"]', description);
+        setMeta('meta[name="author"]', photographer);
         setMeta('meta[property="og:title"]', `${title} — Ira Kharlamova`);
         setMeta('meta[property="og:description"]', description);
         setMeta('meta[property="og:image"]', image);
@@ -765,7 +769,7 @@
         const creditText = isEnglishContent ? `Photography: ${photographer}` : `Фотограф: ${photographer}`;
         if (existingCredit) existingCredit.textContent = creditText;
         else if (projectMetaContent) { const credit = document.createElement('span'); credit.textContent = creditText; projectMetaContent.append(credit); }
-        document.querySelectorAll('.gallery figure').forEach(figure => { const caption = figure.querySelector('figcaption') || document.createElement('figcaption'); caption.textContent = creditText; if (!caption.parentElement) figure.append(caption); });
+        document.querySelectorAll('.gallery figure').forEach((figure, index) => { const credit = galleryCredits[index] || ''; const caption = figure.querySelector('figcaption'); if (credit) { const creditCaption = caption || document.createElement('figcaption'); creditCaption.textContent = isEnglishContent ? `Photography: ${credit}` : `Фотограф: ${credit}`; if (!caption) figure.append(creditCaption); } else caption?.remove(); figure.dataset.photographer = credit || photographer; });
       }
       const gallerySources = typeof work.gallery === 'string' ? work.gallery.split(/\r?\n/).map(source => source.trim()).filter(Boolean) : [];
       const liveGallery = document.querySelector('.gallery');
@@ -777,7 +781,7 @@
           const image = figure.querySelector('img') || document.createElement('img');
           image.src = source; image.alt = title || ''; image.loading = index === 0 ? 'eager' : 'lazy'; image.decoding = 'async';
           if (!image.parentElement) figure.append(image);
-          if (photographer) { const caption = figure.querySelector('figcaption') || document.createElement('figcaption'); caption.textContent = isEnglishContent ? `Photography: ${photographer}` : `Фотограф: ${photographer}`; if (!caption.parentElement) figure.append(caption); }
+          const credit = galleryCredits[index] || ''; const caption = figure.querySelector('figcaption'); if (credit) { const creditCaption = caption || document.createElement('figcaption'); creditCaption.textContent = isEnglishContent ? `Photography: ${credit}` : `Фотограф: ${credit}`; if (!caption) figure.append(creditCaption); } else caption?.remove(); figure.dataset.photographer = credit || photographer || '';
         });
         figures.slice(gallerySources.length).forEach(figure => figure.remove());
       }

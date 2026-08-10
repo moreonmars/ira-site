@@ -137,7 +137,8 @@
     const work = selected(); if (!work) { editor.innerHTML = '<p>Додайте першу роботу.</p>'; return; }
     if (typeof work.photographer === 'string') work.photographer = { uk: work.photographer, en: work.photographer };
     work.photographer ||= { uk: '', en: '' };
-    editor.innerHTML = `<div class="editor-head"><div><p class="eyebrow">EDIT WORK</p><h2>${work.title[locale] || 'Нова робота'}</h2></div><select class="status-select" id="status-field"><option value="published" ${work.status === 'published' ? 'selected' : ''}>Опубліковано</option><option value="draft" ${work.status === 'draft' ? 'selected' : ''}>Чернетка</option></select></div><div class="locale-tabs"><button type="button" class="locale-tab${locale === 'uk' ? ' is-active' : ''}" data-locale="uk">UA</button><button type="button" class="locale-tab${locale === 'en' ? ' is-active' : ''}" data-locale="en">EN</button></div><div class="form-grid"><div class="field"><label for="title-field">Назва</label><input id="title-field" data-field="title" value="${work.title[locale] || ''}"></div><div class="field"><label for="year-field">Рік</label><input id="year-field" data-field="year" value="${work.year}"></div><div class="field full"><label for="location-field">Місце / формат</label><input id="location-field" data-field="location" value="${work.location[locale] || ''}"></div><div class="field full"><label for="description-field">Опис</label><textarea id="description-field" data-field="description">${work.description[locale] || ''}</textarea></div><div class="field full"><label for="photographer-field">Фотограф</label><input id="photographer-field" data-field="photographer" value="${work.photographer[locale] || ''}" placeholder="Ім’я фотографа"></div><div class="field full"><label for="cover-field">Головне фото</label><input id="cover-field" data-field="cover" value="${work.cover}"><input id="cover-upload" type="file" accept="image/*"><div class="cover-preview"${work.cover ? '' : ' hidden'}><img src="${work.cover}" alt="Попередній перегляд"></div></div><div class="field full"><label for="gallery-field">Фотографії роботи</label><textarea id="gallery-field" data-field="gallery" spellcheck="false">${work.gallery}</textarea><input id="gallery-upload" type="file" accept="image/*" multiple></div></div><div class="editor-foot"><span class="mono">ID: ${work.id}</span><button type="button" class="text-button danger-button" id="delete-work">Видалити чернетку</button></div>`;
+    work.galleryCredits ||= '';
+    editor.innerHTML = `<div class="editor-head"><div><p class="eyebrow">EDIT WORK</p><h2>${work.title[locale] || 'Нова робота'}</h2></div><select class="status-select" id="status-field"><option value="published" ${work.status === 'published' ? 'selected' : ''}>Опубліковано</option><option value="draft" ${work.status === 'draft' ? 'selected' : ''}>Чернетка</option></select></div><div class="locale-tabs"><button type="button" class="locale-tab${locale === 'uk' ? ' is-active' : ''}" data-locale="uk">UA</button><button type="button" class="locale-tab${locale === 'en' ? ' is-active' : ''}" data-locale="en">EN</button></div><div class="form-grid"><div class="field"><label for="title-field">Назва</label><input id="title-field" data-field="title" value="${work.title[locale] || ''}"></div><div class="field"><label for="year-field">Рік</label><input id="year-field" data-field="year" value="${work.year}"></div><div class="field full"><label for="location-field">Місце / формат</label><input id="location-field" data-field="location" value="${work.location[locale] || ''}"></div><div class="field full"><label for="description-field">Опис</label><textarea id="description-field" data-field="description">${work.description[locale] || ''}</textarea></div><div class="field full"><label for="photographer-field">Фотограф / фотографи</label><input id="photographer-field" data-field="photographer" value="${work.photographer[locale] || ''}" placeholder="Загальний кредит роботи"></div><div class="field full"><label for="cover-field">Головне фото</label><input id="cover-field" data-field="cover" value="${work.cover}"><input id="cover-upload" type="file" accept="image/*"><div class="cover-preview"${work.cover ? '' : ' hidden'}><img src="${work.cover}" alt="Попередній перегляд"></div></div><div class="field full"><label for="gallery-field">Фотографії роботи</label><textarea id="gallery-field" data-field="gallery" spellcheck="false">${work.gallery}</textarea><input id="gallery-upload" type="file" accept="image/*" multiple><small class="field-help">Для кожного фото можна вказати окремого фотографа нижче. Якщо поле порожнє, використовується загальний кредит.</small></div></div><div class="editor-foot"><span class="mono">ID: ${work.id}</span><button type="button" class="text-button danger-button" id="delete-work">Видалити чернетку</button></div>`;
     const galleryUpload = editor.querySelector('#gallery-upload');
     const renderGalleryPreview = () => {
       const urls = (work.gallery || '').split(/\r?\n/).map(url => url.trim()).filter(Boolean);
@@ -149,6 +150,8 @@
         const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'gallery-remove'; remove.setAttribute('aria-label', 'Видалити фото'); remove.textContent = '×';
         remove.addEventListener('click', async () => {
           work.gallery = urls.filter((_, itemIndex) => itemIndex !== index).join('\n');
+          const credits = String(work.galleryCredits || '').split(/\r?\n/);
+          work.galleryCredits = credits.filter((_, itemIndex) => itemIndex !== index).join('\n');
           renderGalleryPreview();
           try {
             const response = await fetch('/api/admin/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
@@ -156,7 +159,14 @@
             toast('Фото видалено');
           } catch { toast('Фото прибрано з роботи'); }
         });
-        item.append(image, remove); return item;
+        const credit = document.createElement('input'); credit.type = 'text'; credit.className = 'gallery-credit'; credit.placeholder = 'Фотограф цього фото'; credit.value = String(work.galleryCredits || '').split(/\r?\n/)[index] || '';
+        credit.addEventListener('input', event => {
+          const credits = String(work.galleryCredits || '').split(/\r?\n/);
+          while (credits.length < urls.length) credits.push('');
+          credits[index] = event.target.value;
+          work.galleryCredits = credits.join('\n');
+        });
+        item.append(image, remove, credit); return item;
       }));
     };
     renderGalleryPreview();
@@ -169,7 +179,7 @@
       const text = await response.text(); let result;
       try { result = JSON.parse(text); } catch { throw new Error('Сервер не прийняв файл. Спробуйте ще раз.'); }
       if (!response.ok) throw new Error(result.error || 'Не вдалося завантажити файл.');
-      if (multiple) { work.gallery = `${work.gallery ? `${work.gallery}\n` : ''}${result.url}`; }
+      if (multiple) { work.gallery = `${work.gallery ? `${work.gallery}\n` : ''}${result.url}`; work.galleryCredits = `${work.galleryCredits ? `${work.galleryCredits}\n` : ''}`; }
       else { work.cover = result.url; }
       return result.url;
     };
@@ -182,7 +192,7 @@
   document.querySelector('#discard-button').addEventListener('click', restoreSaved);
   document.querySelector('#publish-button').addEventListener('click', async () => { save(); const button = document.querySelector('#publish-button'); const status = document.querySelector('#publish-status'); button.disabled = true; status.textContent = 'Публікую…'; status.dataset.state = 'loading'; try { const response = await fetch('/api/admin/publish', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ works, profile }) }); const result = await response.json(); if (!response.ok) throw new Error(result.error || 'Публікація не вдалася.'); status.textContent = 'Опубліковано'; status.dataset.state = 'success'; toast('Зміни опубліковано'); } catch (error) { status.textContent = 'Не опубліковано'; status.dataset.state = 'error'; toast(error.message); } finally { button.disabled = false; } });
   document.querySelector('#logout-button').addEventListener('click', async () => { await fetch('/api/admin/logout', { method: 'POST' }); location.replace('/admin/login.html'); });
-  document.querySelector('#new-work').addEventListener('click', () => { const id = `new-work-${Date.now()}`; works.unshift({ id, status: 'draft', year: new Date().getFullYear().toString(), location: { uk: '', en: '' }, title: { uk: 'НОВА РОБОТА', en: 'NEW WORK' }, description: { uk: '', en: '' }, photographer: { uk: '', en: '' }, cover: '', gallery: '' }); selectedId = id; renderList(); renderEditor(); });
+  document.querySelector('#new-work').addEventListener('click', () => { const id = `new-work-${Date.now()}`; works.unshift({ id, status: 'draft', year: new Date().getFullYear().toString(), location: { uk: '', en: '' }, title: { uk: 'НОВА РОБОТА', en: 'NEW WORK' }, description: { uk: '', en: '' }, photographer: { uk: '', en: '' }, cover: '', gallery: '', galleryCredits: '' }); selectedId = id; renderList(); renderEditor(); });
   document.querySelector('#export-button').addEventListener('click', () => { const blob = new Blob([JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), works }, null, 2)], { type: 'application/json' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'ira-portfolio-draft.json'; link.click(); URL.revokeObjectURL(link.href); toast('JSON експортовано'); });
   document.querySelector('#import-input').addEventListener('change', event => { const [file] = event.target.files; if (!file) return; const reader = new FileReader(); reader.onload = () => { try { const imported = JSON.parse(reader.result); if (!Array.isArray(imported.works)) throw new Error('Invalid'); works = imported.works; selectedId = works[0]?.id; save(); renderEditor(); toast('JSON імпортовано'); } catch { toast('Не вдалося імпортувати'); } }; reader.readAsText(file); });
   document.querySelector('#reset-button').addEventListener('click', () => { works = clone(initialWorks); selectedId = works[0].id; save(); renderEditor(); });
