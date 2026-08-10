@@ -271,6 +271,19 @@
   const viewCursor = document.querySelector('.cursor');
   if (viewCursor && finePointer && !reducedMotion) {
     let activeSurface = null;
+    let targetX = window.innerWidth / 2;
+    let targetY = window.innerHeight / 2;
+    let currentX = targetX;
+    let currentY = targetY;
+    let isCursorVisible = false;
+    let cursorFrame = 0;
+
+    const drawCursor = () => {
+      currentX += (targetX - currentX) * 0.22;
+      currentY += (targetY - currentY) * 0.22;
+      viewCursor.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) translate(-50%, -50%) scale(${isCursorVisible ? 1 : 0})`;
+      cursorFrame = requestAnimationFrame(drawCursor);
+    };
 
     const ensureLens = surface => {
       const image = surface.querySelector('img');
@@ -310,14 +323,21 @@
     };
 
     window.addEventListener('pointermove', event => {
+      targetX = event.clientX;
+      targetY = event.clientY;
+      if (!cursorFrame) cursorFrame = requestAnimationFrame(drawCursor);
       const surface = event.target instanceof Element ? event.target.closest('.media-wrap') : null;
       if (surface !== activeSurface) {
         activeSurface?.classList.remove('is-lens-active');
         activeSurface = surface;
         if (activeSurface) {
+          isCursorVisible = true;
+          viewCursor.classList.add('visible');
           activeSurface.classList.add('is-lens-active');
           body.classList.add('custom-cursor-active');
         } else {
+          isCursorVisible = false;
+          viewCursor.classList.remove('visible');
           body.classList.remove('custom-cursor-active');
         }
       }
@@ -326,6 +346,8 @@
     document.documentElement.addEventListener('pointerleave', () => {
       activeSurface?.classList.remove('is-lens-active');
       activeSurface = null;
+      isCursorVisible = false;
+      viewCursor.classList.remove('visible');
       body.classList.remove('custom-cursor-active');
     });
   } else {
