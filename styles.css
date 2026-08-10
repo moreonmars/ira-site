@@ -614,27 +614,6 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
   padding: 10px 0;
   text-decoration: none;
 }
-.instagram-link { white-space: nowrap; }
-.instagram-link .inline-arrow {
-  width: 16px;
-  height: 16px;
-  margin-left: .16em;
-  vertical-align: -.13em;
-  filter: drop-shadow(1px 1px 0 rgba(255, 255, 255, .62));
-}
-.instagram-link .inline-arrow::before {
-  top: 3px;
-  right: 1px;
-  width: 10px;
-  height: 10px;
-  border-width: 2px;
-}
-.instagram-link .inline-arrow::after {
-  top: 8px;
-  left: 2px;
-  width: 15px;
-  height: 2px;
-}
 .footer-bottom { margin-top: 7vw; font-size: 10px; }
 
 .menu-overlay {
