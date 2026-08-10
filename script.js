@@ -714,8 +714,9 @@
           const location = work.location?.[language] || work.location?.uk || '';
           const card = document.createElement('a');
           card.className = `work-card work-card--${['wide', 'portrait', 'landscape'][index % 3]} reveal visible`;
-          const dynamicWorkPath = window.location.pathname.includes('/works/') ? '../work.html' : 'work.html';
-          card.href = legacyPages[work.id] ? `${isEnglishContent ? '../' : ''}works/${legacyPages[work.id]}.html` : `${dynamicWorkPath}?id=${encodeURIComponent(work.id)}`;
+          card.href = legacyPages[work.id]
+            ? `${isEnglishContent ? '/en' : ''}/works/${legacyPages[work.id]}.html`
+            : `${isEnglishContent ? '/en/work.html' : '/work.html'}?id=${encodeURIComponent(work.id)}`;
           card.innerHTML = `<div class="media-wrap"><img src="${resolveAsset(work.cover)}" alt="${title}" loading="lazy" decoding="async"></div><div class="work-meta"><span class="mono">${String(index + 1).padStart(2, '0')} / ${work.year || ''}${location ? ` / ${location}` : ''}</span><h3>${title}</h3></div>`;
           return card;
         }));
