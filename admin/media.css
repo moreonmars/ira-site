@@ -187,6 +187,30 @@
   background: #ff4ca3;
 }
 
+.editor-head-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.unpublish-button {
+  color: #a3224d;
+  border-color: #a3224d;
+}
+
+.unpublish-button:hover:not(:disabled) {
+  color: #111;
+  background: #ff5cad;
+  border-color: #ff5cad;
+}
+
+.unpublish-button:disabled {
+  cursor: wait;
+  opacity: .58;
+}
+
 @media (max-width: 800px) {
   .gallery-preview {
     grid-template-columns: repeat(2, minmax(0, 1fr));
