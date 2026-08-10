@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-10T15:17:04.052Z",
+  "updatedAt": "2026-08-10T15:17:17.341Z",
   "profile": {
     "heading": {
       "uk": "ІРА ХАРЛАМОВА — АРТИСТКА ПЕРФОРМАНСУ З УКРАЇНИ, ЯКА ПРАЦЮЄ НА ПЕРЕТИНІ ТІЛЕСНОЇ ПРАКТИКИ, ПАМ’ЯТІ ТА КОЛЕКТИВНОЇ ДІЇ.",
@@ -155,11 +155,12 @@
         "en": "A durational group performance and laboratory led by Jürgen Fritz."
       },
       "photographer": {
-        "uk": "Jürgen Fritz.",
+        "uk": "Jürgen Fritz",
         "en": "Jürgen Fritz."
       },
       "cover": "../assets/don-quixote-01.webp",
-      "gallery": "../assets/don-quixote-01.webp\n../assets/don-quixote-02.webp\n../assets/don-quixote-03.webp\n../assets/don-quixote-04.webp\n../assets/don-quixote-05.webp"
+      "gallery": "../assets/don-quixote-01.webp\n../assets/don-quixote-02.webp\n../assets/don-quixote-03.webp\n../assets/don-quixote-04.webp\n../assets/don-quixote-05.webp",
+      "galleryCredits": ""
     },
     {
       "id": "zabih",
@@ -206,7 +207,8 @@
         "en": ""
       },
       "cover": "../assets/shards-01.webp",
-      "gallery": "../assets/shards-01.webp\n../assets/shards-02.webp\n../assets/shards-03.webp"
+      "gallery": "../assets/shards-01.webp\n../assets/shards-02.webp\n../assets/shards-03.webp",
+      "galleryCredits": ""
     },
     {
       "id": "performance-platform-lublin",
@@ -229,7 +231,8 @@
         "en": ""
       },
       "cover": "../assets/border-01.webp",
-      "gallery": "../assets/border-01.webp\n../assets/border-02.webp\n../assets/border-03.webp\n../assets/border-04.webp\n../assets/border-05.webp\n../assets/border-06.webp"
+      "gallery": "../assets/border-01.webp\n../assets/border-02.webp\n../assets/border-03.webp\n../assets/border-04.webp\n../assets/border-05.webp\n../assets/border-06.webp",
+      "galleryCredits": ""
     }
   ]
 }
