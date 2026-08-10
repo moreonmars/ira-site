@@ -113,6 +113,7 @@
       const isGrid = button.dataset.view === 'grid';
       archive?.classList.toggle('is-grid-view', isGrid);
       document.querySelectorAll('.archive-view-button').forEach(item => item.classList.toggle('is-active', item === button));
+      render();
     }));
   }).catch(() => { grid.innerHTML = '<p class="archive-error">Не вдалося завантажити архів.</p>'; });
 })();
