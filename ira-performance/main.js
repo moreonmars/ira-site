@@ -30,22 +30,38 @@ const material = new THREE.MeshPhysicalMaterial({
   transparent: true,
 });
 const tearPoint = new THREE.Vector3(0, 0, 1);
-const tearUniforms = { tearAmount: { value: 0 }, tearPoint: { value: tearPoint } };
+// Frozen copies captured at the instant the burst triggers — the shader reads
+// only these, so the tear shape stops drifting even though `tearPoint` keeps
+// tracking the live pointer for the press/indent effect.
+const tearOrigin = new THREE.Vector3(0, 0, 1);
+const tearAxis = new THREE.Vector3(1, 0, 0);
+const tearUniforms = {
+  tearAmount: { value: 0 },
+  tearPoint: { value: tearOrigin },
+  tearAxis: { value: tearAxis },
+};
 material.onBeforeCompile = (shader) => {
   shader.uniforms.tearAmount = tearUniforms.tearAmount;
   shader.uniforms.tearPoint = tearUniforms.tearPoint;
+  shader.uniforms.tearAxis = tearUniforms.tearAxis;
   shader.vertexShader = `varying vec3 vLocalPosition;\n${shader.vertexShader}`;
   shader.vertexShader = shader.vertexShader.replace(
     "#include <begin_vertex>",
     "#include <begin_vertex>\n vLocalPosition = transformed;"
   );
-  shader.fragmentShader = `varying vec3 vLocalPosition;\nuniform float tearAmount;\nuniform vec3 tearPoint;\n${shader.fragmentShader}`;
+  shader.fragmentShader = `varying vec3 vLocalPosition;\nuniform float tearAmount;\nuniform vec3 tearPoint;\nuniform vec3 tearAxis;\n${shader.fragmentShader}`;
   shader.fragmentShader = shader.fragmentShader.replace(
     "#include <clipping_planes_fragment>",
     `#include <clipping_planes_fragment>
-      float tearDot = dot(normalize(vLocalPosition), normalize(tearPoint));
-      float tearNoise = sin(vLocalPosition.x * 17.0 + vLocalPosition.y * 23.0) * 0.018;
-      float tearLimit = mix(1.12, 0.76, tearAmount) + tearNoise;
+      vec3 localDir = normalize(vLocalPosition);
+      float tearDot = dot(localDir, normalize(tearPoint));
+      float axisAlign = abs(dot(localDir, normalize(tearAxis)));
+      float tearNoise = sin(vLocalPosition.x * 17.0 + vLocalPosition.y * 23.0) * 0.02
+        + sin(vLocalPosition.x * 43.0 - vLocalPosition.z * 31.0 + vLocalPosition.y * 11.0) * 0.014;
+      // Bias the opening lower along tearAxis so the hole elongates into a
+      // slit first and only widens into a rounder hole as tearAmount grows,
+      // instead of expanding as a perfect circle from frame one.
+      float tearLimit = mix(1.12, 0.74, tearAmount) + tearNoise - axisAlign * 0.24 * tearAmount;
       if (tearAmount > 0.01 && tearDot > tearLimit) discard;`
   );
 };
@@ -61,7 +77,9 @@ const rimLight = new THREE.PointLight(0xff5cad, 8, 7, 2);
 rimLight.position.set(3, -1.8, 2.5);
 scene.add(rimLight);
 
-const fragmentCount = isMobile ? 8 : 14;
+// Fewer, larger flaps read as torn latex peeling open; many small ones read
+// as confetti/starburst — which is exactly the look we're moving away from.
+const fragmentCount = isMobile ? 4 : 6;
 const fragmentGroup = new THREE.Group();
 const fragmentShards = [];
 const fragmentMaterial = new THREE.MeshPhysicalMaterial({
@@ -76,18 +94,32 @@ const fragmentMaterial = new THREE.MeshPhysicalMaterial({
 for (let index = 0; index < fragmentCount; index += 1) {
   const shardGeometry = new THREE.BufferGeometry();
   shardGeometry.setAttribute("position", new THREE.Float32BufferAttribute([
-    -0.18, -0.065, 0,
-    0.16, -0.075, 0,
-    0.08, 0.09, 0,
+    -0.32, -0.09, 0,
+    0.30, -0.11, 0,
+    0.16, 0.24, 0,
+    -0.14, 0.22, 0,
   ], 3));
+  shardGeometry.setIndex([0, 1, 2, 0, 2, 3]);
   shardGeometry.computeVertexNormals();
   const shard = new THREE.Mesh(shardGeometry, fragmentMaterial);
   shard.visible = false;
   fragmentGroup.add(shard);
-  fragmentShards.push({ mesh: shard, velocity: new THREE.Vector3(), normal: new THREE.Vector3(), scale: 1, spin: 0 });
+  fragmentShards.push({
+    mesh: shard,
+    velocity: new THREE.Vector3(),
+    normal: new THREE.Vector3(),
+    scale: 1,
+    spin: 0,
+    startAt: 0,
+    curl: 0,
+  });
 }
 fragmentGroup.visible = false;
-scene.add(fragmentGroup);
+// Parented to the sphere (not the scene) so the flaps rotate and move with
+// it. sphere.rotation.y accumulates for the whole session and is never
+// reset between inflate/burst cycles, so world-space shards would drift
+// further from the actual tear location with every cycle the page stays open.
+sphere.add(fragmentGroup);
 
 const position = geometry.attributes.position;
 const base = new Float32Array(position.array);
@@ -161,47 +193,61 @@ function triggerBurst() {
   fragmentGroup.visible = true;
   fragmentMaterial.opacity = 1;
 
+  tearOrigin.copy(tearPoint);
+  tearAxis.set(-tearOrigin.y, tearOrigin.x, 0);
+  if (tearAxis.lengthSq() < 1e-6) tearAxis.set(1, 0, 0);
+  tearAxis.normalize();
+
   for (let index = 0; index < fragmentCount; index += 1) {
-    const side = new THREE.Vector3(-tearPoint.y, tearPoint.x, 0).normalize();
-    const offsetAlongTear = (index / Math.max(1, fragmentCount - 1) - 0.5) * 0.28;
-    const x = (tearPoint.x + side.x * offsetAlongTear) * radius * inflation;
-    const y = (tearPoint.y + side.y * offsetAlongTear) * radius * inflation;
-    const z = (tearPoint.z + side.z * offsetAlongTear) * radius * inflation;
+    const spread = fragmentCount > 1 ? index / (fragmentCount - 1) - 0.5 : 0;
+    const jitter = Math.sin(index * 12.37) * 0.05;
+    const offsetAlongTear = spread * 0.24 + jitter;
+    const x = (tearOrigin.x + tearAxis.x * offsetAlongTear) * radius * inflation;
+    const y = (tearOrigin.y + tearAxis.y * offsetAlongTear) * radius * inflation;
+    const z = (tearOrigin.z + tearAxis.z * offsetAlongTear) * radius * inflation;
     const length = Math.max(0.001, Math.hypot(x, y, z));
     const directionX = x / length;
     const directionY = y / length;
     const directionZ = z / length;
-    const speed = 0.45 + (Math.sin(index * 7.31) * 0.5 + 0.5) * 0.7;
 
     const shard = fragmentShards[index];
     shard.normal.set(directionX, directionY, directionZ);
-    shard.mesh.position.set(x * inflation, y * inflation, z * inflation);
+    shard.mesh.position.set(x, y, z);
     shard.mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), shard.normal);
-    shard.scale = 0.42 + (Math.sin(index * 3.17) * 0.5 + 0.5) * 0.72;
-    shard.mesh.scale.set(shard.scale * (0.95 + Math.sin(index) * 0.12), shard.scale * (0.55 + Math.cos(index * 1.7) * 0.16), 1);
-    shard.mesh.rotation.z = index * 1.83;
-    shard.mesh.visible = true;
+    shard.scale = 0.55 + (Math.sin(index * 3.17) * 0.5 + 0.5) * 0.5;
+    shard.mesh.scale.set(shard.scale * (0.9 + Math.sin(index) * 0.1), shard.scale * (0.7 + Math.cos(index * 1.7) * 0.15), 1);
+    shard.mesh.rotation.z = spread * 1.1 + jitter * 2;
+    // Stays put and invisible until its own staggered moment — so the flaps
+    // peel open one after another as the tear widens, not all at once.
+    shard.mesh.visible = false;
+    shard.curl = 0;
+    shard.startAt = 0.05 + Math.abs(spread) * 0.35 + Math.abs(jitter) * 0.3;
+    // Mostly a slow outward drift, not a launch — gravity and curl do the rest.
     shard.velocity.set(
-      directionX * speed + Math.sin(index * 2.7) * 0.35,
-      directionY * speed + Math.cos(index * 4.1) * 0.35,
-      directionZ * speed + Math.sin(index * 5.3) * 0.35
+      directionX * 0.1 + Math.sin(index * 2.7) * 0.04,
+      directionY * 0.1 - 0.04,
+      directionZ * 0.1 + Math.sin(index * 5.3) * 0.04
     );
-    shard.spin = (Math.sin(index * 8.4) * 0.5 + 0.5) * 3.5 - 1.75;
+    shard.spin = (Math.sin(index * 8.4) * 0.5 + 0.5) * 1.7 - 0.6;
   }
 }
 
 function updateFragments(delta) {
   if (!burstActive) return;
   for (const shard of fragmentShards) {
-    shard.velocity.y -= delta * 0.55;
-    shard.velocity.multiplyScalar(0.996);
+    if (burstProgress < shard.startAt) continue;
+    shard.mesh.visible = true;
+    shard.curl = Math.min(1, shard.curl + delta * 1.1);
+    shard.velocity.y -= delta * 1.1;
+    shard.velocity.multiplyScalar(0.97);
     shard.mesh.position.addScaledVector(shard.velocity, delta);
-    shard.mesh.rotateX(shard.spin * delta);
-    shard.mesh.rotateY(shard.spin * 0.7 * delta);
-    const stretch = 1 + burstProgress * 1.4;
-    shard.mesh.scale.x = shard.scale * stretch;
+    // Curling fold: rotates faster right after detaching, then settles.
+    shard.mesh.rotateX(shard.spin * delta * (0.5 + shard.curl));
+    shard.mesh.rotateY(shard.spin * 0.5 * delta);
+    shard.mesh.scale.x = shard.scale * (1 - shard.curl * 0.3);
+    shard.mesh.scale.y = shard.scale * (1 + shard.curl * 0.1);
   }
-  fragmentMaterial.opacity = Math.max(0, 1 - burstProgress * 1.05);
+  fragmentMaterial.opacity = Math.max(0, 1 - Math.max(0, burstProgress - 0.5) * 2.2);
 }
 
 function deformSurface(hit, delta) {
@@ -213,9 +259,12 @@ function deformSurface(hit, delta) {
     inflation = 1 + Math.min(0.3, performanceTime * 0.008) + Math.sin(performanceTime * 2.2) * 0.006;
     if (inflation > 1.285) triggerBurst();
   } else {
-    burstProgress += delta / 1.15;
-    tearUniforms.tearAmount.value = Math.min(1, burstProgress * 1.8);
-    material.opacity = Math.max(0, 1 - Math.max(0, burstProgress - 0.28) * 1.4);
+    burstProgress += delta / 1.6;
+    // Eased curve (exponent > 1): the rip starts slow — like the initial
+    // puncture — then accelerates as it tears open, instead of reaching full
+    // size less than a third of the way through the burst.
+    tearUniforms.tearAmount.value = Math.min(1, Math.pow(burstProgress, 1.6));
+    material.opacity = Math.max(0, 1 - Math.max(0, burstProgress - 0.6) * 2.2);
     if (burstProgress >= 1) {
       resetSurface();
       burstActive = false;
@@ -241,8 +290,18 @@ function deformSurface(hit, delta) {
     const inflationX = x * (inflation - 1);
     const inflationY = y * (inflation - 1);
     const inflationZ = z * (inflation - 1);
-    const burstNoise = Math.sin(index * 12.9898) * 0.5 + 0.5;
-    const burstForce = burstActive ? burstProgress * burstNoise * 0.24 : 0;
+    // Bulge only near the tear itself, using the same smooth spatial noise as
+    // the wrinkles. The old version used Math.sin(index * 12.9898), which is
+    // essentially uncorrelated between neighboring vertices and — worse —
+    // applied to the whole sphere, not just the rip. That's what made the
+    // entire shell shred into incoherent jagged ribbons instead of tearing
+    // locally.
+    const tearDistance = burstActive
+      ? Math.hypot(x - tearOrigin.x * radius, y - tearOrigin.y * radius, z - tearOrigin.z * radius)
+      : Infinity;
+    const tearFalloff = tearDistance < influence ? Math.pow(1 - tearDistance / influence, 2) : 0;
+    const burstNoise = wrinkleNoise[index] * 0.5 + 0.5;
+    const burstForce = burstActive ? burstProgress * burstNoise * 0.24 * tearFalloff : 0;
     const wrinkleFade = burstActive ? 0 : Math.max(0, 1 - strain);
     const wrinkle = wrinkleNoise[index] * wrinkleAmplitude * wrinkleFade;
     const targetX = inflationX - (x / radius) * maxIndent * falloff + (x / radius) * burstForce + (x / radius) * wrinkle;
