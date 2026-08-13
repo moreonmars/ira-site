@@ -22,11 +22,16 @@ const isMobile = window.innerWidth < 600;
 const radius = isMobile ? 0.85 : 1.3;
 const geometry = new THREE.SphereGeometry(radius, isMobile ? 56 : 80, isMobile ? 40 : 56);
 const material = new THREE.MeshPhysicalMaterial({
-  color: 0xf7f7f7,
-  roughness: 0.2,
+  color: 0xf2ece6,
+  roughness: 0.32,
   metalness: 0,
-  clearcoat: 0.7,
-  clearcoatRoughness: 0.16,
+  clearcoat: 0.3,
+  clearcoatRoughness: 0.35,
+  transmission: 0.22,
+  thickness: radius * 0.4,
+  ior: 1.4,
+  attenuationColor: new THREE.Color(0xffe9df),
+  attenuationDistance: radius * 1.2,
   transparent: true,
 });
 const tearPoint = new THREE.Vector3(0, 0, 1);
@@ -92,6 +97,22 @@ scene.add(fragmentGroup);
 const position = geometry.attributes.position;
 const base = new Float32Array(position.array);
 const velocity = new Float32Array(position.count * 3);
+
+// Stable per-vertex pseudo-noise for subtle latex wrinkles at rest.
+// Fades out as the surface stretches tight, so a fully inflated
+// balloon reads as smooth/taut rather than wrinkled.
+const wrinkleNoise = new Float32Array(position.count);
+for (let index = 0; index < position.count; index += 1) {
+  const offset = index * 3;
+  const x = base[offset];
+  const y = base[offset + 1];
+  const z = base[offset + 2];
+  wrinkleNoise[index] =
+    Math.sin(x * 41.3 + y * 27.7 + z * 63.1) * 0.4 +
+    Math.sin(x * 83.9 - y * 52.3 + z * 19.7) * 0.3 +
+    Math.sin(y * 97.1 + z * 71.3 - x * 34.9) * 0.3;
+}
+const wrinkleAmplitude = radius * 0.01;
 const impact = new THREE.Vector3();
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2(0, 0);
@@ -227,9 +248,11 @@ function deformSurface(hit, delta) {
     const inflationZ = z * (inflation - 1);
     const burstNoise = Math.sin(index * 12.9898) * 0.5 + 0.5;
     const burstForce = burstActive ? burstProgress * burstNoise * 0.24 : 0;
-    const targetX = inflationX - (x / radius) * maxIndent * falloff + (x / radius) * burstForce;
-    const targetY = inflationY - (y / radius) * maxIndent * falloff + (y / radius) * burstForce;
-    const targetZ = inflationZ - (z / radius) * maxIndent * falloff + (z / radius) * burstForce;
+    const wrinkleFade = burstActive ? 0 : Math.max(0, 1 - strain);
+    const wrinkle = wrinkleNoise[index] * wrinkleAmplitude * wrinkleFade;
+    const targetX = inflationX - (x / radius) * maxIndent * falloff + (x / radius) * burstForce + (x / radius) * wrinkle;
+    const targetY = inflationY - (y / radius) * maxIndent * falloff + (y / radius) * burstForce + (y / radius) * wrinkle;
+    const targetZ = inflationZ - (z / radius) * maxIndent * falloff + (z / radius) * burstForce + (z / radius) * wrinkle;
 
     velocity[offset] += (targetX - (position.array[offset] - x)) * 0.11;
     velocity[offset + 1] += (targetY - (position.array[offset + 1] - y)) * 0.11;
