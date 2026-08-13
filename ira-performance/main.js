@@ -27,11 +27,6 @@ const material = new THREE.MeshPhysicalMaterial({
   metalness: 0,
   clearcoat: 0.3,
   clearcoatRoughness: 0.35,
-  transmission: 0.22,
-  thickness: radius * 0.4,
-  ior: 1.4,
-  attenuationColor: new THREE.Color(0xffe9df),
-  attenuationDistance: radius * 1.2,
   transparent: true,
 });
 const tearPoint = new THREE.Vector3(0, 0, 1);
