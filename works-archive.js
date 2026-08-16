@@ -7,7 +7,12 @@
   const locationSelect = document.querySelector('#archive-location');
   const sortSelect = document.querySelector('#archive-sort');
   const count = document.querySelector('#archive-count');
-  const assetUrl = source => source?.startsWith('http') ? source : new URL(String(source || '').replace(/^(\.\.\/)+/, ''), window.location.origin + '/').href;
+  const assetUrl = source => {
+    const value = String(source || '').trim();
+    if (!value) return '';
+    if (/^https?:\/\//i.test(value)) return value;
+    return new URL(`/${value.replace(/^(\.\.\/|\.\/)+/, '').replace(/^\/+/, '')}`, window.location.origin).href;
+  };
   const label = (work, key) => work[key]?.[english ? 'en' : 'uk'] || work[key]?.uk || '';
   const slug = value => String(value || '').trim().toLocaleLowerCase();
   let allWorks = [];

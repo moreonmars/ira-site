@@ -4,7 +4,12 @@
   const english = document.documentElement.lang === 'en';
   const id = new URLSearchParams(window.location.search).get('id');
   const language = english ? 'en' : 'uk';
-  const assetUrl = source => source?.startsWith('http') ? source : new URL(String(source || '').replace(/^(\.\.\/)+/, ''), window.location.origin + '/').href;
+  const assetUrl = source => {
+    const value = String(source || '').trim();
+    if (!value) return '';
+    if (/^https?:\/\//i.test(value)) return value;
+    return new URL(`/${value.replace(/^(\.\.\/|\.\/)+/, '').replace(/^\/+/, '')}`, window.location.origin).href;
+  };
   const esc = value => String(value || '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
   const workTitle = item => item?.title?.[language] || item?.title?.uk || '';
   const workHref = item => `${english ? '/en/work.html' : '/work.html'}?id=${encodeURIComponent(item.id)}`;

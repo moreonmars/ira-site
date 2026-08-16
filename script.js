@@ -700,6 +700,12 @@
       const content = await response.json();
       const isEnglishContent = document.documentElement.lang === 'en';
       const language = isEnglishContent ? 'en' : 'uk';
+      const resolveAsset = source => {
+        const value = String(source || '').trim();
+        if (!value) return '';
+        if (/^https?:\/\//i.test(value)) return value;
+        return `/${value.replace(/^(\.\.\/|\.\/)+/, '').replace(/^\/+/, '')}`;
+      };
       const homeGrid = document.querySelector('.works .work-grid');
       if (homeGrid && Array.isArray(content.works)) {
         const featuredOrder = ['archive-expedition', 'crossing-2', 'exploring-don-quixote', 'zabih', 'shards-of-normality', 'performance-platform-lublin'];
@@ -708,7 +714,6 @@
         const newWorks = publishedWorks.filter(item => !featuredOrder.includes(item.id));
         const homeWorks = [...newWorks, ...featuredOrder.map(id => publishedById.get(id)).filter(Boolean)];
         const legacyPages = { 'archive-expedition': 'archive-expedition', 'crossing-2': 'crossing-2', 'exploring-don-quixote': 'exploring-don-quixote', zabih: 'zabih', 'shards-of-normality': 'shards-of-normality', 'performance-platform-lublin': 'performance-platform-lublin' };
-        const resolveAsset = source => source?.startsWith('http') ? source : `${isEnglishContent ? '../' : ''}${String(source || '').replace(/^\.\//, '')}`;
         homeGrid.replaceChildren(...homeWorks.map((work, index) => {
           const title = work.title?.[language] || work.title?.uk || '';
           const location = work.location?.[language] || work.location?.uk || '';
@@ -746,7 +751,9 @@
       const description = work.description?.[language];
       const photographer = work.photographer?.[language]?.trim();
       const galleryCredits = typeof work.galleryCredits === 'string' ? work.galleryCredits.split(/\r?\n/).map(item => item.trim()) : [];
-      const image = work.cover?.startsWith('http') ? work.cover : new URL(String(work.cover || '').replace(/^\.\.\//, ''), window.location.origin + (isEnglishContent ? '/en/' : '/')).href;
+      const image = /^https?:\/\//i.test(String(work.cover || ''))
+        ? work.cover
+        : new URL(`/${String(work.cover || '').replace(/^(\.\.\/|\.\/)+/, '').replace(/^\/+/, '')}`, window.location.origin).href;
       const setMeta = (selector, value, attribute = 'content') => { const meta = document.querySelector(selector); if (meta && value) meta.setAttribute(attribute, value); };
       if (title) {
         document.title = `${title} — Ira Kharlamova`;
@@ -780,7 +787,7 @@
           const figure = figures[index] || document.createElement('figure');
           if (!figure.parentElement) liveGallery.append(figure);
           const image = figure.querySelector('img') || document.createElement('img');
-          image.src = source; image.alt = title || ''; image.loading = index === 0 ? 'eager' : 'lazy'; image.decoding = 'async';
+          image.src = resolveAsset(source); image.alt = title || ''; image.loading = index === 0 ? 'eager' : 'lazy'; image.decoding = 'async';
           if (!image.parentElement) figure.append(image);
           const credit = galleryCredits[index] || ''; const caption = figure.querySelector('figcaption'); if (credit) { const creditCaption = caption || document.createElement('figcaption'); creditCaption.textContent = isEnglishContent ? `Photography: ${credit}` : `Фотограф: ${credit}`; if (!caption) figure.append(creditCaption); } else caption?.remove(); figure.dataset.photographer = credit || photographer || '';
         });
