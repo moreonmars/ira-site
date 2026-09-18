@@ -1,16 +1,6 @@
 import crypto from 'node:crypto';
 import { put } from '@vercel/blob';
-
-const authenticated = req => {
-  const token = (req.headers.cookie || '').split(';').map(item => item.trim()).find(item => item.startsWith('ira_admin_session='))?.split('=').slice(1).join('=');
-  if (!token || !process.env.ADMIN_SESSION_SECRET) return false;
-  const [payload, signature] = token.split('.');
-  if (!payload || !signature) return false;
-  const expected = crypto.createHmac('sha256', process.env.ADMIN_SESSION_SECRET).update(payload).digest('base64url');
-  const a = Buffer.from(signature); const b = Buffer.from(expected);
-  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return false;
-  try { return JSON.parse(Buffer.from(payload, 'base64url').toString()).exp > Date.now(); } catch { return false; }
-};
+import { authenticated } from './_auth.js';
 
 export const config = { api: { bodyParser: false } };
 

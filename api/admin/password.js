@@ -1,30 +1,6 @@
 import crypto from 'node:crypto';
-import { list, put } from '@vercel/blob';
-
-const authenticated = req => {
-  const token = (req.headers.cookie || '').split(';').map(item => item.trim()).find(item => item.startsWith('ira_admin_session='))?.split('=').slice(1).join('=');
-  if (!token || !process.env.ADMIN_SESSION_SECRET) return false;
-  const [payload, signature] = token.split('.');
-  if (!payload || !signature) return false;
-  const expected = crypto.createHmac('sha256', process.env.ADMIN_SESSION_SECRET).update(payload).digest('base64url');
-  const a = Buffer.from(signature); const b = Buffer.from(expected);
-  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return false;
-  try { return JSON.parse(Buffer.from(payload, 'base64url').toString()).exp > Date.now(); } catch { return false; }
-};
-
-const readOverride = async () => {
-  const result = await list({ prefix: 'ira-settings/admin-password', token: process.env.BLOB_READ_WRITE_TOKEN });
-  const blob = result.blobs.sort((a, b) => b.uploadedAt.localeCompare(a.uploadedAt))[0];
-  if (!blob) return null;
-  const response = await fetch(blob.url);
-  return response.ok ? response.json() : null;
-};
-
-const matches = (password, record) => {
-  if (!record?.salt || !record?.hash) return false;
-  const hash = crypto.scryptSync(password, Buffer.from(record.salt, 'base64'), 32);
-  return crypto.timingSafeEqual(hash, Buffer.from(record.hash, 'base64'));
-};
+import { put } from '@vercel/blob';
+import { authenticated, readPasswordOverride, passwordMatches, safeEqual } from './_auth.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -34,10 +10,8 @@ export default async function handler(req, res) {
   const next = String(req.body?.newPassword || '');
   if (next.length < 8) return res.status(400).json({ error: 'Новий пароль має містити щонайменше 8 символів.' });
   try {
-    const override = await readOverride();
-    const configured = Buffer.from(process.env.ADMIN_PASSWORD || '');
-    const entered = Buffer.from(current);
-    const currentValid = override ? matches(current, override) : entered.length === configured.length && crypto.timingSafeEqual(entered, configured);
+    const override = await readPasswordOverride();
+    const currentValid = override ? passwordMatches(current, override) : safeEqual(current, process.env.ADMIN_PASSWORD || '');
     if (!currentValid) return res.status(401).json({ error: 'Поточний пароль неправильний.' });
     const salt = crypto.randomBytes(16);
     const hash = crypto.scryptSync(next, salt, 32);
