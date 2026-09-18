@@ -7,6 +7,9 @@ export default async function handler(req, res) {
   if (!process.env.BLOB_READ_WRITE_TOKEN) return res.status(503).json({ error: 'Blob storage is not configured yet.' });
   const url = typeof req.body?.url === 'string' ? req.body.url : '';
   if (!url) return res.status(400).json({ error: 'Фото не знайдено.' });
+  let pathname;
+  try { pathname = new URL(url).pathname; } catch { return res.status(400).json({ error: 'Некоректне посилання на фото.' }); }
+  if (!pathname.startsWith('/ira-portfolio/')) return res.status(400).json({ error: 'Можна видаляти лише завантажені фото.' });
   try {
     await del(url, { token: process.env.BLOB_READ_WRITE_TOKEN });
     return res.status(200).json({ ok: true });
