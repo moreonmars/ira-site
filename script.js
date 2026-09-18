@@ -739,6 +739,7 @@
         profile.paragraphs?.[language]?.forEach((text, index) => { if (paragraphs[index]) paragraphs[index].textContent = text; });
         const cvLink = about?.querySelector('.about-actions .text-link');
         if (cvLink && profileCv) { cvLink.href = profileCv; }
+        document.querySelectorAll('.cv-actions .cv-action').forEach(link => { if (profileCv) link.href = profileCv; });
         const contactLinks = [...document.querySelectorAll('.about-actions .text-link, .hero-actions a, .footer-links a')].filter(link => /CV|CONTACT|НАПИСАТИ|ЗАПИТАТИ|EMAIL|GMAIL/i.test(link.textContent || ''));
         contactLinks.forEach(link => { if (link.href.startsWith('mailto:')) link.href = `mailto:${profile.email || 'irene.kharlamova@gmail.com'}`; });
         document.querySelectorAll('.footer-links a').forEach(link => { if (/instagram/i.test(link.textContent || '')) link.href = profile.instagram || link.href; });
