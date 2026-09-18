@@ -1,5 +1,10 @@
 import crypto from 'node:crypto';
-import { list } from '@vercel/blob';
+import { list, put } from '@vercel/blob';
+
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOGIN_LOCKOUT_MS = 15 * 60 * 1000;
+const LOGIN_ATTEMPT_WINDOW_MS = 15 * 60 * 1000;
+const emptyAttempts = () => ({ count: 0, firstFailureAt: null, lockedUntil: null });
 
 export const SESSION_COOKIE = 'ira_admin_session';
 
@@ -53,3 +58,39 @@ export const passwordMatches = (password, record) => {
   const expected = Buffer.from(record.hash, 'base64');
   return hash.length === expected.length && crypto.timingSafeEqual(hash, expected);
 };
+
+const readLoginAttempts = async () => {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) return emptyAttempts();
+  const result = await list({ prefix: 'ira-settings/login-attempts', token: process.env.BLOB_READ_WRITE_TOKEN });
+  const blob = result.blobs.sort((a, b) => b.uploadedAt.localeCompare(a.uploadedAt))[0];
+  if (!blob) return emptyAttempts();
+  const response = await fetch(blob.url);
+  const record = response.ok ? await response.json() : null;
+  return record || emptyAttempts();
+};
+
+const writeLoginAttempts = async record => {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) return;
+  await put('ira-settings/login-attempts.json', JSON.stringify(record), { access: 'public', addRandomSuffix: false, contentType: 'application/json', token: process.env.BLOB_READ_WRITE_TOKEN });
+};
+
+export const checkLoginLockout = async () => {
+  const record = await readLoginAttempts();
+  const now = Date.now();
+  if (record.lockedUntil && now < record.lockedUntil) {
+    return { locked: true, retryAfterSeconds: Math.ceil((record.lockedUntil - now) / 1000) };
+  }
+  return { locked: false };
+};
+
+export const recordLoginFailure = async () => {
+  const now = Date.now();
+  let record = await readLoginAttempts();
+  if (record.firstFailureAt !== null && now - record.firstFailureAt > LOGIN_ATTEMPT_WINDOW_MS) record = emptyAttempts();
+  record.count = (record.count || 0) + 1;
+  if (record.firstFailureAt === null) record.firstFailureAt = now;
+  if (record.count >= MAX_LOGIN_ATTEMPTS) record.lockedUntil = now + LOGIN_LOCKOUT_MS;
+  await writeLoginAttempts(record);
+};
+
+export const clearLoginAttempts = async () => writeLoginAttempts(emptyAttempts());
