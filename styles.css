@@ -895,7 +895,7 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
 .lightbox { position: fixed; z-index: 1000; inset: 0; display: grid; padding: 54px 78px; background: rgba(5, 5, 5, 0.97); color: #fff; opacity: 0; pointer-events: none; place-items: center; transition: opacity 0.35s ease, visibility 0s linear 0.35s; visibility: hidden; }
 .lightbox.is-open { opacity: 1; pointer-events: auto; transition-delay: 0s; visibility: visible; }
 .lightbox-stage { position: relative; display: grid; width: 100%; height: 100%; place-items: center; }
-.lightbox-image { display: block; max-width: 100%; max-height: calc(100vh - 132px); width: auto; height: auto; opacity: 0; object-fit: contain; transform: scale(0.965); transition: opacity 0.3s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
+.lightbox-image { display: block; max-width: 100%; max-height: calc(100vh - 132px); max-height: calc(100dvh - 132px); width: auto; height: auto; opacity: 0; object-fit: contain; transform: scale(0.965); transition: opacity 0.3s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
 .lightbox-image[src] { opacity: 1; transform: none; }
 .lightbox-caption { position: absolute; bottom: -30px; left: 0; max-width: 70%; color: rgba(255, 255, 255, 0.82); font-size: var(--meta-size); line-height: 1.35; }
 .lightbox-ui { position: absolute; top: 20px; right: 24px; left: 24px; display: flex; align-items: center; justify-content: space-between; font-size: 11px; }
@@ -1139,7 +1139,7 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
   a:focus-visible > .inline-arrow { transform: translate(1px, -1px); }
   .lightbox { padding: 58px 12px 64px; }
   .lightbox-stage { touch-action: pan-y; }
-  .lightbox-image { max-height: calc(100vh - 130px); }
+  .lightbox-image { max-height: calc(100vh - 130px); max-height: calc(100dvh - 130px); }
   .lightbox-caption { display: none; }
   .lightbox-nav { top: auto; bottom: 8px; width: 60px; height: 44px; transform: none; }
   .lightbox-prev { left: 8px; }
@@ -1163,4 +1163,12 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
   .reveal { opacity: 1 !important; transform: none !important; }
   .cursor,
   .project-transition { display: none !important; }
+}
+
+/* Cards are too narrow for the two-column meta row here: both the date line and
+   the title fragment across 3+ lines, so stack them as the phone layout does. */
+@media (min-width: 761px) and (max-width: 1000px) {
+  .work-meta { display: block; }
+  .work-meta h2,
+  .work-meta h3 { margin-top: 9px; white-space: normal; }
 }
