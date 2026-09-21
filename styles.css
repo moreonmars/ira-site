@@ -1172,3 +1172,12 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
   .work-meta h2,
   .work-meta h3 { margin-top: 9px; white-space: normal; }
 }
+
+/* Safari 26 tints its toolbar from the page canvas rather than theme-color, and
+   overscroll on iOS reveals that canvas too, so paint it to match whatever sits
+   at the top of each page instead of leaving it the default paper. */
+html:has(.hero) { background-color: #111; }
+html:has(.project-hero),
+html:has(.dynamic-work-page) { background-color: var(--black); }
+html:has(.archive-page),
+html:has(.error-page) { background-color: var(--pink); }
