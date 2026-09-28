@@ -28,12 +28,13 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: clip;
-  background: var(--paper);
+  /* Safari tints its browser UI from body's colour, so body carries the brand
+     pink and the content area below paints its own paper over it. */
+  background: var(--pink);
   color: var(--black);
   font-family: Manrope, Arial, sans-serif;
 }
-html:has(.project-hero),
-body:has(.project-hero) { background: var(--paper); }
+body:not(.error-page) > main { min-height: 100dvh; background: var(--paper); }
 html:has(.project-hero),
 body:has(.project-hero),
 body:has(.project-hero) main { margin: 0; padding-top: 0; }
@@ -716,7 +717,7 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
 .gallery figcaption { padding-top: var(--space-2); font: var(--meta-size) / 1.35 "IBM Plex Mono", monospace; text-transform: uppercase; }
 .gallery figure.no-credit figcaption { display: none; }
 .dynamic-work-page .gallery .reveal { opacity: 1; transform: none; transition: none; }
-.archive-page { background: var(--paper); }
+.archive-page { background: var(--pink); }
 .archive-intro { display: grid; gap: 24px; padding: 142px 3vw 68px; background: var(--pink); }
 .archive-intro h1 { max-width: 760px; margin: 0; font-size: clamp(64px, 10vw, 150px); line-height: .8; letter-spacing: -.085em; }
 .archive-intro .text-link { width: fit-content; color: var(--ink); }
@@ -1173,11 +1174,5 @@ a:focus-visible > .inline-arrow { transform: translate(3px, -3px); }
   .work-meta h3 { margin-top: 9px; white-space: normal; }
 }
 
-/* Safari 26 tints its toolbar from the page canvas rather than theme-color, and
-   overscroll on iOS reveals that canvas too, so paint it to match whatever sits
-   at the top of each page instead of leaving it the default paper. */
-html:has(.hero) { background-color: #111; }
-html:has(.project-hero),
-html:has(.dynamic-work-page) { background-color: var(--black); }
-html:has(.archive-page),
-html:has(.error-page) { background-color: var(--pink); }
+/* The canvas iOS overscroll reveals, and Safari's last fallback for browser UI. */
+html { background-color: var(--pink); }
