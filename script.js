@@ -78,7 +78,7 @@
       actions.append(oldLink);
       const contact = document.createElement('a');
       contact.className = 'text-link mono';
-      contact.href = 'mailto:irene.kharlamova@gmail.com';
+      contact.href = 'mailto:hello@irakharlamova.com';
       contact.textContent = isEnglish ? 'CONTACT ME ↗' : 'НАПИСАТИ МЕНІ ↗';
       actions.append(contact);
       aboutCopy.append(actions);
@@ -156,7 +156,7 @@
     download.textContent = isEnglish ? 'DOWNLOAD CV' : 'ЗАВАНТАЖИТИ CV';
     const contact = document.createElement('a');
     contact.className = 'hero-action mono';
-    contact.href = 'mailto:irene.kharlamova@gmail.com';
+    contact.href = 'mailto:hello@irakharlamova.com';
     contact.textContent = isEnglish ? 'CONTACT ME' : 'НАПИСАТИ МЕНІ';
     heroActions.append(download, contact);
     homeHero.append(heroActions);
@@ -741,9 +741,9 @@
         if (cvLink && profileCv) { cvLink.href = profileCv; }
         document.querySelectorAll('.cv-actions .cv-action').forEach(link => { if (profileCv) link.href = profileCv; });
         const contactLinks = [...document.querySelectorAll('.about-actions .text-link, .hero-actions a, .footer-links a')].filter(link => /CV|CONTACT|НАПИСАТИ|ЗАПИТАТИ|EMAIL|GMAIL/i.test(link.textContent || ''));
-        contactLinks.forEach(link => { if (link.href.startsWith('mailto:')) link.href = `mailto:${profile.email || 'irene.kharlamova@gmail.com'}`; });
+        contactLinks.forEach(link => { if (link.href.startsWith('mailto:')) link.href = `mailto:${profile.email || 'hello@irakharlamova.com'}`; });
         document.querySelectorAll('.footer-links a').forEach(link => { if (/instagram/i.test(link.textContent || '')) link.href = profile.instagram || link.href; });
-        document.querySelectorAll('.hero-actions a').forEach(link => { if (/CONTACT|НАПИСАТИ/i.test(link.textContent || '')) link.href = `mailto:${profile.email || 'irene.kharlamova@gmail.com'}`; if (/DOWNLOAD|ЗАВАНТАЖИТИ/i.test(link.textContent || '') && profileCv) link.href = profileCv; });
+        document.querySelectorAll('.hero-actions a').forEach(link => { if (/CONTACT|НАПИСАТИ/i.test(link.textContent || '')) link.href = `mailto:${profile.email || 'hello@irakharlamova.com'}`; if (/DOWNLOAD|ЗАВАНТАЖИТИ/i.test(link.textContent || '') && profileCv) link.href = profileCv; });
       }
       const slug = window.location.pathname.split('/').pop()?.replace(/\.html$/, '');
       const work = content.works?.find(item => item.id === slug);

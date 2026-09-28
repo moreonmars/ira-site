@@ -19,7 +19,7 @@
     },
     cv: 'assets/ira-kharlamova-cv.pdf',
     portrait: 'assets/portrait.webp',
-    email: 'irene.kharlamova@gmail.com',
+    email: 'hello@irakharlamova.com',
     instagram: 'https://www.instagram.com/_ira.kharlamova_/'
   };
   const storageKey = 'ira-admin-drafts-v1';
