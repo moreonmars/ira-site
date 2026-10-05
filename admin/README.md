@@ -4,7 +4,7 @@
 
 У Vercel потрібно додати три Environment Variables для Production:
 
-- `ADMIN_EMAIL` — `irene.kharlamova@gmail.com`
+- `ADMIN_EMAIL` — адреса, з якою Іра входить в адмінку
 - `ADMIN_PASSWORD` — пароль Іри
 - `ADMIN_SESSION_SECRET` — довгий випадковий секрет, мінімум 32 символи
 - `GITHUB_TOKEN` — GitHub fine-grained token з доступом Contents: Read and write до `moreonmars/ira-site`

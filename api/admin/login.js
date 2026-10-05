@@ -1,10 +1,10 @@
 import { readPasswordOverride, passwordMatches, safeEqual, sessionCookieHeader, checkLoginLockout, recordLoginFailure, clearLoginAttempts } from './_auth.js';
 
-const expectedEmail = () => (process.env.ADMIN_EMAIL || 'irene.kharlamova@gmail.com').trim().toLowerCase();
+const expectedEmail = () => (process.env.ADMIN_EMAIL || '').trim().toLowerCase();
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  if (!process.env.ADMIN_PASSWORD || !process.env.ADMIN_SESSION_SECRET) return res.status(503).json({ error: 'Admin auth is not configured yet.' });
+  if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD || !process.env.ADMIN_SESSION_SECRET) return res.status(503).json({ error: 'Admin auth is not configured yet.' });
   const lockout = await checkLoginLockout();
   if (lockout.locked) {
     res.setHeader('Retry-After', String(lockout.retryAfterSeconds));
