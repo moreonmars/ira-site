@@ -706,7 +706,8 @@
         if (/^https?:\/\//i.test(value)) return value;
         return `/${value.replace(/^(\.\.\/|\.\/)+/, '').replace(/^\/+/, '')}`;
       };
-      const homeGrid = document.querySelector('.works .work-grid');
+      // Not the archive page: works-archive.js owns that grid, and two scripts racing to fill it gave it home-page cards.
+      const homeGrid = document.querySelector('.works:not(.archive-works) .work-grid');
       if (homeGrid && Array.isArray(content.works)) {
         const featuredOrder = ['archive-expedition', 'crossing-2', 'exploring-don-quixote', 'zabih', 'shards-of-normality', 'performance-platform-lublin'];
         const publishedWorks = content.works.filter(item => item.status !== 'draft');
